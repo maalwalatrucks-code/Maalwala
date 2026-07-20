@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Maalwala — India's Load & Truck Marketplace</title>
+<meta name="description" content="Post loads, find trucks, and broadcast to your WhatsApp groups — India's transport marketplace.">
+<meta name="theme-color" content="#14171C">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body>
+
+<div class="site-bg" id="siteBg"></div>
+<div class="site-bg-scrim"></div>
+
+<!-- ===== TOP NAV ===== -->
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">माल</span>
+      <span class="brand-word">Maalwala</span>
+    </div>
+    <nav class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-screen="home" data-tour="nav-home">Home</button>
+      <button class="nav-tab" data-screen="loads" data-tour="nav-loads">Find Loads</button>
+      <button class="nav-tab" data-screen="trucks" data-tour="nav-trucks">Find Trucks</button>
+      <button class="nav-tab" data-screen="fleet" data-tour="nav-fleet">Fleet</button>
+      <button class="nav-tab" data-screen="records" data-tour="nav-records">Records</button>
+      <button class="nav-tab" data-screen="broadcast" data-tour="nav-broadcast">Broadcast</button>
+      <button class="nav-tab" data-screen="profile" data-tour="nav-profile">My Business</button>
+    </nav>
+    <button class="tour-trigger" id="tourTriggerBtn" title="Take a quick tour">✨ Take a tour</button>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
+    <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load">+ Post a Load</button>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<nav class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-head">
+    <div class="brand"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+    <button class="mobile-drawer-close" id="drawerClose">✕</button>
+  </div>
+  <button class="nav-tab active" data-screen="home">Home</button>
+  <button class="nav-tab" data-screen="loads">Find Loads</button>
+  <button class="nav-tab" data-screen="trucks">Find Trucks</button>
+  <button class="nav-tab" data-screen="fleet">Fleet</button>
+  <button class="nav-tab" data-screen="records">Records</button>
+  <button class="nav-tab" data-screen="broadcast">Broadcast</button>
+  <button class="nav-tab" data-screen="profile">My Business</button>
+  <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;">+ Post a Load</button>
+</nav>
+
+<!-- ===== HOME / HERO ===== -->
+<section class="screen" id="screen-home">
+
+  <section class="hero">
+    <div class="hero-slideshow" id="heroSlideshow"></div>
+    <div class="hero-scrim"></div>
+    <div class="hero-grain"></div>
+    <div class="hero-inner">
+      <p class="eyebrow">Ab har truck ko milega maal</p>
+      <h1 class="hero-title">Post a load.<br>The road finds a truck.</h1>
+      <p class="hero-sub">Free load &amp; truck marketplace for Indian transporters, brokers and consignors — with one-tap broadcast straight to your WhatsApp groups.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" id="heroPostLoad">+ Post a Load</button>
+        <button class="btn btn-ghost btn-lg" id="heroPostTruck">+ Post Truck Availability</button>
+      </div>
+      <div class="hero-stats">
+        <div><strong id="statLoads" data-count="0">0</strong><span>live loads</span></div>
+        <div><strong id="statTrucks" data-count="0">0</strong><span>trucks available</span></div>
+        <div><strong id="statGroups" data-count="0">0</strong><span>WhatsApp groups linked</span></div>
+      </div>
+    </div>
+
+    <!-- Signature element: departure-board route ticker -->
+    <div class="route-board" aria-label="Live routes ticker">
+      <div class="route-board-label">LIVE ROUTES</div>
+      <div class="route-ticker-track" id="routeTicker"><!-- filled by JS --></div>
+    </div>
+  </section>
+
+  <!-- ===== RAHUL ROADWAYS BRANDING ===== -->
+  <section class="trust-section">
+    <div class="trust-inner">
+      <div class="trust-head">
+        <p class="trust-eyebrow">Why trust Maalwala</p>
+        <h2 class="section-title">Built by transporters, not just developers</h2>
+        <p class="trust-statement">Maalwala is proudly developed by <b>Rahul Roadways Hazira</b>, bringing more than <b>25 years</b> of real transportation experience into a modern digital logistics platform. This isn't a platform guessing at what transporters need — it's built on decades of actually running trucks on Indian roads.</p>
+      </div>
+
+      <div class="trust-stats">
+        <div class="trust-stat"><strong>25+</strong><span>Years in transport</span></div>
+        <div class="trust-stat"><strong>50+</strong><span>Branches nationwide</span></div>
+        <div class="trust-stat"><strong>[X]+</strong><span>States covered</span></div>
+        <div class="trust-stat"><strong>[X]+</strong><span>Vehicles in fleet</span></div>
+      </div>
+
+      <div class="trust-tabs" id="trustTabs">
+        <button class="trust-tab active" data-trust="timeline">Our Journey</button>
+        <button class="trust-tab" data-trust="gallery">Fleet Gallery</button>
+        <button class="trust-tab" data-trust="achievements">Achievements</button>
+      </div>
+
+      <div id="trust-timeline">
+        <div class="timeline">
+          <div class="timeline-item"><div class="t-year">[Year]</div><p>Rahul Roadways founded in Hazira, Gujarat — the beginning of 25+ years on the road. <span class="placeholder-note">Replace with your actual founding story</span></p></div>
+          <div class="timeline-item"><div class="t-year">[Year]</div><p>Expanded operations beyond Gujarat into new states.</p></div>
+          <div class="timeline-item"><div class="t-year">[Year]</div><p>Crossed 50+ branches across different states and cities.</p></div>
+          <div class="timeline-item"><div class="t-year">2026</div><p>Launched Maalwala — bringing that experience online for every transporter, not just our own fleet.</p></div>
+        </div>
+      </div>
+
+      <div id="trust-gallery" class="hidden">
+        <div class="gallery-grid">
+          <img src="images/slide-1.jpg" alt="Rahul Roadways fleet on highway">
+          <img src="images/slide-2.jpg" alt="Rahul Roadways truck and driver">
+        </div>
+        <p class="placeholder-note">Add more real photos of your branches, yard, and fleet here as you get them.</p>
+      </div>
+
+      <div id="trust-achievements" class="hidden">
+        <div class="achievements-grid">
+          <div class="achievement-card"><div class="a-icon">🛣️</div><p>25+ years of continuous operations across Indian highways</p></div>
+          <div class="achievement-card"><div class="a-icon">🏢</div><p>50+ branches spanning multiple states and cities</p></div>
+          <div class="achievement-card"><div class="a-icon">🤝</div><p>[Add a real achievement — client count, tonnage moved, etc.]</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block">
+    <h2 class="section-title">Latest on the market</h2>
+    <div class="split-grid">
+      <div class="split-col">
+        <div class="split-head">
+          <h3>Loads waiting</h3>
+          <button class="link-btn" data-goto="loads">View all →</button>
+        </div>
+        <div id="homeLoadsPreview" class="card-list"></div>
+      </div>
+      <div class="split-col">
+        <div class="split-head">
+          <h3>Trucks available</h3>
+          <button class="link-btn" data-goto="trucks">View all →</button>
+        </div>
+        <div id="homeTrucksPreview" class="card-list"></div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ===== FIND LOADS ===== -->
+<section class="screen hidden" id="screen-loads">
+  <div class="screen-header">
+    <h1>Find Loads</h1>
+    <button class="btn btn-primary" id="postLoadBtnLoads">+ Post a Load</button>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="searchLoads" class="search-input" placeholder="Search by city, material, or business name…">
+    <select id="sortLoads" class="sort-select">
+      <option value="newest">Newest first</option>
+      <option value="rate-high">Rate: high to low</option>
+      <option value="rate-low">Rate: low to high</option>
+      <option value="weight">Heaviest first</option>
+    </select>
+  </div>
+
+  <div class="route-chips" id="popularRoutes"></div>
+
+  <div class="filter-bar">
+    <input type="text" id="filterFromLoads" list="cityList" placeholder="From city">
+    <input type="text" id="filterToLoads" list="cityList" placeholder="To city">
+    <select id="filterTruckType">
+      <option value="">Any truck type</option>
+      <option>Open Body</option>
+      <option>Container</option>
+      <option>Trailer</option>
+      <option>Tanker</option>
+      <option>LCV</option>
+      <option>Hyva</option>
+    </select>
+    <button class="btn btn-ghost" id="applyLoadFilter">Search</button>
+    <button class="btn btn-ghost" id="saveSearchLoads" title="Save this search">☆ Save search</button>
+  </div>
+  <div class="saved-search-row" id="savedSearches-loads"></div>
+
+  <div id="loadsList" class="card-list wide"></div>
+</section>
+
+<!-- ===== FIND TRUCKS ===== -->
+<section class="screen hidden" id="screen-trucks">
+  <div class="screen-header">
+    <h1>Find Trucks</h1>
+    <button class="btn btn-primary" id="postTruckBtnTrucks">+ Post Truck Availability</button>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="searchTrucks" class="search-input" placeholder="Search by city, business, or driver name…">
+    <select id="sortTrucks" class="sort-select">
+      <option value="newest">Newest first</option>
+      <option value="weight">Largest capacity first</option>
+    </select>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" id="filterFromTrucks" list="cityList" placeholder="From city">
+    <input type="text" id="filterToTrucks" list="cityList" placeholder="To city">
+    <select id="filterTruckType2">
+      <option value="">Any truck type</option>
+      <option>Open Body</option>
+      <option>Container</option>
+      <option>Trailer</option>
+      <option>Tanker</option>
+      <option>LCV</option>
+      <option>Hyva</option>
+    </select>
+    <button class="btn btn-ghost" id="applyTruckFilter">Search</button>
+    <button class="btn btn-ghost" id="saveSearchTrucks" title="Save this search">☆ Save search</button>
+  </div>
+  <div class="saved-search-row" id="savedSearches-trucks"></div>
+
+  <div id="trucksList" class="card-list wide"></div>
+</section>
+
+<datalist id="cityList"></datalist>
+
+<!-- ===== FLEET ===== -->
+<section class="screen hidden" id="screen-fleet">
+  <div class="screen-header">
+    <h1>Fleet Dashboard</h1>
+  </div>
+
+  <div class="legal-notice">
+    <strong>This is a demo, not live tracking — yet.</strong> The map below plots your posted trucks at their listed city. To make a truck's position <em>real</em>, open that truck's card and tap <b>📍 Get tracking link</b>, then send it to your driver — they open it on their phone, tap Start, and their live location starts showing here automatically. No app install, no hardware needed.
+  </div>
+
+  <div class="fleet-stats">
+    <div class="fleet-stat"><strong id="fleetTotalTrucks">0</strong><span>Trucks posted</span></div>
+    <div class="fleet-stat"><strong id="fleetOnRoute">0</strong><span>Marked "on route"</span></div>
+    <div class="fleet-stat"><strong id="fleetCities">0</strong><span>Cities covered</span></div>
+    <div class="fleet-stat"><strong id="fleetIdle">—</strong><span>Idle alerts <em>(needs GPS)</em></span></div>
+  </div>
+
+  <div id="fleetMap" class="fleet-map"></div>
+
+  <div class="fleet-panels">
+    <div class="fleet-panel">
+      <h3>Geofence &amp; idle alerts</h3>
+      <p class="hint" style="margin-top:0;">Sample of what this looks like once real position data is flowing in — not live data.</p>
+      <div class="alert-row demo"><span class="alert-dot geofence"></span> Truck left "Ahmedabad Yard" geofence <span class="alert-time">Sample</span></div>
+      <div class="alert-row demo"><span class="alert-dot idle"></span> Truck idle for 45+ min near Vadodara <span class="alert-time">Sample</span></div>
+    </div>
+    <div class="fleet-panel">
+      <h3>Route playback</h3>
+      <p class="hint" style="margin-top:0;">Once a truck has real GPS pings logged, its travelled path over any day will play back here on the map.</p>
+      <div class="empty-state">No GPS history yet — this fills in automatically once a device or driver app starts sending pings.</div>
+    </div>
+  </div>
+
+  <div class="notice-box">
+    <strong>Easiest way to go live:</strong> use the "📍 Get tracking link" button on any truck card in Find Trucks — it sends your driver a link to <code>driver.html</code> that shares their phone's GPS every 30 seconds while it's open, no app install needed.<br><br>
+    <strong>For a dedicated GPS device instead:</strong> have it POST to <code>/api/fleet/ping</code> with <code>{ truckId, lat, lng, speed, ts }</code>. Either path lands in the same place — this dashboard switches from demo markers to live automatically.
+  </div>
+</section>
+
+<!-- ===== RECORDS (Sprint 4 — ERP) ===== -->
+<section class="screen hidden" id="screen-records">
+  <div class="screen-header"><h1>Records</h1></div>
+  <p class="screen-intro">Invoices, expenses, maintenance, driver salary, fuel, and proof of delivery — all in one place, saved to your own database.</p>
+
+  <div class="trust-tabs" id="recordTabs">
+    <button class="trust-tab active" data-record-kind="invoice">Invoices</button>
+    <button class="trust-tab" data-record-kind="expense">Expenses</button>
+    <button class="trust-tab" data-record-kind="fuel">Fuel</button>
+    <button class="trust-tab" data-record-kind="maintenance">Maintenance</button>
+    <button class="trust-tab" data-record-kind="salary">Driver Salary</button>
+    <button class="trust-tab" data-record-kind="pod">POD Upload</button>
+    <button class="trust-tab" data-record-kind="reports">Reports</button>
+  </div>
+
+  <!-- Invoices -->
+  <div class="record-panel" id="record-invoice">
+    <div class="record-form">
+      <div class="form-row">
+        <label>Client / consignor name<input type="text" id="invClient" placeholder="e.g. XYZ Textiles"></label>
+        <label>Amount (₹)<input type="number" id="invAmount" placeholder="45000"></label>
+      </div>
+      <div class="form-row">
+        <label>Related route (optional)<input type="text" id="invRoute" placeholder="Ahmedabad → Indore"></label>
+        <label>Due date<input type="date" id="invDue"></label>
+      </div>
+      <button class="btn btn-primary" id="addInvoiceBtn">+ Add Invoice</button>
+    </div>
+    <div id="invoiceList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- Expenses -->
+  <div class="record-panel hidden" id="record-expense">
+    <div class="record-form">
+      <div class="form-row">
+        <label>Category
+          <select id="expCategory"><option>Toll</option><option>Repair</option><option>Driver Advance</option><option>Office</option><option>Other</option></select>
+        </label>
+        <label>Amount (₹)<input type="number" id="expAmount" placeholder="1200"></label>
+      </div>
+      <div class="form-row">
+        <label>Date<input type="date" id="expDate"></label>
+        <label>Note<input type="text" id="expNote" placeholder="Optional"></label>
+      </div>
+      <button class="btn btn-primary" id="addExpenseBtn">+ Add Expense</button>
+    </div>
+    <div id="expenseList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- Fuel -->
+  <div class="record-panel hidden" id="record-fuel">
+    <div class="record-form">
+      <div class="form-row">
+        <label>Vehicle / truck number<input type="text" id="fuelVehicle" placeholder="GJ-05-XX-1234"></label>
+        <label>Liters<input type="number" step="0.1" id="fuelLiters" placeholder="80"></label>
+      </div>
+      <div class="form-row">
+        <label>Amount (₹)<input type="number" id="fuelAmount" placeholder="7200"></label>
+        <label>Odometer (km)<input type="number" id="fuelOdometer" placeholder="Optional"></label>
+      </div>
+      <label>Date<input type="date" id="fuelDate"></label>
+      <button class="btn btn-primary" id="addFuelBtn">+ Add Fuel Record</button>
+    </div>
+    <div id="fuelList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- Maintenance -->
+  <div class="record-panel hidden" id="record-maintenance">
+    <div class="record-form">
+      <div class="form-row">
+        <label>Vehicle / truck number<input type="text" id="maintVehicle" placeholder="GJ-05-XX-1234"></label>
+        <label>Service type<input type="text" id="maintType" placeholder="e.g. Oil change, Tyre rotation"></label>
+      </div>
+      <label>Due date<input type="date" id="maintDue"></label>
+      <button class="btn btn-primary" id="addMaintBtn">+ Add Reminder</button>
+    </div>
+    <div id="maintList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- Salary -->
+  <div class="record-panel hidden" id="record-salary">
+    <div class="record-form">
+      <div class="form-row">
+        <label>Driver
+          <select id="salaryDriver"><option value="">— Type manually —</option></select>
+        </label>
+        <label>Driver name<input type="text" id="salaryDriverName" placeholder="e.g. Ramesh Bhai"></label>
+      </div>
+      <div class="form-row">
+        <label>Month<input type="month" id="salaryMonth"></label>
+        <label>Amount (₹)<input type="number" id="salaryAmount" placeholder="18000"></label>
+      </div>
+      <button class="btn btn-primary" id="addSalaryBtn">+ Add Salary Record</button>
+    </div>
+    <div id="salaryList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- POD -->
+  <div class="record-panel hidden" id="record-pod">
+    <div class="legal-notice">POD photos are stored as part of the record — keep them reasonably small (a phone photo is fine; avoid huge multi-MB scans) so the server's storage doesn't fill up.</div>
+    <div class="record-form">
+      <div class="form-row">
+        <label>Related route<input type="text" id="podRoute" placeholder="Ahmedabad → Indore"></label>
+        <label>Delivery date<input type="date" id="podDate"></label>
+      </div>
+      <label>Reference / LR number<input type="text" id="podRef" placeholder="Optional"></label>
+      <label>Photo (optional)<input type="file" id="podPhoto" accept="image/*"></label>
+      <button class="btn btn-primary" id="addPodBtn">+ Save POD Record</button>
+    </div>
+    <div id="podList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- Reports -->
+  <div class="record-panel hidden" id="record-reports">
+    <div class="fleet-stats">
+      <div class="fleet-stat"><strong id="repInvoiced">₹0</strong><span>Total invoiced</span></div>
+      <div class="fleet-stat"><strong id="repExpenses">₹0</strong><span>Total expenses</span></div>
+      <div class="fleet-stat"><strong id="repFuel">₹0</strong><span>Total fuel spend</span></div>
+      <div class="fleet-stat"><strong id="repSalary">₹0</strong><span>Total salary paid</span></div>
+    </div>
+    <div class="fleet-panel">
+      <h3>Upcoming maintenance</h3>
+      <div id="repMaintenance"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BROADCAST (WhatsApp groups) ===== -->
+<section class="screen hidden" id="screen-broadcast">
+  <div class="screen-header">
+    <h1>WhatsApp Broadcast</h1>
+  </div>
+  <p class="screen-intro">
+    Add the WhatsApp groups you post loads/trucks into. Whenever you post a new load or truck, Maalwala prepares the message for you and opens each linked group so you can send it in one tap — no copy-pasting between apps.
+  </p>
+  <div class="notice-box">
+    <strong>How this actually works:</strong> WhatsApp doesn't allow apps to silently auto-send into groups you haven't approved in the moment — that's what keeps groups from being spammed. So Maalwala opens each group's chat pre-filled with your message; you just tap the paper-plane icon. If you get official WhatsApp Business API access later, this same list can switch to true one-tap-for-all sending.
+  </div>
+
+  <div class="broadcast-layout">
+    <div class="broadcast-add">
+      <h3>Add a WhatsApp group</h3>
+      <label>Group name<input type="text" id="groupName" placeholder="e.g. Ahmedabad–Mumbai Transporters"></label>
+      <label>Group invite link (or your own WhatsApp number)
+        <input type="text" id="groupLink" placeholder="https://chat.whatsapp.com/xxxxxxxx">
+      </label>
+      <button class="btn btn-primary" id="addGroupBtn">+ Add Group</button>
+    </div>
+    <div class="broadcast-list">
+      <h3>Your linked groups (<span id="groupCount">0</span>)</h3>
+      <div id="groupsList" class="card-list"></div>
+    </div>
+  </div>
+
+  <div class="official-block" id="officialBlock">
+    <div class="official-head">
+      <h3>Official WhatsApp API broadcast <span class="tag" id="apiStatusTag">checking…</span></h3>
+      <p class="screen-intro">People who message your WhatsApp Business number the word <b>JOIN</b> land here automatically. Posting a load or truck can message everyone on this list with one click — no manual tap per contact.</p>
+    </div>
+    <div id="contactsList" class="card-list"></div>
+  </div>
+</section>
+
+<!-- ===== PROFILE ===== -->
+<section class="screen hidden" id="screen-profile">
+  <div class="screen-header"><h1>My Business</h1></div>
+  <div class="profile-card">
+    <label>Business / your name<input type="text" id="profName" placeholder="e.g. Patel Roadlines"></label>
+    <div class="profile-row">
+      <label>Role
+        <select id="profRole">
+          <option>Transporter</option>
+          <option>Truck Owner</option>
+          <option>Broker / Agent</option>
+          <option>Consignor / Shipper</option>
+        </select>
+      </label>
+      <label>Base city<input type="text" id="profCity" placeholder="e.g. Ahmedabad"></label>
+    </div>
+    <div class="profile-row">
+      <label>Phone (for bids &amp; WhatsApp)<input type="tel" id="profPhone" placeholder="9XXXXXXXXX"></label>
+      <label>GST number (optional)<input type="text" id="profGST" placeholder="24AAAAA0000A1Z5"></label>
+    </div>
+    <button class="btn btn-primary" id="saveProfileBtn">Save Business Profile</button>
+    <p class="hint">This name &amp; phone appear on every load/truck you post, and get inserted into your WhatsApp broadcast messages automatically.</p>
+    <div class="verification-row" id="verificationStatus"></div>
+  </div>
+
+  <div class="profile-card" style="margin-top:20px;">
+    <h3 style="margin-bottom:14px;">My Drivers</h3>
+    <p class="hint" style="margin-top:0;">Save your drivers here once, then pick them from a dropdown when posting a truck instead of typing their details each time.</p>
+    <div class="form-row">
+      <label>Driver name<input type="text" id="driverName" placeholder="e.g. Ramesh Bhai"></label>
+      <label>Phone<input type="tel" id="driverPhone" placeholder="9XXXXXXXXX"></label>
+    </div>
+    <label>License number (optional)<input type="text" id="driverLicense" placeholder="GJ-05-2019-0012345"></label>
+    <button class="btn btn-ghost" id="addDriverBtn">+ Add Driver</button>
+    <div id="driversList" class="card-list" style="margin-top:16px;"></div>
+  </div>
+</section>
+
+<!-- ===== TERMS & CONDITIONS ===== -->
+<section class="screen hidden" id="screen-terms">
+  <div class="screen-header"><h1>Terms &amp; Conditions</h1></div>
+  <div class="legal-notice">
+    <strong>Before you publish this:</strong> this is a starting template, not legal advice. Replace every <code>[bracketed]</code> placeholder with your real business details and have a lawyer review it before real users rely on it — the right terms depend on your business structure, state, and how you actually operate.
+  </div>
+  <div class="legal-doc">
+    <p class="legal-updated">Last updated: [date]</p>
+
+    <h3>1. Who we are</h3>
+    <p>Maalwala ("we", "us", "the platform") is operated by [Your Business/Company Name], based in [City, State, India]. These Terms &amp; Conditions govern your use of the Maalwala website and app.</p>
+
+    <h3>2. What Maalwala is — and isn't</h3>
+    <p>Maalwala is a listing and matchmaking platform that lets consignors, transporters, brokers and truck owners post and browse loads and truck availability. We do not own, operate, or control any vehicle, and we are not a transporter, broker, freight forwarder, or party to any agreement made between users. Any deal you make with another user — rate, route, payment, delivery terms — is strictly between you and them.</p>
+
+    <h3>3. Your account</h3>
+    <p>You must provide accurate business details (name, phone number, and GST number if applicable) and keep them up to date. You're responsible for everything posted from your account. You must be legally able to enter contracts to use Maalwala for business purposes.</p>
+
+    <h3>4. Posting rules</h3>
+    <p>Loads and truck listings must be genuine and currently available. You may not post fraudulent listings, prohibited or illegal goods, or spam. We may remove listings or suspend accounts that break these rules, at our discretion.</p>
+
+    <h3>5. We don't verify other users</h3>
+    <p>We do not verify the identity, GST registration, vehicle documents, insurance, or creditworthiness of any user. Before agreeing to any load or truck, verify the other party yourself — check ID, GST number, vehicle RC, and get terms in writing.</p>
+
+    <h3>6. Payments</h3>
+    <p>Maalwala does not process payments between users. Freight charges, advances, and balances are negotiated and settled directly between the shipper and transporter, outside the platform. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for common ways users settle freight.</p>
+
+    <h3>7. WhatsApp broadcast</h3>
+    <p>If you add a WhatsApp group or connect an opted-in contact list, you confirm you have the right to send messages there. Contacts who opt in via our official WhatsApp integration can leave at any time by replying STOP. Don't use the broadcast feature to spam groups you don't have permission to message.</p>
+
+    <h3>8. Limitation of liability</h3>
+    <p>To the maximum extent permitted by law, Maalwala and [Your Business/Company Name] are not liable for any loss, damage, delay, or dispute arising from a transaction between users, including damaged or lost goods, vehicle breakdowns, non-payment, or inaccurate listings.</p>
+
+    <h3>9. Suspension &amp; termination</h3>
+    <p>We may suspend or terminate access for any account that violates these terms, posts fraudulent content, or misuses the broadcast feature.</p>
+
+    <h3>10. Governing law</h3>
+    <p>These terms are governed by the laws of India, and disputes are subject to the exclusive jurisdiction of the courts of [Your City/State].</p>
+
+    <h3>11. Changes to these terms</h3>
+    <p>We may update these terms from time to time. Continued use of Maalwala after changes means you accept the updated terms.</p>
+
+    <h3>12. Contact</h3>
+    <p>Questions about these terms? Reach us at [your email / phone].</p>
+  </div>
+</section>
+
+<!-- ===== PAYMENT OPTIONS ===== -->
+<section class="screen hidden" id="screen-payment">
+  <div class="screen-header"><h1>Payment Options</h1></div>
+  <div class="legal-notice">
+    Maalwala doesn't process payments — it's a listing platform. Freight is paid directly between the shipper and transporter, however they agree. Here's how most users on load boards like this typically settle up, and a few safety habits worth following.
+  </div>
+
+  <div class="payment-grid">
+    <div class="payment-card">
+      <h3>UPI</h3>
+      <p>Fastest for advances and part-payments. Confirm the receiver's UPI ID or scan their QR code directly — don't trust a screenshot forwarded by a third party.</p>
+    </div>
+    <div class="payment-card">
+      <h3>Bank transfer (NEFT/RTGS/IMPS)</h3>
+      <p>Common for larger freight amounts. Ask for a cancelled cheque or bank proof before sending an advance to a new contact.</p>
+    </div>
+    <div class="payment-card">
+      <h3>Cash</h3>
+      <p>Still common for smaller local loads. Always get a signed receipt (a builty/LR — Lorry Receipt — counts) noting the amount and date.</p>
+    </div>
+    <div class="payment-card">
+      <h3>Cheque</h3>
+      <p>Used for balance payments with regular business partners. Confirm the account is active before relying on it for time-sensitive payments.</p>
+    </div>
+    <div class="payment-card">
+      <h3>Advance + balance on delivery</h3>
+      <p>The most common structure: a percentage upfront (often 20-30%) to confirm the booking, and the balance on POD (proof of delivery).</p>
+    </div>
+  </div>
+
+  <div class="legal-doc" style="margin-top:24px;">
+    <h3>A few safety habits</h3>
+    <p>Get the rate, advance amount, and payment terms agreed in writing (even a WhatsApp message) before the truck loads. Verify the other party's GST number and, for larger loads, their vehicle RC. Always generate the e-way bill correctly. Never share OTPs with anyone, including someone claiming to be from Maalwala — we will never ask for one.</p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>© <span id="footerYear"></span> Maalwala — proudly developed by Rahul Roadways Hazira, 25+ years in transportation.</span>
+    <button class="footer-link" data-goto="terms">Terms &amp; Conditions</button>
+    <button class="footer-link" data-goto="payment">Payment Options</button>
+  </div>
+</footer>
+
+<!-- ===== POST LOAD MODAL ===== -->
+<div class="modal-backdrop hidden" id="loadModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Post a Load</h2><button class="modal-close" data-close="loadModal">✕</button></div>
+    <form id="loadForm">
+      <div class="form-row">
+        <label>From city<input required type="text" id="loadFrom" list="cityList" placeholder="Ahmedabad"></label>
+        <label>To city<input required type="text" id="loadTo" list="cityList" placeholder="Indore"></label>
+      </div>
+      <div class="form-row">
+        <label>Material<input required type="text" id="loadMaterial" placeholder="Cotton bales"></label>
+        <label>Weight (tonnes)<input required type="number" step="0.1" id="loadWeight" placeholder="12"></label>
+      </div>
+      <div class="form-row">
+        <label>Truck type needed
+          <select id="loadTruckType">
+            <option>Open Body</option><option>Container</option><option>Trailer</option>
+            <option>Tanker</option><option>LCV</option><option>Hyva</option>
+          </select>
+        </label>
+        <label>Offered rate (₹)<input type="number" id="loadRate" placeholder="35000"></label>
+      </div>
+      <label>Loading date<input type="date" id="loadDate"></label>
+      <label class="checkbox-row"><input type="checkbox" id="loadBroadcast" checked> Broadcast this load to my linked WhatsApp groups after posting</label>
+      <button type="submit" class="btn btn-primary btn-lg full">Post Load</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== POST TRUCK MODAL ===== -->
+<div class="modal-backdrop hidden" id="truckModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Post Truck Availability</h2><button class="modal-close" data-close="truckModal">✕</button></div>
+    <form id="truckForm">
+      <div class="form-row">
+        <label>Current city<input required type="text" id="truckFrom" list="cityList" placeholder="Surat"></label>
+        <label>Preferred route to<input type="text" id="truckTo" list="cityList" placeholder="Anywhere / Pune"></label>
+      </div>
+      <div class="form-row">
+        <label>Truck type
+          <select id="truckType">
+            <option>Open Body</option><option>Container</option><option>Trailer</option>
+            <option>Tanker</option><option>LCV</option><option>Hyva</option>
+          </select>
+        </label>
+        <label>Capacity (tonnes)<input required type="number" step="0.1" id="truckCapacity" placeholder="16"></label>
+      </div>
+      <label>Available from<input type="date" id="truckDate"></label>
+      <label>Driver
+        <select id="truckDriverSelect"><option value="">— Enter manually —</option></select>
+      </label>
+      <div class="form-row">
+        <label>Driver name<input type="text" id="truckDriverName" placeholder="Optional"></label>
+        <label>Driver phone<input type="tel" id="truckDriverPhone" placeholder="Optional"></label>
+      </div>
+      <label class="checkbox-row"><input type="checkbox" id="truckBroadcast" checked> Broadcast this truck to my linked WhatsApp groups after posting</label>
+      <button type="submit" class="btn btn-primary btn-lg full">Post Truck</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== BROADCAST SEND MODAL ===== -->
+<div class="modal-backdrop hidden" id="sendModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Send to your WhatsApp groups</h2><button class="modal-close" data-close="sendModal">✕</button></div>
+    <div class="send-preview" id="sendPreviewText"></div>
+
+    <div id="officialSendBlock" class="hidden">
+      <button class="btn btn-primary full" id="officialBroadcastBtn">Send to all opted-in contacts (<span id="officialContactCount">0</span>) — official API</button>
+      <p class="hint" id="officialSendResult"></p>
+    </div>
+
+    <p class="hint" style="margin-top:16px;"><b>Or share to your groups manually:</b></p>
+    <div id="sendGroupButtons" class="send-group-list"></div>
+    <p class="hint" id="sendHint"></p>
+    <button class="btn btn-ghost full" id="copyMsgBtn">Copy message text</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== ONBOARDING TOUR OVERLAY ===== -->
+<div class="tour-overlay hidden" id="tourOverlay">
+  <div class="tour-dim" id="tourDim"></div>
+  <div class="tour-ring" id="tourRing"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <h4 id="tourTitle"></h4>
+    <p id="tourText"></p>
+    <div class="tour-tooltip-actions">
+      <span class="tour-step-count" id="tourStepCount"></span>
+      <div class="tour-btns">
+        <button class="tour-skip" id="tourSkip">Skip</button>
+        <button class="tour-next" id="tourNext">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
