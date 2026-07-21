@@ -172,12 +172,13 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   .menu-toggle{ display:flex; }
   .mobile-drawer{ display:flex; }
   .topbar-inner .btn-primary, .topbar-inner .btn-ghost{ display:none; }
-  .topbar-inner #accountDropdown{ display:none; }
+  .topbar-inner #accountDropdown, .topbar-inner .topbar-divider{ display:none; }
 }
 .topbar-inner .btn-ghost{ border-color: var(--cream); color: var(--cream); }
 .topbar-inner .btn-ghost:hover{ background: var(--cream); color: var(--asphalt); }
 .auth-buttons{ display:flex; gap:6px; }
 .btn-sm{ padding:7px 12px; font-size:0.8rem; }
+.topbar-divider{ width:1px; height:24px; background: rgba(246,241,228,0.18); margin: 0 2px; flex-shrink:0; }
 
 /* ---------- Nav dropdowns (My Business, Account) ---------- */
 .nav-dropdown{ position:relative; }
