@@ -47,6 +47,8 @@ mobileDrawer.querySelectorAll('.nav-tab').forEach(btn=>{
   btn.addEventListener('click', ()=>{ showScreen(btn.dataset.screen); closeDrawer(); });
 });
 document.getElementById('postLoadBtnDrawer').addEventListener('click', ()=>{ closeDrawer(); openModal('loadModal'); });
+document.getElementById('bookTruckBtnTop').addEventListener('click', ()=> showScreen('trucks'));
+document.getElementById('bookTruckBtnDrawer').addEventListener('click', ()=>{ closeDrawer(); showScreen('trucks'); });
 
 // ---------- Topbar scroll shadow ----------
 const topbarEl = document.getElementById('topbar');
@@ -474,7 +476,12 @@ function routeCardHTML(item, type){
 }
 function fmtDate(d){ if(!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
 function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-window.callPoster = function(phone){ if(phone) window.location.href = 'tel:'+phone; };
+window.callPoster = function(phone){
+  if(!phone){ toast('No phone number on file for this listing.'); return; }
+  toast(`Calling ${phone}… if nothing opens, dial it manually.`);
+  navigator.clipboard && navigator.clipboard.writeText(phone).catch(()=>{});
+  window.location.href = 'tel:'+phone;
+};
 window.shareTrackingLink = function(truckId){
   const url = new URL('driver.html', window.location.href);
   url.searchParams.set('truckId', truckId);

@@ -1,0 +1,13 @@
+{
+  "name": "Maalwala — Load & Truck Marketplace",
+  "short_name": "Maalwala",
+  "description": "Post loads, find trucks, and broadcast to your WhatsApp groups.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#14171C",
+  "theme_color": "#14171C",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

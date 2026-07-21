@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0B2E59"/>
-  <circle cx="146" cy="256" r="20" fill="#FF6B35"/>
-  <circle cx="366" cy="256" r="20" fill="#2F80ED"/>
+  <rect width="512" height="512" rx="96" fill="#14171C"/>
+  <circle cx="146" cy="256" r="20" fill="#E4572E"/>
+  <circle cx="366" cy="256" r="20" fill="#276358"/>
   <line x1="176" y1="256" x2="336" y2="256" stroke="#FFC93C" stroke-width="10" stroke-dasharray="18 16" stroke-linecap="round"/>
-  <text x="256" y="380" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#F4F9FF" text-anchor="middle">माल</text>
+  <text x="256" y="380" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#F6F1E4" text-anchor="middle">माल</text>
 </svg>

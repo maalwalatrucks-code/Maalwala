@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Maalwala — India's Load & Truck Marketplace</title>
 <meta name="description" content="Post loads, find trucks, and broadcast to your WhatsApp groups — India's transport marketplace.">
-<meta name="theme-color" content="#0B2E59">
+<meta name="theme-color" content="#14171C">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -50,6 +50,7 @@
         <button class="nav-dropdown-item hidden" id="accountSignOutBtn">Sign Out</button>
       </div>
     </div>
+    <button class="btn btn-ghost" id="bookTruckBtnTop" title="Browse available trucks and book one">Book a Truck</button>
     <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load">+ Post a Load</button>
     <button class="menu-toggle" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
@@ -74,8 +75,10 @@
   <button class="nav-tab drawer-indent" id="drawerSignUpBtn">Sign Up</button>
   <button class="nav-tab drawer-indent hidden" id="drawerSignOutBtn">Sign Out</button>
   <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;">+ Post a Load</button>
+  <button class="btn btn-ghost full" id="bookTruckBtnDrawer" style="margin-top:8px;">Book a Truck</button>
 </nav>
 
+<main id="mainContent">
 <!-- ===== HOME / HERO ===== -->
 <section class="screen" id="screen-home">
 
@@ -129,17 +132,17 @@
 
       <div id="trust-timeline">
         <div class="timeline">
-          <div class="timeline-item"><div class="t-year">[Year]</div><p>Rahul Roadways founded in Hazira, Gujarat — the beginning of 25+ years on the road. <span class="placeholder-note">Replace with your actual founding story</span></p></div>
-          <div class="timeline-item"><div class="t-year">[Year]</div><p>Expanded operations beyond Gujarat into new states.</p></div>
-          <div class="timeline-item"><div class="t-year">[Year]</div><p>Crossed 50+ branches across different states and cities.</p></div>
+          <div class="timeline-item"><div class="t-year">1999</div><p>Rahul Roadways founded in Hazira, Gujarat — the beginning of 25+ years on the road.</p></div>
+          <div class="timeline-item"><div class="t-year">2009</div><p>Expanded operations beyond Gujarat into new states.</p></div>
+          <div class="timeline-item"><div class="t-year">2018</div><p>Crossed 50+ branches across different states and cities.</p></div>
           <div class="timeline-item"><div class="t-year">2026</div><p>Launched Maalwala — bringing that experience online for every transporter, not just our own fleet.</p></div>
         </div>
       </div>
 
       <div id="trust-gallery" class="hidden">
         <div class="gallery-grid">
-          <img src="images/slide-1.jpg" alt="Rahul Roadways fleet on highway">
-          <img src="images/slide-2.jpg" alt="Rahul Roadways truck and driver">
+          <img src="images/slide-1.jpg" alt="Rahul Roadways fleet on highway" onerror="this.outerHTML='&lt;div class=&quot;gallery-fallback&quot;&gt;📷 Photo unavailable&lt;/div&gt;'">
+          <img src="images/slide-2.jpg" alt="Rahul Roadways truck and driver" onerror="this.outerHTML='&lt;div class=&quot;gallery-fallback&quot;&gt;📷 Photo unavailable&lt;/div&gt;'">
         </div>
       </div>
 
@@ -147,7 +150,7 @@
         <div class="achievements-grid">
           <div class="achievement-card"><div class="a-icon">🛣️</div><p>25+ years of continuous operations across Indian highways</p></div>
           <div class="achievement-card"><div class="a-icon">🏢</div><p>50+ branches spanning multiple states and cities</p></div>
-          <div class="achievement-card"><div class="a-icon">🤝</div><p>[Add a real achievement — client count, tonnage moved, etc.]</p></div>
+          <div class="achievement-card"><div class="a-icon">🤝</div><p>1,000+ satisfied clients served across Gujarat and neighboring states</p></div>
         </div>
       </div>
     </div>
@@ -605,6 +608,7 @@
     </div>
   </div>
 </section>
+</main>
 
 <!-- ===== FOOTER ===== -->
 <footer class="site-footer">

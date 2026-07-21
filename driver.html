@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Maalwala Driver — Share Location</title>
+<meta name="theme-color" content="#14171C">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --asphalt:#14171C; --cream:#F6F1E4; --orange:#E4572E; --orange-dark:#C0431F;
+    --amber:#FFC93C; --ink:#21252B; --line:rgba(11,46,89,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--asphalt); color:var(--cream);
+    font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center;
+    padding: 24px 20px 40px; text-align:center;
+  }
+  .brand{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.3rem; margin: 10px 0 4px; }
+  .brand span{ color:var(--amber); }
+  .sub{ color:rgba(246,241,228,0.7); font-size:0.9rem; margin-bottom: 28px; max-width:320px; }
+  .card{
+    background:#fff; color:var(--ink); border-radius:18px; padding:24px 22px; width:100%; max-width:360px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  }
+  label{ display:block; text-align:left; font-size:0.8rem; font-weight:600; color:#4a4f57; margin-bottom:16px; }
+  input{
+    width:100%; margin-top:6px; padding:12px 14px; border-radius:10px; border:2px solid var(--line);
+    font-size:1rem;
+  }
+  .status-ring{
+    width:120px; height:120px; border-radius:50%; margin: 10px auto 18px; display:flex; align-items:center;
+    justify-content:center; font-size:2.2rem; border:4px solid var(--line); transition: border-color .3s, background .3s;
+  }
+  .status-ring.live{ border-color:#2fae5a; background:#eafaf0; animation: pulse 1.8s infinite; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(47,174,90,0.4);} 70%{box-shadow:0 0 0 14px rgba(47,174,90,0);} 100%{box-shadow:0 0 0 0 rgba(47,174,90,0);} }
+  .status-text{ font-weight:700; margin-bottom:4px; }
+  .status-detail{ font-size:0.82rem; color:#6b7078; margin-bottom:18px; min-height:18px; }
+  button{
+    width:100%; border:none; border-radius:999px; padding:14px; font-weight:700; font-size:1rem; cursor:pointer;
+  }
+  .btn-start{ background:var(--orange); color:#fff; }
+  .btn-stop{ background:#21252B; color:#fff; }
+  .note{ font-size:0.76rem; color:#8a8f96; margin-top:16px; line-height:1.5; }
+  .warn{ background:#fdeceb; color:#a83; border-radius:10px; padding:10px 12px; font-size:0.82rem; margin-bottom:16px; text-align:left; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+  <div class="brand">माल<span>wala</span> Driver</div>
+  <p class="sub">Keep this page open while you drive — it shares your location so your dispatcher can see where the truck is.</p>
+
+  <div class="card">
+    <div id="configWarning" class="warn hidden">
+      This page isn't connected to a Maalwala backend yet — ask whoever manages your account to set <code>MAALWALA_API_BASE</code> in <code>config.js</code>.
+    </div>
+
+    <label>Truck ID <span style="font-weight:400;color:#8a8f96;">(get this from whoever posted the truck)</span>
+      <input type="text" id="truckId" placeholder="e.g. idabc12345">
+    </label>
+
+    <div class="status-ring" id="statusRing">📍</div>
+    <div class="status-text" id="statusText">Not sharing</div>
+    <div class="status-detail" id="statusDetail">Tap the button below to start</div>
+
+    <button class="btn-start" id="toggleBtn">Start Sharing Location</button>
+    <p class="note">Your location is only sent while this page is open and sharing is on. Closing the tab or tapping "Stop" ends it immediately. Uses your phone's GPS and a small amount of mobile data every 30 seconds.</p>
+  </div>
+
+<script src="config.js"></script>
+<script>
+const API_BASE = (window.MAALWALA_API_BASE || '').replace(/\/$/, '');
+if(!API_BASE) document.getElementById('configWarning').classList.remove('hidden');
+
+const params = new URLSearchParams(window.location.search);
+const truckIdInput = document.getElementById('truckId');
+if(params.get('truckId')) truckIdInput.value = params.get('truckId');
+
+const ring = document.getElementById('statusRing');
+const statusText = document.getElementById('statusText');
+const statusDetail = document.getElementById('statusDetail');
+const toggleBtn = document.getElementById('toggleBtn');
+
+let sharing = false;
+let intervalId = null;
+let pingCount = 0;
+
+function sendPing(){
+  if(!navigator.geolocation){
+    statusDetail.textContent = 'This browser can\'t access GPS location.';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(async (pos)=>{
+    const truckId = truckIdInput.value.trim();
+    if(!truckId || !API_BASE) return;
+    try{
+      await fetch(API_BASE + '/api/fleet/ping', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          truckId,
+          lat: pos.coords.latitude, lng: pos.coords.longitude,
+          speed: pos.coords.speed, ts: Date.now(),
+        })
+      });
+      pingCount++;
+      statusDetail.textContent = `Last update: ${new Date().toLocaleTimeString('en-IN')} (${pingCount} sent)`;
+    }catch(e){
+      statusDetail.textContent = 'Could not reach server — will retry in 30s.';
+    }
+  }, (err)=>{
+    statusDetail.textContent = 'Location permission denied or unavailable.';
+  }, { enableHighAccuracy:true, timeout: 15000 });
+}
+
+function startSharing(){
+  const truckId = truckIdInput.value.trim();
+  if(!truckId){ alert('Enter the Truck ID first — get it from whoever posted the truck.'); return; }
+  if(!API_BASE){ alert('This page is not connected to a backend yet.'); return; }
+  sharing = true;
+  ring.classList.add('live'); ring.textContent = '🟢';
+  statusText.textContent = 'Sharing live';
+  toggleBtn.textContent = 'Stop Sharing';
+  toggleBtn.className = 'btn-stop';
+  truckIdInput.disabled = true;
+  sendPing();
+  intervalId = setInterval(sendPing, 30000);
+}
+function stopSharing(){
+  sharing = false;
+  clearInterval(intervalId);
+  ring.classList.remove('live'); ring.textContent = '📍';
+  statusText.textContent = 'Not sharing';
+  statusDetail.textContent = 'Tap the button below to start';
+  toggleBtn.textContent = 'Start Sharing Location';
+  toggleBtn.className = 'btn-start';
+  truckIdInput.disabled = false;
+}
+toggleBtn.addEventListener('click', ()=> sharing ? stopSharing() : startSharing());
+window.addEventListener('beforeunload', ()=>{ if(sharing) clearInterval(intervalId); });
+</script>
+</body>
+</html>
