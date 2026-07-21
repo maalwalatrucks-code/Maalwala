@@ -42,12 +42,14 @@
     </nav>
     <button class="tour-trigger" id="tourTriggerBtn" title="Take a quick tour">✨ Tour</button>
     <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
-    <div class="nav-dropdown" id="accountDropdown">
+    <div class="auth-buttons" id="authButtons">
+      <button class="btn btn-ghost btn-sm" id="accountSignInBtn">Sign In</button>
+      <button class="btn btn-ghost btn-sm" id="accountSignUpBtn">Sign Up</button>
+    </div>
+    <div class="nav-dropdown hidden" id="accountDropdown">
       <button class="btn btn-ghost btn-account" id="accountDropdownBtn">👤 <span id="accountLabel">Account</span> <span class="caret">▾</span></button>
       <div class="nav-dropdown-menu nav-dropdown-menu-right" id="accountDropdownMenu">
-        <button class="nav-dropdown-item" id="accountSignInBtn">Sign In</button>
-        <button class="nav-dropdown-item" id="accountSignUpBtn">Sign Up</button>
-        <button class="nav-dropdown-item hidden" id="accountSignOutBtn">Sign Out</button>
+        <button class="nav-dropdown-item" id="accountSignOutBtn">Sign Out</button>
       </div>
     </div>
     <button class="btn btn-ghost" id="bookTruckBtnTop" title="Browse available trucks and book one">Book a Truck</button>

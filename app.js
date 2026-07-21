@@ -340,19 +340,24 @@ document.querySelectorAll('.nav-dropdown-item[data-screen]').forEach(btn=>{
 function renderAccountState(){
   const user = Auth.getUser();
   const label = document.getElementById('accountLabel');
-  const signInBtns = [document.getElementById('accountSignInBtn'), document.getElementById('drawerSignInBtn')];
-  const signUpBtns = [document.getElementById('accountSignUpBtn'), document.getElementById('drawerSignUpBtn')];
-  const signOutBtns = [document.getElementById('accountSignOutBtn'), document.getElementById('drawerSignOutBtn')];
+  const authButtons = document.getElementById('authButtons');
+  const accountDropdown = document.getElementById('accountDropdown');
+  const drawerSignIn = document.getElementById('drawerSignInBtn');
+  const drawerSignUp = document.getElementById('drawerSignUpBtn');
+  const drawerSignOut = document.getElementById('drawerSignOutBtn');
   if(user){
     label.textContent = user.businessName;
-    signInBtns.forEach(b=>b.classList.add('hidden'));
-    signUpBtns.forEach(b=>b.classList.add('hidden'));
-    signOutBtns.forEach(b=>b.classList.remove('hidden'));
+    authButtons.classList.add('hidden');
+    accountDropdown.classList.remove('hidden');
+    drawerSignIn.classList.add('hidden');
+    drawerSignUp.classList.add('hidden');
+    drawerSignOut.classList.remove('hidden');
   } else {
-    label.textContent = 'Account';
-    signInBtns.forEach(b=>b.classList.remove('hidden'));
-    signUpBtns.forEach(b=>b.classList.remove('hidden'));
-    signOutBtns.forEach(b=>b.classList.add('hidden'));
+    authButtons.classList.remove('hidden');
+    accountDropdown.classList.add('hidden');
+    drawerSignIn.classList.remove('hidden');
+    drawerSignUp.classList.remove('hidden');
+    drawerSignOut.classList.add('hidden');
   }
 }
 [['accountSignInBtn'],['drawerSignInBtn']].forEach(([id])=>{
