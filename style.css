@@ -106,8 +106,8 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .btn-primary{ background: var(--orange); color: #fff; box-shadow: 0 4px 0 var(--orange-dark); }
 .btn-primary:hover{ transform: translateY(-1px); }
 .btn-primary:active{ transform: translateY(2px); box-shadow: 0 1px 0 var(--orange-dark); }
-.btn-ghost{ background: transparent; color: var(--ink); border: 2px solid var(--ink); }
-.btn-ghost:hover{ background: var(--ink); color: var(--cream); }
+.btn-ghost{ background: transparent; color: var(--text); border: 2px solid var(--text); }
+.btn-ghost:hover{ background: var(--text); color: var(--bg); }
 .btn-lg{ padding: 14px 26px; font-size: 1rem; }
 .btn.full{ width:100%; margin-top: 8px; }
 .link-btn{ background:none; border:none; color: var(--orange-dark); font-weight:700; font-size:0.85rem; }
