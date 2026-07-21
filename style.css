@@ -61,7 +61,7 @@ body{
   flex-direction: column;
 }
 #mainContent{ flex: 1 0 auto; display:flex; flex-direction:column; min-width:0; }
-#mainContent .screen{ flex: 1 0 auto; min-width:0; }
+#mainContent .screen{ flex: 1 1 auto; min-width:0; }
 .site-footer{ flex-shrink: 0; }
 
 /* ---------- Site-wide background slideshow ---------- */
@@ -307,7 +307,7 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .split-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; }
 .split-head h3{ font-size:1.05rem; }
 
-.screen{ max-width: 1180px; margin: 0 auto; padding: 32px 20px 80px 20px; min-height: 60vh; }
+.screen{ width: 100%; max-width: 1180px; margin: 0 auto; padding: 32px 20px 80px 20px; min-height: 60vh; }
 .screen-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 18px; flex-wrap:wrap; gap:10px; }
 .screen-intro{ color:var(--text-muted); max-width: 640px; line-height:1.55; }
 
