@@ -60,8 +60,8 @@ body{
   display: flex;
   flex-direction: column;
 }
-#mainContent{ flex: 1 0 auto; display:flex; flex-direction:column; }
-#mainContent .screen{ flex: 1 0 auto; }
+#mainContent{ flex: 1 0 auto; display:flex; flex-direction:column; min-width:0; }
+#mainContent .screen{ flex: 1 0 auto; min-width:0; }
 .site-footer{ flex-shrink: 0; }
 
 /* ---------- Site-wide background slideshow ---------- */
@@ -301,8 +301,9 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 /* ---------- Sections ---------- */
 .section-block{ max-width: 1180px; margin: 0 auto; padding: 44px 20px; }
 .section-title{ font-size:1.5rem; margin-bottom: 20px; }
-.split-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.split-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px; min-width:0; }
 @media (max-width: 760px){ .split-grid{ grid-template-columns: 1fr; } }
+.split-col{ min-width: 0; }
 .split-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; }
 .split-head h3{ font-size:1.05rem; }
 
@@ -318,18 +319,20 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 }
 
 /* ---------- Cards ---------- */
-.card-list{ display:flex; flex-direction:column; gap:12px; }
-.card-list.wide{ display:grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%),1fr)); gap:14px; }
+.card-list{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.card-list.wide{ display:grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%),1fr)); gap:14px; min-width:0; }
 .route-card{
   background: var(--surface); border:1px solid var(--border-c); border-radius: var(--radius);
   padding: 16px 18px; box-shadow: var(--shadow);
   transition: transform .18s ease, box-shadow .18s ease;
+  min-width: 0; overflow-wrap: break-word;
 }
 .route-card:hover{ transform: translateY(-3px); box-shadow: 0 14px 30px rgba(20,23,28,0.16); }
-.route-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.route-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; min-width:0; }
 .route-line{
   display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed';
   font-size:1.25rem; font-weight:700; color: var(--text);
+  min-width: 0; flex-wrap: wrap; overflow-wrap: break-word; word-break: break-word;
 }
 .route-dot{ width:9px; height:9px; border-radius:50%; background: var(--orange); flex-shrink:0; }
 .route-dot.end{ background: var(--teal-2); }
@@ -340,7 +343,7 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
   padding: 4px 9px; border-radius:999px; background: var(--surface-2); color: var(--text-muted); flex-shrink:0;
 }
-.route-meta{ display:flex; flex-wrap:wrap; gap: 6px 16px; margin-top:10px; font-size:0.86rem; color: var(--text-muted); }
+.route-meta{ display:flex; flex-wrap:wrap; gap: 6px 16px; margin-top:10px; font-size:0.86rem; color: var(--text-muted); min-width:0; overflow-wrap: break-word; }
 .route-meta b{ color: var(--text); }
 .route-card-actions{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
 .route-card-actions .btn{ padding: 8px 16px; font-size:0.82rem; }
@@ -363,7 +366,9 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .group-chip{
   display:flex; justify-content:space-between; align-items:center;
   background: var(--surface); border:1px solid var(--border-c); border-radius: 10px; padding: 12px 14px;
+  min-width: 0;
 }
+.group-chip > div{ min-width: 0; overflow-wrap: break-word; }
 .group-chip .g-name{ font-weight:700; }
 .group-chip .g-link{ font-size:0.78rem; color:var(--text-muted); word-break:break-all; }
 .remove-btn{ background:none; border:none; color:#b23; font-size:1.1rem; }
@@ -636,7 +641,9 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .record-row{
   display:flex; justify-content:space-between; align-items:center; gap:12px;
   background: var(--surface); border:1px solid var(--border-c); border-radius: 10px; padding: 12px 14px;
+  min-width: 0;
 }
+.record-row > div:first-child{ min-width: 0; overflow-wrap: break-word; }
 .record-row .r-main{ font-weight:700; font-size:0.92rem; }
 .record-row .r-sub{ font-size:0.78rem; color: var(--text-muted); margin-top:2px; }
 .record-row .r-amount{ font-family:'Barlow Condensed'; font-weight:700; font-size:1.1rem; color: var(--orange-dark); white-space:nowrap; }
