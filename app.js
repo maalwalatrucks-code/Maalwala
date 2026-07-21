@@ -289,7 +289,7 @@ initSlideshow('heroSlideshow', 6000, 0);
 initSlideshow('siteBg', 6000, 3000); // offset so the two don't crossfade in perfect sync
 
 // ---------- Navigation ----------
-const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment','signin','signup'];
+const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment','fastag','signin','signup'];
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 function showScreen(name){
   screens.forEach(s=>{
