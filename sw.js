@@ -1,5 +1,5 @@
-const CACHE = 'maalwala-v9';
-const ASSETS = ['./', './index.html', './driver.html', './style.css', './app.js', './config.js', './manifest.json', './icon.svg', './images/slide-1.jpg', './images/slide-2.jpg'];
+const CACHE = 'maalwala-v10';
+const ASSETS = ['./', './index.html', './driver.html', './style.css', './app.js', './config.js', './manifest.json', './icon.svg', './slide-1.jpg', './slide-2.jpg'];
 
 self.addEventListener('install', e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(()=>{}));

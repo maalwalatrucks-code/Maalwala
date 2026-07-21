@@ -266,7 +266,7 @@ function seedLocalIfEmpty(){
 }
 
 // ---------- Background slideshows ----------
-const SLIDESHOW_IMAGES = ['images/slide-1.jpg', 'images/slide-2.jpg'];
+const SLIDESHOW_IMAGES = ['slide-1.jpg', 'slide-2.jpg'];
 
 function initSlideshow(containerId, intervalMs, startDelayMs){
   const el = document.getElementById(containerId);
