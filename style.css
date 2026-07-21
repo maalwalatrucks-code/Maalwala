@@ -122,7 +122,7 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .topbar.scrolled{ box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .topbar-inner{
   max-width: 1180px; margin: 0 auto; padding: 12px 20px;
-  display:flex; align-items:center; gap: 18px;
+  display:flex; align-items:center; gap: 14px;
 }
 .brand{ display:flex; align-items:baseline; gap:6px; font-family:'Baloo 2'; font-weight:800; font-size:1.35rem; margin-right:auto; cursor:pointer; }
 .brand-mark{ color: var(--amber); }
@@ -136,12 +136,13 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 .nav-tab:hover{ color: var(--cream); }
 .nav-tab.active{ color: var(--asphalt); background: var(--cream); }
 
-.theme-toggle{
-  background: rgba(246,241,228,0.1); border: 1px solid rgba(246,241,228,0.2); color: var(--cream);
-  width: 38px; height: 38px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
-  font-size: 1rem; flex-shrink:0; transition: background .15s, transform .15s;
+.icon-btn{
+  background: rgba(246,241,228,0.08); border: 1px solid rgba(246,241,228,0.2); color: var(--cream);
+  width: 36px; height: 36px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+  font-size: 0.95rem; flex-shrink:0; transition: background .15s, transform .15s, border-color .15s;
 }
-.theme-toggle:hover{ background: rgba(246,241,228,0.2); transform: rotate(15deg); }
+.icon-btn:hover{ background: rgba(246,241,228,0.18); border-color: rgba(246,241,228,0.4); transform: translateY(-1px); }
+#themeToggle:hover{ transform: rotate(15deg); }
 
 .menu-toggle{
   display:none; background:none; border:none; color: var(--cream);
@@ -172,13 +173,23 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   .menu-toggle{ display:flex; }
   .mobile-drawer{ display:flex; }
   .topbar-inner .btn-primary, .topbar-inner .btn-ghost{ display:none; }
-  .topbar-inner #accountDropdown, .topbar-inner .topbar-divider{ display:none; }
+  .topbar-inner #accountDropdown, .topbar-inner .topbar-divider, .topbar-inner #authButtons{ display:none; }
 }
 .topbar-inner .btn-ghost{ border-color: var(--cream); color: var(--cream); }
 .topbar-inner .btn-ghost:hover{ background: var(--cream); color: var(--asphalt); }
-.auth-buttons{ display:flex; gap:6px; }
+.auth-buttons{ display:flex; align-items:center; gap:12px; }
 .btn-sm{ padding:7px 12px; font-size:0.8rem; }
-.topbar-divider{ width:1px; height:24px; background: rgba(246,241,228,0.18); margin: 0 2px; flex-shrink:0; }
+.topbar-divider{ width:1px; height:22px; background: rgba(246,241,228,0.16); margin: 0 6px; flex-shrink:0; }
+.btn-link{
+  background:none; border:none; color: rgba(246,241,228,0.85); font-weight:600; font-size:0.85rem;
+  padding: 4px 2px; border-bottom: 1px solid transparent; transition: border-color .15s, color .15s;
+}
+.btn-link:hover{ color: var(--cream); border-bottom-color: var(--amber); }
+.btn-accent{
+  background: var(--amber); color: var(--asphalt); border:none; font-weight:700;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+}
+.btn-accent:hover{ transform: translateY(-1px); filter: brightness(1.05); }
 
 /* ---------- Nav dropdowns (My Business, Account) ---------- */
 .nav-dropdown{ position:relative; }
@@ -502,12 +513,6 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 /* ===========================================================
    Onboarding tour
 =========================================================== */
-.tour-trigger{
-  background: none; border: 1px solid rgba(246,241,228,0.3); color: var(--cream);
-  font-size:0.68rem; font-weight:600; padding: 5px 10px; border-radius:999px; white-space:nowrap;
-}
-.tour-trigger:hover{ background: rgba(246,241,228,0.12); }
-
 .tour-overlay{ position:fixed; inset:0; z-index: 300; pointer-events:none; }
 .tour-dim{
   position:absolute; inset:0; background: rgba(15,17,21,0.6);
