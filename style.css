@@ -246,6 +246,7 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 }
 .hero-title{
   font-size: clamp(2.1rem, 5vw, 3.4rem); line-height:1.05; font-weight:800; margin:0 0 16px 0;
+  color: var(--cream);
 }
 .hero-sub{ font-size: 1.05rem; color: rgba(246,241,228,0.78); max-width: 560px; margin: 0 auto 26px auto; line-height:1.5; }
 .hero-actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom: 34px; }
