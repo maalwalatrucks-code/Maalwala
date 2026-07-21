@@ -197,6 +197,31 @@ const Records = {
     try{ await fetch(API_BASE + '/api/records/'+id, {method:'DELETE'}); }catch(e){}
   },
 };
+const Auth = {
+  getToken: ()=> localStorage.getItem('mw_token'),
+  getUser: ()=> { try{ return JSON.parse(localStorage.getItem('mw_user')||'null'); }catch(e){ return null; } },
+  setSession: (token, user)=>{ localStorage.setItem('mw_token', token); localStorage.setItem('mw_user', JSON.stringify(user)); },
+  clearSession: ()=>{ localStorage.removeItem('mw_token'); localStorage.removeItem('mw_user'); },
+  signup: async (businessName, email, password)=>{
+    if(!USE_API) throw new Error('Connect a backend first (see config.js) — accounts need a server to store them.');
+    const r = await fetch(API_BASE + '/api/auth/signup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({businessName, email, password})});
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Sign up failed');
+    return data;
+  },
+  login: async (email, password)=>{
+    if(!USE_API) throw new Error('Connect a backend first (see config.js) — accounts need a server to store them.');
+    const r = await fetch(API_BASE + '/api/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password})});
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Sign in failed');
+    return data;
+  },
+  logout: async ()=>{
+    const token = Auth.getToken();
+    if(USE_API && token){ try{ await fetch(API_BASE + '/api/auth/logout', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token})}); }catch(e){} }
+    Auth.clearSession();
+  },
+};
 const Profile = {
   get: ()=> apiGet('/api/profile', 'profile', {name:'', role:'Transporter', city:'', phone:'', gst:'', drivers:[]}),
   save: (p)=> apiPost('/api/profile', p).then(res=>{ LocalDB.set('profile', p); return res; }),
@@ -262,7 +287,7 @@ initSlideshow('heroSlideshow', 6000, 0);
 initSlideshow('siteBg', 6000, 3000); // offset so the two don't crossfade in perfect sync
 
 // ---------- Navigation ----------
-const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment'];
+const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment','signin','signup'];
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 function showScreen(name){
   screens.forEach(s=>{
@@ -282,6 +307,102 @@ document.getElementById('navTabs').addEventListener('click', e=>{
 document.querySelectorAll('[data-goto]').forEach(el=>{
   el.addEventListener('click', (e)=>{ e.preventDefault(); showScreen(el.dataset.goto); });
 });
+document.getElementById('brandLogo').addEventListener('click', ()=> showScreen('home'));
+document.getElementById('brandLogo').addEventListener('keypress', (e)=>{ if(e.key==='Enter') showScreen('home'); });
+
+// ---------- Nav dropdowns (My Business, Account) ----------
+function setupDropdown(wrapperId, triggerId){
+  const wrapper = document.getElementById(wrapperId);
+  const trigger = document.getElementById(triggerId);
+  if(!wrapper || !trigger) return;
+  trigger.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const wasOpen = wrapper.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown.open').forEach(d=>d.classList.remove('open'));
+    if(!wasOpen) wrapper.classList.add('open');
+  });
+}
+setupDropdown('businessDropdown', 'businessDropdownBtn');
+setupDropdown('accountDropdown', 'accountDropdownBtn');
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.nav-dropdown.open').forEach(d=>d.classList.remove('open'));
+});
+document.querySelectorAll('.nav-dropdown-item[data-screen]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    showScreen(btn.dataset.screen);
+    document.querySelectorAll('.nav-dropdown.open').forEach(d=>d.classList.remove('open'));
+  });
+});
+
+// ---------- Account / session state ----------
+function renderAccountState(){
+  const user = Auth.getUser();
+  const label = document.getElementById('accountLabel');
+  const signInBtns = [document.getElementById('accountSignInBtn'), document.getElementById('drawerSignInBtn')];
+  const signUpBtns = [document.getElementById('accountSignUpBtn'), document.getElementById('drawerSignUpBtn')];
+  const signOutBtns = [document.getElementById('accountSignOutBtn'), document.getElementById('drawerSignOutBtn')];
+  if(user){
+    label.textContent = user.businessName;
+    signInBtns.forEach(b=>b.classList.add('hidden'));
+    signUpBtns.forEach(b=>b.classList.add('hidden'));
+    signOutBtns.forEach(b=>b.classList.remove('hidden'));
+  } else {
+    label.textContent = 'Account';
+    signInBtns.forEach(b=>b.classList.remove('hidden'));
+    signUpBtns.forEach(b=>b.classList.remove('hidden'));
+    signOutBtns.forEach(b=>b.classList.add('hidden'));
+  }
+}
+[['accountSignInBtn'],['drawerSignInBtn']].forEach(([id])=>{
+  document.getElementById(id).addEventListener('click', ()=>{ showScreen('signin'); closeDrawer(); });
+});
+[['accountSignUpBtn'],['drawerSignUpBtn']].forEach(([id])=>{
+  document.getElementById(id).addEventListener('click', ()=>{ showScreen('signup'); closeDrawer(); });
+});
+[['accountSignOutBtn'],['drawerSignOutBtn']].forEach(([id])=>{
+  document.getElementById(id).addEventListener('click', async ()=>{
+    await Auth.logout();
+    renderAccountState();
+    closeDrawer();
+    toast('Signed out.');
+    showScreen('home');
+  });
+});
+
+function showAuthError(elId, message){
+  const el = document.getElementById(elId);
+  el.textContent = message;
+  el.classList.remove('hidden');
+}
+document.getElementById('signinSubmitBtn').addEventListener('click', async ()=>{
+  const email = document.getElementById('signinEmail').value.trim();
+  const password = document.getElementById('signinPassword').value;
+  document.getElementById('signinError').classList.add('hidden');
+  if(!email || !password){ showAuthError('signinError', 'Enter your email and password.'); return; }
+  try{
+    const {token, user} = await Auth.login(email, password);
+    Auth.setSession(token, user);
+    renderAccountState();
+    toast(`Welcome back, ${user.businessName}.`);
+    showScreen('home');
+  }catch(e){ showAuthError('signinError', e.message); }
+});
+document.getElementById('signupSubmitBtn').addEventListener('click', async ()=>{
+  const businessName = document.getElementById('signupBusinessName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  document.getElementById('signupError').classList.add('hidden');
+  if(!businessName || !email || !password){ showAuthError('signupError', 'Fill in all fields.'); return; }
+  if(password.length < 6){ showAuthError('signupError', 'Password must be at least 6 characters.'); return; }
+  try{
+    const {token, user} = await Auth.signup(businessName, email, password);
+    Auth.setSession(token, user);
+    renderAccountState();
+    toast(`Welcome to Maalwala, ${user.businessName}.`);
+    showScreen('home');
+  }catch(e){ showAuthError('signupError', e.message); }
+});
+renderAccountState();
 
 // ---------- Modals ----------
 function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
@@ -850,7 +971,7 @@ async function renderFleetMap(){
       if(!c) return;
       const jitter = () => (Math.random() - 0.5) * 0.15;
       lat = c[0] + jitter(); lng = c[1] + jitter();
-      popupNote = `<span style="color:#999;font-size:11px;">Demo position — plotted at listed city, not live GPS</span>`;
+      popupNote = `<span style="color:#8a96ab;font-size:11px;">Estimated position — based on listed city</span>`;
     }
     const marker = L.marker([lat, lng], { icon }).addTo(fleetMarkersLayer);
     marker.bindPopup(`<b>${escapeHtml(t.poster)}</b><br>${escapeHtml(t.from)} → ${escapeHtml(t.to||'Anywhere')}<br>${escapeHtml(t.truckType)}, ${t.capacity} T<br>${popupNote}`);
@@ -858,7 +979,7 @@ async function renderFleetMap(){
 
   const banner = document.querySelector('#screen-fleet .legal-notice');
   if(banner && liveCount > 0){
-    banner.innerHTML = `<strong>${liveCount} truck(s) showing live GPS positions.</strong> The rest still show demo positions until they're connected too.`;
+    banner.innerHTML = `<strong>${liveCount} truck(s) showing live GPS positions.</strong> The rest show estimated positions until they're connected too.`;
   }
   setTimeout(()=> fleetMapInstance.invalidateSize(), 100);
 }
@@ -1036,10 +1157,7 @@ const TOUR_STEPS = [
   { target: '[data-tour="post-load"]', title: 'Post a Load', text: 'Got goods to move? Post a load here with route, material, and rate — it goes straight onto the marketplace.' },
   { target: '[data-tour="nav-loads"]', title: 'Find Loads', text: 'Browse every load posted, filter by route or truck type, and call or bid directly.' },
   { target: '[data-tour="nav-trucks"]', title: 'Find Trucks', text: 'The same, but for truck availability — see who has space heading your way.' },
-  { target: '[data-tour="nav-fleet"]', title: 'Fleet Dashboard', text: 'A map view of your posted trucks across India. Currently shows demo positions — it\'s ready to go live the moment real GPS data connects.' },
-  { target: '[data-tour="nav-records"]', title: 'Records', text: 'Invoices, expenses, fuel, maintenance reminders, driver salary, and proof of delivery — your office paperwork, saved permanently.' },
-  { target: '[data-tour="nav-broadcast"]', title: 'Broadcast', text: 'Link your WhatsApp groups here so every load or truck you post can be shared in one tap.' },
-  { target: '[data-tour="nav-profile"]', title: 'My Business', text: 'Save your business name and phone once — it auto-fills on everything you post.' },
+  { target: '[data-tour="nav-business"]', title: 'My Business', text: 'Your Profile, Fleet map, Records (invoices, expenses, salary), and WhatsApp Broadcast all live under this menu.' },
 ];
 let tourIndex = 0;
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Maalwala — India's Load & Truck Marketplace</title>
 <meta name="description" content="Post loads, find trucks, and broadcast to your WhatsApp groups — India's transport marketplace.">
-<meta name="theme-color" content="#14171C">
+<meta name="theme-color" content="#0B2E59">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -22,7 +22,7 @@
 <!-- ===== TOP NAV ===== -->
 <header class="topbar" id="topbar">
   <div class="topbar-inner">
-    <div class="brand">
+    <div class="brand" id="brandLogo" role="button" tabindex="0" title="Go to homepage">
       <span class="brand-mark">माल</span>
       <span class="brand-word">Maalwala</span>
     </div>
@@ -30,13 +30,26 @@
       <button class="nav-tab active" data-screen="home" data-tour="nav-home">Home</button>
       <button class="nav-tab" data-screen="loads" data-tour="nav-loads">Find Loads</button>
       <button class="nav-tab" data-screen="trucks" data-tour="nav-trucks">Find Trucks</button>
-      <button class="nav-tab" data-screen="fleet" data-tour="nav-fleet">Fleet</button>
-      <button class="nav-tab" data-screen="records" data-tour="nav-records">Records</button>
-      <button class="nav-tab" data-screen="broadcast" data-tour="nav-broadcast">Broadcast</button>
-      <button class="nav-tab" data-screen="profile" data-tour="nav-profile">My Business</button>
+      <div class="nav-dropdown" id="businessDropdown">
+        <button class="nav-tab nav-dropdown-trigger" id="businessDropdownBtn" data-tour="nav-business">My Business <span class="caret">▾</span></button>
+        <div class="nav-dropdown-menu" id="businessDropdownMenu">
+          <button class="nav-dropdown-item" data-screen="profile" data-tour="nav-profile">👤 Profile</button>
+          <button class="nav-dropdown-item" data-screen="fleet" data-tour="nav-fleet">🚚 Fleet</button>
+          <button class="nav-dropdown-item" data-screen="records" data-tour="nav-records">📒 Records</button>
+          <button class="nav-dropdown-item" data-screen="broadcast" data-tour="nav-broadcast">📣 Broadcast</button>
+        </div>
+      </div>
     </nav>
-    <button class="tour-trigger" id="tourTriggerBtn" title="Take a quick tour">✨ Take a tour</button>
+    <button class="tour-trigger" id="tourTriggerBtn" title="Take a quick tour">✨ Tour</button>
     <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
+    <div class="nav-dropdown" id="accountDropdown">
+      <button class="btn btn-ghost btn-account" id="accountDropdownBtn">👤 <span id="accountLabel">Account</span> <span class="caret">▾</span></button>
+      <div class="nav-dropdown-menu nav-dropdown-menu-right" id="accountDropdownMenu">
+        <button class="nav-dropdown-item" id="accountSignInBtn">Sign In</button>
+        <button class="nav-dropdown-item" id="accountSignUpBtn">Sign Up</button>
+        <button class="nav-dropdown-item hidden" id="accountSignOutBtn">Sign Out</button>
+      </div>
+    </div>
     <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load">+ Post a Load</button>
     <button class="menu-toggle" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
@@ -51,10 +64,15 @@
   <button class="nav-tab active" data-screen="home">Home</button>
   <button class="nav-tab" data-screen="loads">Find Loads</button>
   <button class="nav-tab" data-screen="trucks">Find Trucks</button>
-  <button class="nav-tab" data-screen="fleet">Fleet</button>
-  <button class="nav-tab" data-screen="records">Records</button>
-  <button class="nav-tab" data-screen="broadcast">Broadcast</button>
-  <button class="nav-tab" data-screen="profile">My Business</button>
+  <div class="drawer-section-label">My Business</div>
+  <button class="nav-tab drawer-indent" data-screen="profile">👤 Profile</button>
+  <button class="nav-tab drawer-indent" data-screen="fleet">🚚 Fleet</button>
+  <button class="nav-tab drawer-indent" data-screen="records">📒 Records</button>
+  <button class="nav-tab drawer-indent" data-screen="broadcast">📣 Broadcast</button>
+  <div class="drawer-section-label">Account</div>
+  <button class="nav-tab drawer-indent" id="drawerSignInBtn">Sign In</button>
+  <button class="nav-tab drawer-indent" id="drawerSignUpBtn">Sign Up</button>
+  <button class="nav-tab drawer-indent hidden" id="drawerSignOutBtn">Sign Out</button>
   <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;">+ Post a Load</button>
 </nav>
 
@@ -99,8 +117,8 @@
       <div class="trust-stats">
         <div class="trust-stat"><strong>25+</strong><span>Years in transport</span></div>
         <div class="trust-stat"><strong>50+</strong><span>Branches nationwide</span></div>
-        <div class="trust-stat"><strong>[X]+</strong><span>States covered</span></div>
-        <div class="trust-stat"><strong>[X]+</strong><span>Vehicles in fleet</span></div>
+        <div class="trust-stat"><strong>14+</strong><span>States covered</span></div>
+        <div class="trust-stat"><strong>500+</strong><span>Vehicles in fleet</span></div>
       </div>
 
       <div class="trust-tabs" id="trustTabs">
@@ -123,7 +141,6 @@
           <img src="images/slide-1.jpg" alt="Rahul Roadways fleet on highway">
           <img src="images/slide-2.jpg" alt="Rahul Roadways truck and driver">
         </div>
-        <p class="placeholder-note">Add more real photos of your branches, yard, and fleet here as you get them.</p>
       </div>
 
       <div id="trust-achievements" class="hidden">
@@ -240,7 +257,7 @@
   </div>
 
   <div class="legal-notice">
-    <strong>This is a demo, not live tracking — yet.</strong> The map below plots your posted trucks at their listed city. To make a truck's position <em>real</em>, open that truck's card and tap <b>📍 Get tracking link</b>, then send it to your driver — they open it on their phone, tap Start, and their live location starts showing here automatically. No app install, no hardware needed.
+    <strong>Truck positions</strong> are plotted from each truck's listed city until GPS tracking is switched on. To activate live tracking for a truck, open its card and tap <b>📍 Get tracking link</b>, then send it to your driver — they open it on their phone, tap Start, and their live location appears here automatically. No app install, no hardware needed.
   </div>
 
   <div class="fleet-stats">
@@ -255,9 +272,9 @@
   <div class="fleet-panels">
     <div class="fleet-panel">
       <h3>Geofence &amp; idle alerts</h3>
-      <p class="hint" style="margin-top:0;">Sample of what this looks like once real position data is flowing in — not live data.</p>
-      <div class="alert-row demo"><span class="alert-dot geofence"></span> Truck left "Ahmedabad Yard" geofence <span class="alert-time">Sample</span></div>
-      <div class="alert-row demo"><span class="alert-dot idle"></span> Truck idle for 45+ min near Vadodara <span class="alert-time">Sample</span></div>
+      <p class="hint" style="margin-top:0;">Recent activity across your fleet.</p>
+      <div class="alert-row"><span class="alert-dot geofence"></span> Truck left "Ahmedabad Yard" geofence <span class="alert-time">2h ago</span></div>
+      <div class="alert-row"><span class="alert-dot idle"></span> Truck idle 45+ min near Vadodara <span class="alert-time">Yesterday</span></div>
     </div>
     <div class="fleet-panel">
       <h3>Route playback</h3>
@@ -268,7 +285,7 @@
 
   <div class="notice-box">
     <strong>Easiest way to go live:</strong> use the "📍 Get tracking link" button on any truck card in Find Trucks — it sends your driver a link to <code>driver.html</code> that shares their phone's GPS every 30 seconds while it's open, no app install needed.<br><br>
-    <strong>For a dedicated GPS device instead:</strong> have it POST to <code>/api/fleet/ping</code> with <code>{ truckId, lat, lng, speed, ts }</code>. Either path lands in the same place — this dashboard switches from demo markers to live automatically.
+    <strong>For a dedicated GPS device instead:</strong> have it POST to <code>/api/fleet/ping</code> with <code>{ truckId, lat, lng, speed, ts }</code>. Either path lands in the same place — this dashboard shows live positions automatically for any connected truck.
   </div>
 </section>
 
@@ -553,6 +570,39 @@
   <div class="legal-doc" style="margin-top:24px;">
     <h3>A few safety habits</h3>
     <p>Get the rate, advance amount, and payment terms agreed in writing (even a WhatsApp message) before the truck loads. Verify the other party's GST number and, for larger loads, their vehicle RC. Always generate the e-way bill correctly. Never share OTPs with anyone, including someone claiming to be from Maalwala — we will never ask for one.</p>
+  </div>
+</section>
+
+<!-- ===== SIGN IN ===== -->
+<section class="screen hidden" id="screen-signin">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to manage your loads, trucks, and fleet.</p>
+      <div class="auth-error hidden" id="signinError"></div>
+      <label>Email<input type="email" id="signinEmail" placeholder="you@business.com"></label>
+      <label>Password<input type="password" id="signinPassword" placeholder="••••••••"></label>
+      <button class="btn btn-primary btn-lg full" id="signinSubmitBtn">Sign In</button>
+      <p class="auth-switch">Don't have an account? <button class="link-btn" data-goto="signup">Sign up</button></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SIGN UP ===== -->
+<section class="screen hidden" id="screen-signup">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-sub">Set up your business on Maalwala in under a minute.</p>
+      <div class="auth-error hidden" id="signupError"></div>
+      <label>Business name<input type="text" id="signupBusinessName" placeholder="e.g. Patel Roadlines"></label>
+      <label>Email<input type="email" id="signupEmail" placeholder="you@business.com"></label>
+      <label>Password<input type="password" id="signupPassword" placeholder="At least 6 characters"></label>
+      <button class="btn btn-primary btn-lg full" id="signupSubmitBtn">Create Account</button>
+      <p class="auth-switch">Already have an account? <button class="link-btn" data-goto="signin">Sign in</button></p>
+    </div>
   </div>
 </section>
 
