@@ -982,6 +982,7 @@ function coordsFor(city){
 
 let fleetMapInstance = null;
 let fleetMarkersLayer = null;
+let truckMarkers = {}; // truckId -> Leaflet marker, so the vehicle list panel can locate/open them
 const reverseGeocodeCache = {}; // avoid repeat lookups for the same rounded coordinate
 async function reverseGeocodeInto(elId, lat, lng){
   const el = document.getElementById(elId);
@@ -1034,7 +1035,12 @@ async function renderFleetMap(){
   }
 
   fleetMarkersLayer.clearLayers();
-  const icon = L.divIcon({ className: '', html: '<div class="truck-map-marker">🚚</div>', iconSize: [26,26] });
+  truckMarkers = {};
+  const STATUS_COLORS = { Running:'#1b7a41', Idle:'#c98a00', Stopped:'#b23', Inactive:'#6b7280' };
+  function iconFor(status){
+    const color = status ? (STATUS_COLORS[status] || 'var(--orange)') : 'var(--orange)'; // no status yet (estimated) = brand orange
+    return L.divIcon({ className: '', html: `<div class="truck-map-marker" style="background:${color};">🚚</div>`, iconSize: [26,26] });
+  }
 
   // Real GPS pings take priority the moment any exist — this is what
   // flips the dashboard from demo to live, with zero other changes needed.
@@ -1045,6 +1051,7 @@ async function renderFleetMap(){
   let liveCount = 0;
   const sosTrucks = [];
   const idleStoppedTrucks = [];
+  const vehicleListItems = [];
   trucks.forEach(t=>{
     const real = realByTruck[t.id];
     let lat, lng, popupNote, isLive = false;
@@ -1062,7 +1069,9 @@ async function renderFleetMap(){
       lat = c[0] + jitter(); lng = c[1] + jitter();
       popupNote = `<span style="color:#8a96ab;font-size:11px;">Estimated position — based on listed city</span>`;
     }
-    const marker = L.marker([lat, lng], { icon }).addTo(fleetMarkersLayer);
+    const marker = L.marker([lat, lng], { icon: iconFor(real?.status) }).addTo(fleetMarkersLayer);
+    truckMarkers[t.id] = marker;
+    vehicleListItems.push({ truckId: t.id, label: t.vehicleNumber || t.poster, status: real?.status || (isLive ? null : 'Not connected') });
     const vehicleLine = t.vehicleNumber ? `<br>🚚 ${escapeHtml(t.vehicleNumber)}` : '';
     const popupId = 'popup-loc-' + t.id;
     const locationLine = isLive
@@ -1109,6 +1118,37 @@ async function renderFleetMap(){
       : (liveCount > 0
           ? '<div class="empty-state">All connected trucks are running.</div>'
           : '<div class="empty-state">No status data yet — sync from Aditi Tracking above.</div>');
+  }
+
+  // Status summary bar (Running/Idle/Stopped/Inactive/Total) — Aditi-dashboard style
+  const counts = { Running:0, Idle:0, Stopped:0, other:0 };
+  vehicleListItems.forEach(v=>{
+    if(v.status === 'Running') counts.Running++;
+    else if(v.status === 'Idle') counts.Idle++;
+    else if(v.status === 'Stopped') counts.Stopped++;
+    else counts.other++;
+  });
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('statusRunning', counts.Running);
+  setText('statusIdle', counts.Idle);
+  setText('statusStopped', counts.Stopped);
+  setText('statusInactive', counts.other);
+  setText('statusTotal', vehicleListItems.length);
+
+  // Clickable vehicle list panel — Aditi-dashboard style
+  const listEl = document.getElementById('fleetVehicleList');
+  if(listEl){
+    const dotColor = (status) => ({Running:'#1b7a41', Idle:'#c98a00', Stopped:'#b23'}[status] || '#6b7280');
+    listEl.innerHTML = vehicleListItems.length
+      ? vehicleListItems.map(v=>`
+          <div class="fleet-vehicle-row" onclick="focusFleetVehicle('${v.truckId}')">
+            <span class="v-dot" style="background:${dotColor(v.status)};"></span>
+            <div class="v-info">
+              <div class="v-name">${escapeHtml(v.label)}</div>
+              <div class="v-status">${escapeHtml(v.status || 'Not connected')}</div>
+            </div>
+          </div>`).join('')
+      : '<div class="empty-state">No trucks posted yet.</div>';
   }
 
   const banner = document.querySelector('#screen-fleet .legal-notice');
@@ -1317,6 +1357,13 @@ document.getElementById('bulkAddBtn')?.addEventListener('click', async ()=>{
   resultEl.textContent = `Posted ${created} truck(s)${failed ? `, ${failed} failed` : ''}. Head to the Aditi sync box above to pull their live positions.`;
   await renderAll();
 });
+
+window.focusFleetVehicle = function(truckId){
+  const marker = truckMarkers[truckId];
+  if(!marker || !fleetMapInstance) return;
+  fleetMapInstance.setView(marker.getLatLng(), 8, { animate: true });
+  marker.openPopup();
+};
 
 // ---------- Aditi Tracking sync (pull API) ----------
 async function checkAditiStatus(){

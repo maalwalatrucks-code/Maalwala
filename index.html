@@ -270,6 +270,14 @@
     <strong>Truck positions</strong> are plotted from each truck's listed city until GPS tracking is switched on. To activate live tracking for a truck, open its card and tap <b>📍 Get tracking link</b>, then send it to your driver — they open it on their phone, tap Start, and their live location appears here automatically. No app install, no hardware needed.
   </div>
 
+  <div class="status-summary-bar" id="statusSummaryBar">
+    <div class="status-chip running"><strong id="statusRunning">0</strong><span>Running</span></div>
+    <div class="status-chip idle"><strong id="statusIdle">0</strong><span>Idle</span></div>
+    <div class="status-chip stopped"><strong id="statusStopped">0</strong><span>Stopped</span></div>
+    <div class="status-chip inactive"><strong id="statusInactive">0</strong><span>Not connected</span></div>
+    <div class="status-chip total"><strong id="statusTotal">0</strong><span>Total</span></div>
+  </div>
+
   <div class="fleet-stats">
     <div class="fleet-stat"><strong id="fleetTotalTrucks">0</strong><span>Trucks posted</span></div>
     <div class="fleet-stat"><strong id="fleetOnRoute">0</strong><span>Marked "on route"</span></div>
@@ -277,7 +285,12 @@
     <div class="fleet-stat"><strong id="fleetIdle">—</strong><span>Idle alerts <em>(needs GPS)</em></span></div>
   </div>
 
-  <div id="fleetMap" class="fleet-map"></div>
+  <div class="fleet-map-layout">
+    <div class="fleet-vehicle-list" id="fleetVehicleList">
+      <div class="empty-state">No trucks posted yet.</div>
+    </div>
+    <div id="fleetMap" class="fleet-map"></div>
+  </div>
 
   <div class="fleet-panel" style="margin-bottom:20px;">
     <h3>🛰️ Aditi Tracking sync <span class="tag off" id="aditiStatusTag">checking…</span></h3>
