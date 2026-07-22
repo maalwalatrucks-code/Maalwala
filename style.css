@@ -343,6 +343,8 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;
   padding: 4px 9px; border-radius:999px; background: var(--surface-2); color: var(--text-muted); flex-shrink:0;
 }
+#aditiStatusTag:not(.off){ background:#E9F8EF; color:#1b7a41; }
+#aditiStatusTag.off{ background:#fdeceb; color:#b23; }
 .route-meta{ display:flex; flex-wrap:wrap; gap: 6px 16px; margin-top:10px; font-size:0.86rem; color: var(--text-muted); min-width:0; overflow-wrap: break-word; }
 .route-meta b{ color: var(--text); }
 .route-card-actions{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }

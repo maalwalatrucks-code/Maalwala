@@ -158,6 +158,15 @@ const FleetPositions = {
     }catch(e){}
     return [];
   },
+  ping: async (truckId, lat, lng)=>{
+    if(!USE_API) throw new Error('Connect a backend first (see config.js) — positions need a server to store them.');
+    const r = await fetch(API_BASE + '/api/fleet/ping', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ truckId, lat, lng, ts: Date.now() })
+    });
+    if(!r.ok){ const d = await r.json().catch(()=>({})); throw new Error(d.error || 'Could not update position'); }
+    return r.json();
+  },
 };
 const Records = {
   all: async (kind)=>{
@@ -299,7 +308,7 @@ function showScreen(name){
     t.classList.toggle('active', t.dataset.screen===name);
   });
   window.scrollTo({top:0, behavior:'smooth'});
-  if(name === 'fleet') setTimeout(renderFleetMap, 50); // let the container become visible first
+  if(name === 'fleet'){ setTimeout(renderFleetMap, 50); checkAditiStatus(); } // let the container become visible first
   if(name === 'records') renderActiveRecordTab();
 }
 document.getElementById('navTabs').addEventListener('click', e=>{
@@ -819,6 +828,7 @@ document.getElementById('truckForm').addEventListener('submit', async e=>{
     capacity: val('truckCapacity'), date: val('truckDate'),
     poster: profile.name || 'You', phone: profile.phone || '',
     driverName: val('truckDriverName'), driverPhone: val('truckDriverPhone'),
+    vehicleNumber: val('truckVehicleNumber').trim().toUpperCase(),
     verified: Boolean(profile.name && profile.phone && profile.gst),
   };
   const doBroadcast = document.getElementById('truckBroadcast').checked;
@@ -946,6 +956,14 @@ async function renderFleetMap(){
   document.getElementById('fleetOnRoute').textContent = trucks.filter(t=>t.to && t.to.toLowerCase() !== 'anywhere').length;
   const cities = new Set(trucks.map(t=>t.from).filter(Boolean));
   document.getElementById('fleetCities').textContent = cities.size;
+
+  const pingSelect = document.getElementById('manualPingTruck');
+  if(pingSelect){
+    const current = pingSelect.value;
+    pingSelect.innerHTML = '<option value="">— Select a posted truck —</option>' +
+      trucks.map(t=>`<option value="${t.id}">${escapeHtml(t.from)} → ${escapeHtml(t.to||'Anywhere')} (${escapeHtml(t.poster)})</option>`).join('');
+    if(current) pingSelect.value = current;
+  }
 
   if(typeof L === 'undefined'){
     document.getElementById('fleetMap').innerHTML = '<div class="empty-state">Map library failed to load — check your internet connection.</div>';
@@ -1162,6 +1180,85 @@ function renderSalaryDriverSelect(){
   if(!sel) return;
   sel.innerHTML = `<option value="">— Type manually —</option>` + currentDrivers.map((d,i)=>`<option value="${i}">${escapeHtml(d.name)}</option>`).join('');
 }
+
+// ---------- Aditi Tracking sync (pull API) ----------
+async function checkAditiStatus(){
+  const tag = document.getElementById('aditiStatusTag');
+  if(!tag || !USE_API) return;
+  try{
+    const r = await fetch(API_BASE + '/api/fleet/aditi-status');
+    const data = await r.json();
+    tag.textContent = data.configured ? 'connected' : 'not configured yet';
+    tag.classList.toggle('off', !data.configured);
+  }catch(e){
+    tag.textContent = 'not configured yet';
+    tag.classList.add('off');
+  }
+}
+document.getElementById('aditiSyncBtn')?.addEventListener('click', async ()=>{
+  const btn = document.getElementById('aditiSyncBtn');
+  const resultEl = document.getElementById('aditiSyncResult');
+  btn.disabled = true; btn.textContent = 'Syncing…';
+  try{
+    const r = await fetch(API_BASE + '/api/fleet/sync-aditi', { method:'POST' });
+    const data = await r.json();
+    if(!r.ok){ resultEl.textContent = data.error || 'Sync failed.'; }
+    else if(data.note){ resultEl.textContent = data.note; }
+    else{
+      resultEl.textContent = `Synced ${data.synced} of ${data.requested} truck(s).` +
+        (data.notFound && data.notFound.length ? ` No match for: ${data.notFound.join(', ')}.` : '');
+      await renderFleetMap();
+    }
+  }catch(e){
+    resultEl.textContent = 'Could not reach the sync endpoint.';
+  }
+  btn.disabled = false; btn.textContent = '🔄 Sync positions from Aditi Tracking';
+});
+
+// ---------- Manual position update (for GPS apps without API access) ----------
+function parseMapsLink(url){
+  // Handles common Google Maps URL shapes: ?q=lat,lng  /@lat,lng,zoom  or a bare "lat,lng" pasted directly
+  const patterns = [
+    /q=(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /^\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*$/,
+  ];
+  for(const p of patterns){
+    const m = url.match(p);
+    if(m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  }
+  return null;
+}
+document.getElementById('manualPingBtn')?.addEventListener('click', async ()=>{
+  const truckId = document.getElementById('manualPingTruck').value;
+  const resultEl = document.getElementById('manualPingResult');
+  if(!truckId){ resultEl.textContent = 'Select which truck this is for.'; return; }
+
+  let lat = parseFloat(document.getElementById('manualPingLat').value);
+  let lng = parseFloat(document.getElementById('manualPingLng').value);
+
+  const link = document.getElementById('manualPingMapsLink').value.trim();
+  if(link && (isNaN(lat) || isNaN(lng))){
+    const parsed = parseMapsLink(link);
+    if(parsed){ lat = parsed.lat; lng = parsed.lng; }
+  }
+
+  if(isNaN(lat) || isNaN(lng)){
+    resultEl.textContent = "Couldn't read a location — paste a Google Maps link with coordinates, or fill in latitude/longitude directly.";
+    return;
+  }
+
+  try{
+    await FleetPositions.ping(truckId, lat, lng);
+    resultEl.textContent = 'Position updated — check the map above.';
+    document.getElementById('manualPingMapsLink').value = '';
+    document.getElementById('manualPingLat').value = '';
+    document.getElementById('manualPingLng').value = '';
+    await renderFleetMap();
+  }catch(e){
+    resultEl.textContent = e.message;
+  }
+});
 
 // ---------- Onboarding tour ----------
 const TOUR_STEPS = [

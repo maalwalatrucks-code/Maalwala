@@ -277,6 +277,30 @@
 
   <div id="fleetMap" class="fleet-map"></div>
 
+  <div class="fleet-panel" style="margin-bottom:20px;">
+    <h3>🛰️ Aditi Tracking sync <span class="tag off" id="aditiStatusTag">checking…</span></h3>
+    <p class="hint" style="margin-top:0;">Pulls current positions from your Aditi Tracking account for every posted truck that has a vehicle number set. This asks Aditi for fresh data each time you tap it — set a reminder to sync before checking the map if you want it current.</p>
+    <button class="btn btn-primary" id="aditiSyncBtn">🔄 Sync positions from Aditi Tracking</button>
+    <p class="hint" id="aditiSyncResult"></p>
+  </div>
+
+  <div class="fleet-panel" style="margin-bottom:20px;">
+    <h3>📍 Update a truck's position manually</h3>
+    <p class="hint" style="margin-top:0;">Using a GPS app or tracker (like Aditi Tracking) that doesn't give you API access? Check its dashboard whenever you want, then paste the location here — it updates the same "live" marker on the map above. Not continuously automatic, but real position data with no API keys needed.</p>
+    <div class="form-row">
+      <label>Which truck<select id="manualPingTruck"><option value="">— Select a posted truck —</option></select></label>
+      <label>Paste a Google Maps link <span style="font-weight:400;color:var(--text-muted);">(or fill lat/lng below)</span>
+        <input type="text" id="manualPingMapsLink" placeholder="https://maps.google.com/?q=19.0760,72.8777">
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Latitude<input type="text" id="manualPingLat" placeholder="19.0760"></label>
+      <label>Longitude<input type="text" id="manualPingLng" placeholder="72.8777"></label>
+    </div>
+    <button class="btn btn-primary" id="manualPingBtn">Update Position</button>
+    <p class="hint" id="manualPingResult"></p>
+  </div>
+
   <div class="fleet-panels">
     <div class="fleet-panel">
       <h3>Geofence &amp; idle alerts</h3>
@@ -293,7 +317,8 @@
 
   <div class="notice-box">
     <strong>Easiest way to go live:</strong> use the "📍 Get tracking link" button on any truck card in Find Trucks — it sends your driver a link to <code>driver.html</code> that shares their phone's GPS every 30 seconds while it's open, no app install needed.<br><br>
-    <strong>For a dedicated GPS device instead:</strong> have it POST to <code>/api/fleet/ping</code> with <code>{ truckId, lat, lng, speed, ts }</code>. Either path lands in the same place — this dashboard shows live positions automatically for any connected truck.
+    <strong>Already using a GPS tracker without API access?</strong> Use the "Update a truck's position manually" box above — check the tracker's app whenever you want and paste the location in.<br><br>
+    <strong>For a dedicated GPS device with API access:</strong> have it POST to <code>/api/fleet/ping</code> with <code>{ truckId, lat, lng, speed, ts }</code>. All three paths land in the same place — this dashboard shows live positions automatically for any connected truck.
   </div>
 </section>
 
@@ -705,6 +730,9 @@
         <label>Capacity (tonnes)<input required type="number" step="0.1" id="truckCapacity" placeholder="16"></label>
       </div>
       <label>Available from<input type="date" id="truckDate"></label>
+      <label>Vehicle number <span style="font-weight:400;color:var(--text-muted);">(optional — enables live GPS sync if this vehicle is on Aditi Tracking)</span>
+        <input type="text" id="truckVehicleNumber" placeholder="e.g. GJ01KT0057">
+      </label>
       <label>Driver
         <select id="truckDriverSelect"><option value="">— Enter manually —</option></select>
       </label>
