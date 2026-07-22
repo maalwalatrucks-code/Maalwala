@@ -982,6 +982,28 @@ function coordsFor(city){
 
 let fleetMapInstance = null;
 let fleetMarkersLayer = null;
+const reverseGeocodeCache = {}; // avoid repeat lookups for the same rounded coordinate
+async function reverseGeocodeInto(elId, lat, lng){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const key = lat.toFixed(3) + ',' + lng.toFixed(3); // ~100m precision is plenty, and lets nearby re-syncs reuse the cache
+  if(reverseGeocodeCache[key]){
+    el.textContent = '📍 Near ' + reverseGeocodeCache[key];
+    return;
+  }
+  try{
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=12`, {
+      headers: { 'Accept-Language': 'en' } // Nominatim is free/keyless but asks for identifiable, non-hammering usage
+    });
+    const data = await r.json();
+    const a = data.address || {};
+    const place = a.city || a.town || a.village || a.county || a.state_district || a.state || 'Unknown area';
+    reverseGeocodeCache[key] = place;
+    if(document.getElementById(elId)) el.textContent = '📍 Near ' + place; // guard: popup may have closed by the time this resolves
+  }catch(e){
+    if(document.getElementById(elId)) el.textContent = `📍 (${lat.toFixed(3)}, ${lng.toFixed(3)})`;
+  }
+}
 async function renderFleetMap(){
   const trucks = CACHE.trucks || [];
   document.getElementById('fleetTotalTrucks').textContent = trucks.length;
@@ -1023,10 +1045,11 @@ async function renderFleetMap(){
   let liveCount = 0;
   trucks.forEach(t=>{
     const real = realByTruck[t.id];
-    let lat, lng, popupNote;
+    let lat, lng, popupNote, isLive = false;
     if(real){
       lat = real.lat; lng = real.lng;
       popupNote = `<span style="color:#1b7a41;font-size:11px;">🟢 Live GPS position</span>`;
+      isLive = true;
       liveCount++;
     } else {
       const c = coordsFor(t.from);
@@ -1037,7 +1060,14 @@ async function renderFleetMap(){
     }
     const marker = L.marker([lat, lng], { icon }).addTo(fleetMarkersLayer);
     const vehicleLine = t.vehicleNumber ? `<br>🚚 ${escapeHtml(t.vehicleNumber)}` : '';
-    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b><br>${escapeHtml(t.from)} → ${escapeHtml(t.to||'Anywhere')}<br>${escapeHtml(t.truckType)}, ${t.capacity} T${vehicleLine}<br>${popupNote}`);
+    const popupId = 'popup-loc-' + t.id;
+    const locationLine = isLive
+      ? `<br><span id="${popupId}">📍 Looking up current location…</span>`
+      : `<br>📍 Near ${escapeHtml(t.from)} (estimated)`;
+    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b>${vehicleLine}<br>${escapeHtml(t.truckType)}, ${t.capacity} T${locationLine}<br>${popupNote}`);
+    if(isLive){
+      marker.on('popupopen', ()=> reverseGeocodeInto(popupId, lat, lng));
+    }
   });
 
   const banner = document.querySelector('#screen-fleet .legal-notice');
@@ -1284,7 +1314,7 @@ async function runAditiSync(silent){
 }
 function startAditiAutoSync(){
   stopAditiAutoSync(); // avoid stacking multiple intervals
-  aditiAutoSyncInterval = setInterval(()=> runAditiSync(true), 10000);
+  aditiAutoSyncInterval = setInterval(()=> runAditiSync(true), 120000); // every 2 minutes
 }
 function stopAditiAutoSync(){
   if(aditiAutoSyncInterval){ clearInterval(aditiAutoSyncInterval); aditiAutoSyncInterval = null; }
