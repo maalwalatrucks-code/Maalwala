@@ -1269,7 +1269,7 @@ document.getElementById('aditiSyncBtn')?.addEventListener('click', async ()=>{
     if(!r.ok){ resultEl.textContent = data.error || 'Sync failed.'; }
     else if(data.note){ resultEl.textContent = data.note; }
     else{
-      resultEl.textContent = `Synced ${data.synced} of ${data.requested} truck(s).` +
+      resultEl.textContent = `Synced ${data.synced} of ${data.requested} truck(s). Aditi returned ${data.rowsReturned ?? '?'} vehicle row(s) total.` +
         (data.notFound && data.notFound.length ? ` No match for: ${data.notFound.join(', ')}.` : '');
       await renderFleetMap();
     }
