@@ -264,6 +264,8 @@
     <h1>Fleet Dashboard</h1>
   </div>
 
+  <div class="sos-banner hidden" id="fleetSosBanner"></div>
+
   <div class="legal-notice">
     <strong>Truck positions</strong> are plotted from each truck's listed city until GPS tracking is switched on. To activate live tracking for a truck, open its card and tap <b>📍 Get tracking link</b>, then send it to your driver — they open it on their phone, tap Start, and their live location appears here automatically. No app install, no hardware needed.
   </div>
@@ -339,10 +341,9 @@ NL02AA0526</textarea>
 
   <div class="fleet-panels">
     <div class="fleet-panel">
-      <h3>Geofence &amp; idle alerts</h3>
-      <p class="hint" style="margin-top:0;">Recent activity across your fleet.</p>
-      <div class="alert-row"><span class="alert-dot geofence"></span> Truck left "Ahmedabad Yard" geofence <span class="alert-time">2h ago</span></div>
-      <div class="alert-row"><span class="alert-dot idle"></span> Truck idle 45+ min near Vadodara <span class="alert-time">Yesterday</span></div>
+      <h3>Idle &amp; stopped vehicles</h3>
+      <p class="hint" style="margin-top:0;">Live status from Aditi Tracking for connected trucks. Sync to refresh.</p>
+      <div id="fleetIdleAlerts"><div class="empty-state">No status data yet — sync from Aditi Tracking above.</div></div>
     </div>
     <div class="fleet-panel">
       <h3>Route playback</h3>

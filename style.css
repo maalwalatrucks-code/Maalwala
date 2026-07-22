@@ -594,6 +594,12 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 /* ===========================================================
    Sprint 3 — Fleet dashboard
 =========================================================== */
+.sos-banner{
+  background: #fdeceb; border: 2px solid #b23; color: #7a1a1a; font-weight:600;
+  padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; font-size:0.95rem;
+  animation: sosPulse 1.6s ease-in-out infinite;
+}
+@keyframes sosPulse{ 0%,100%{ box-shadow: 0 0 0 0 rgba(178,34,34,0.25); } 50%{ box-shadow: 0 0 0 8px rgba(178,34,34,0); } }
 .fleet-stats{ display:grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%),1fr)); gap: 14px; margin-bottom: 20px; }
 .fleet-stat{
   background: var(--surface); border:1px solid var(--border-c); border-radius: var(--radius);

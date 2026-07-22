@@ -1043,6 +1043,8 @@ async function renderFleetMap(){
   realPositions.forEach(p => { realByTruck[p.truckId] = p; });
 
   let liveCount = 0;
+  const sosTrucks = [];
+  const idleStoppedTrucks = [];
   trucks.forEach(t=>{
     const real = realByTruck[t.id];
     let lat, lng, popupNote, isLive = false;
@@ -1051,6 +1053,8 @@ async function renderFleetMap(){
       popupNote = `<span style="color:#1b7a41;font-size:11px;">🟢 Live GPS position</span>`;
       isLive = true;
       liveCount++;
+      if(real.sos) sosTrucks.push(t);
+      if(real.status === 'Idle' || real.status === 'Stopped') idleStoppedTrucks.push({ truck: t, status: real.status });
     } else {
       const c = coordsFor(t.from);
       if(!c) return;
@@ -1064,11 +1068,48 @@ async function renderFleetMap(){
     const locationLine = isLive
       ? `<br><span id="${popupId}">📍 Looking up current location…</span>`
       : `<br>📍 Near ${escapeHtml(t.from)} (estimated)`;
-    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b>${vehicleLine}<br>${escapeHtml(t.truckType)}, ${t.capacity} T${locationLine}<br>${popupNote}`);
+
+    let statusLine = '';
+    if(isLive && real){
+      const statusColors = {Running:'#1b7a41', Idle:'#a66a00', Stopped:'#b23', Inactive:'#8a96ab'};
+      const statusColor = statusColors[real.status] || '#8a96ab';
+      const bits = [];
+      if(real.status) bits.push(`<span style="color:${statusColor};font-weight:700;">● ${escapeHtml(real.status)}</span>`);
+      if(real.ignition !== null && real.ignition !== undefined) bits.push(`🔑 ${real.ignition ? 'ON' : 'OFF'}`);
+      if(real.speed != null) bits.push(`${Math.round(real.speed)} km/h`);
+      if(bits.length) statusLine = `<br>${bits.join(' · ')}`;
+      if(real.driverName) statusLine += `<br>🧑‍✈️ ${escapeHtml(real.driverName)}`;
+      if(real.odometer != null) statusLine += `<br>🛣️ ${Math.round(real.odometer).toLocaleString('en-IN')} km total`;
+      if(real.sos) statusLine += `<br><span style="color:#b23;font-weight:700;">🚨 SOS ALERT ACTIVE</span>`;
+    }
+
+    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b>${vehicleLine}<br>${escapeHtml(t.truckType)}, ${t.capacity} T${locationLine}${statusLine}<br>${popupNote}`);
     if(isLive){
       marker.on('popupopen', ()=> reverseGeocodeInto(popupId, lat, lng));
     }
   });
+
+  const sosBanner = document.getElementById('fleetSosBanner');
+  if(sosBanner){
+    if(sosTrucks.length){
+      sosBanner.classList.remove('hidden');
+      sosBanner.innerHTML = `🚨 <b>SOS alert</b> — ${sosTrucks.map(t=>escapeHtml(t.vehicleNumber||t.poster)).join(', ')}. Check on ${sosTrucks.length>1?'these vehicles':'this vehicle'} immediately.`;
+    } else {
+      sosBanner.classList.add('hidden');
+    }
+  }
+
+  const idleEl = document.getElementById('fleetIdleAlerts');
+  if(idleEl){
+    idleEl.innerHTML = idleStoppedTrucks.length
+      ? idleStoppedTrucks.map(({truck, status})=>{
+          const dotClass = status === 'Stopped' ? 'geofence' : 'idle';
+          return `<div class="alert-row"><span class="alert-dot ${dotClass}"></span> ${escapeHtml(truck.vehicleNumber||truck.poster)} — ${escapeHtml(status)}</div>`;
+        }).join('')
+      : (liveCount > 0
+          ? '<div class="empty-state">All connected trucks are running.</div>'
+          : '<div class="empty-state">No status data yet — sync from Aditi Tracking above.</div>');
+  }
 
   const banner = document.querySelector('#screen-fleet .legal-notice');
   if(banner && liveCount > 0){
