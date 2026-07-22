@@ -1355,6 +1355,7 @@ async function runAditiSync(silent){
 }
 function startAditiAutoSync(){
   stopAditiAutoSync(); // avoid stacking multiple intervals
+  runAditiSync(true); // sync right away instead of waiting for the first interval
   aditiAutoSyncInterval = setInterval(()=> runAditiSync(true), 120000); // every 2 minutes
 }
 function stopAditiAutoSync(){
