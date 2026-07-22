@@ -320,7 +320,8 @@ function showScreen(name){
     t.classList.toggle('active', t.dataset.screen===name);
   });
   window.scrollTo({top:0, behavior:'smooth'});
-  if(name === 'fleet'){ setTimeout(renderFleetMap, 50); checkAditiStatus(); } // let the container become visible first
+  if(name === 'fleet'){ setTimeout(renderFleetMap, 50); checkAditiStatus(); startAditiAutoSync(); } // let the container become visible first
+  else{ stopAditiAutoSync(); }
   if(name === 'records') renderActiveRecordTab();
 }
 document.getElementById('navTabs').addEventListener('click', e=>{
@@ -1035,7 +1036,8 @@ async function renderFleetMap(){
       popupNote = `<span style="color:#8a96ab;font-size:11px;">Estimated position — based on listed city</span>`;
     }
     const marker = L.marker([lat, lng], { icon }).addTo(fleetMarkersLayer);
-    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b><br>${escapeHtml(t.from)} → ${escapeHtml(t.to||'Anywhere')}<br>${escapeHtml(t.truckType)}, ${t.capacity} T<br>${popupNote}`);
+    const vehicleLine = t.vehicleNumber ? `<br>🚚 ${escapeHtml(t.vehicleNumber)}` : '';
+    marker.bindPopup(`<b>${escapeHtml(t.poster)}</b><br>${escapeHtml(t.from)} → ${escapeHtml(t.to||'Anywhere')}<br>${escapeHtml(t.truckType)}, ${t.capacity} T${vehicleLine}<br>${popupNote}`);
   });
 
   const banner = document.querySelector('#screen-fleet .legal-notice');
@@ -1259,25 +1261,35 @@ async function checkAditiStatus(){
     tag.classList.add('off');
   }
 }
-document.getElementById('aditiSyncBtn')?.addEventListener('click', async ()=>{
+let aditiAutoSyncInterval = null;
+async function runAditiSync(silent){
   const btn = document.getElementById('aditiSyncBtn');
   const resultEl = document.getElementById('aditiSyncResult');
-  btn.disabled = true; btn.textContent = 'Syncing…';
+  if(!silent){ btn.disabled = true; btn.textContent = 'Syncing…'; }
   try{
     const r = await fetch(API_BASE + '/api/fleet/sync-aditi', { method:'POST' });
     const data = await r.json();
     if(!r.ok){ resultEl.textContent = data.error || 'Sync failed.'; }
     else if(data.note){ resultEl.textContent = data.note; }
     else{
-      resultEl.textContent = `Synced ${data.synced} of ${data.requested} truck(s). Aditi returned ${data.rowsReturned ?? '?'} vehicle row(s) total.` +
+      const when = new Date().toLocaleTimeString('en-IN');
+      resultEl.textContent = `Synced ${data.synced} of ${data.requested} truck(s) at ${when}. Aditi returned ${data.rowsReturned ?? '?'} vehicle row(s) total.` +
         (data.notFound && data.notFound.length ? ` No match for: ${data.notFound.join(', ')}.` : '');
       await renderFleetMap();
     }
   }catch(e){
     resultEl.textContent = 'Could not reach the sync endpoint.';
   }
-  btn.disabled = false; btn.textContent = '🔄 Sync positions from Aditi Tracking';
-});
+  if(!silent){ btn.disabled = false; btn.textContent = '🔄 Sync positions from Aditi Tracking'; }
+}
+function startAditiAutoSync(){
+  stopAditiAutoSync(); // avoid stacking multiple intervals
+  aditiAutoSyncInterval = setInterval(()=> runAditiSync(true), 10000);
+}
+function stopAditiAutoSync(){
+  if(aditiAutoSyncInterval){ clearInterval(aditiAutoSyncInterval); aditiAutoSyncInterval = null; }
+}
+document.getElementById('aditiSyncBtn')?.addEventListener('click', ()=> runAditiSync(false));
 
 // ---------- Manual position update (for GPS apps without API access) ----------
 function parseMapsLink(url){
