@@ -135,6 +135,18 @@ const Loads = {
 const Trucks = {
   all: ()=> apiGet('/api/trucks', 'trucks', []),
   create: (item)=> apiPost('/api/trucks', item, 'trucks'),
+  update: async (id, patch)=>{
+    if(!USE_API){
+      const list = LocalDB.get('trucks', []);
+      const idx = list.findIndex(t=>t.id===id);
+      if(idx>-1) list[idx] = {...list[idx], ...patch};
+      LocalDB.set('trucks', list);
+      return list[idx];
+    }
+    const r = await fetch(API_BASE + '/api/trucks/'+id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(patch)});
+    if(!r.ok) throw new Error('Could not update truck');
+    return r.json();
+  },
 };
 const Groups = {
   all: ()=> apiGet('/api/groups', 'groups', []),
@@ -464,8 +476,14 @@ function routeCardHTML(item, type){
   const driverLine = (type==='truck' && item.driverName)
     ? `<div class="route-meta"><span>🧑‍✈️ Driver: <b>${escapeHtml(item.driverName)}</b>${item.driverPhone ? ' · '+escapeHtml(item.driverPhone) : ''}</span></div>`
     : '';
+  const vehicleLine = (type==='truck' && item.vehicleNumber)
+    ? `<div class="route-meta"><span>🚚 Vehicle: <b>${escapeHtml(item.vehicleNumber)}</b></span></div>`
+    : '';
   const trackingBtn = type==='truck'
     ? `<button class="btn btn-ghost" onclick="shareTrackingLink('${item.id}')" title="Send your driver a link to share live location">📍 Get tracking link</button>`
+    : '';
+  const editVehicleBtn = type==='truck'
+    ? `<button class="btn btn-ghost" onclick="editVehicleNumber('${item.id}','${escapeHtml(item.vehicleNumber||'')}')" title="Set or fix this truck's vehicle number for Aditi Tracking sync">✏️ ${item.vehicleNumber ? 'Edit' : 'Add'} vehicle #</button>`
     : '';
   return `
   <div class="route-card">
@@ -479,11 +497,13 @@ function routeCardHTML(item, type){
     </div>
     ${meta}
     ${driverLine}
+    ${vehicleLine}
     <div class="route-meta"><span>Posted by <b>${escapeHtml(item.poster)}</b></span> ${verifiedBadge}</div>
     <div class="route-card-actions">
       ${rate}
       <button class="btn btn-ghost" onclick="callPoster('${item.phone}')">Call / Bid</button>
       ${trackingBtn}
+      ${editVehicleBtn}
       <button class="btn btn-primary" onclick="openSendForItem('${item.id}','${type}')">Share to WhatsApp</button>
     </div>
   </div>`;
@@ -504,6 +524,17 @@ window.shareTrackingLink = function(truckId){
     navigator.share({ title: 'Share your location for Maalwala', url: url.toString() }).catch(()=>{});
   } else {
     toast('Tracking link copied — send it to your driver on WhatsApp.');
+  }
+};
+window.editVehicleNumber = async function(truckId, current){
+  const value = prompt('Vehicle number (must match Aditi Tracking exactly, e.g. GJ01KT0057):', current || '');
+  if(value === null) return; // cancelled
+  try{
+    await Trucks.update(truckId, { vehicleNumber: value.trim().toUpperCase() });
+    toast('Vehicle number updated.');
+    await renderAll();
+  }catch(e){
+    toast('Could not update — try again.');
   }
 };
 function emptyState(msg){ return `<div class="empty-state">${msg}</div>`; }
@@ -1180,6 +1211,39 @@ function renderSalaryDriverSelect(){
   if(!sel) return;
   sel.innerHTML = `<option value="">— Type manually —</option>` + currentDrivers.map((d,i)=>`<option value="${i}">${escapeHtml(d.name)}</option>`).join('');
 }
+
+// ---------- Bulk fleet add ----------
+document.getElementById('bulkAddBtn')?.addEventListener('click', async ()=>{
+  const btn = document.getElementById('bulkAddBtn');
+  const resultEl = document.getElementById('bulkAddResult');
+  const from = document.getElementById('bulkFrom').value.trim();
+  const truckType = document.getElementById('bulkTruckType').value;
+  const capacity = document.getElementById('bulkCapacity').value;
+  const vehicleNumbers = document.getElementById('bulkVehicleNumbers').value
+    .split('\n').map(v=>v.trim().toUpperCase()).filter(Boolean);
+
+  if(!from || !capacity){ resultEl.textContent = 'Fill in the shared From city and Capacity first.'; return; }
+  if(!vehicleNumbers.length){ resultEl.textContent = 'Add at least one vehicle number.'; return; }
+
+  btn.disabled = true;
+  const profile = await Profile.get();
+  let created = 0, failed = 0;
+  for(let i=0; i<vehicleNumbers.length; i++){
+    btn.textContent = `Posting ${i+1} of ${vehicleNumbers.length}…`;
+    try{
+      await Trucks.create({
+        from, to: 'Anywhere', truckType, capacity,
+        poster: profile.name || 'You', phone: profile.phone || '',
+        vehicleNumber: vehicleNumbers[i],
+        verified: Boolean(profile.name && profile.phone && profile.gst),
+      });
+      created++;
+    }catch(e){ failed++; }
+  }
+  btn.disabled = false; btn.textContent = 'Post All Vehicles';
+  resultEl.textContent = `Posted ${created} truck(s)${failed ? `, ${failed} failed` : ''}. Head to the Aditi sync box above to pull their live positions.`;
+  await renderAll();
+});
 
 // ---------- Aditi Tracking sync (pull API) ----------
 async function checkAditiStatus(){

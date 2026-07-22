@@ -285,6 +285,42 @@
   </div>
 
   <div class="fleet-panel" style="margin-bottom:20px;">
+    <h3>🚛 Bulk-add your fleet</h3>
+    <p class="hint" style="margin-top:0;">Post every vehicle at once instead of one at a time — each becomes a real, public "Find Trucks" listing using the shared details below, with its vehicle number already set for Aditi sync. 16 numbers from your Aditi dashboard are pre-filled; 4 more were cut off in the screenshot — add those too before submitting.</p>
+    <label>Vehicle numbers <span style="font-weight:400;color:var(--text-muted);">(one per line)</span>
+      <textarea id="bulkVehicleNumbers" rows="8" style="width:100%; margin-top:6px; padding:10px 12px; border-radius:8px; border:2px solid var(--border-c); font-size:0.9rem; font-family:inherit; background:var(--surface); color:var(--text);">GJ05BV4811
+GJ05BV4879
+GJ05BX2104
+GJ05BX2192
+GJ05CU6056
+GJ05CU6312
+GJ05CW3899
+GJ05CW3928
+GJ05CW4020
+GJ16AV7384
+GJ16AV7892
+NL01G8406
+NL01K1114
+NL02AA0524
+NL02AA0525
+NL02AA0526</textarea>
+    </label>
+    <p class="hint">These shared details apply to every listing below — edit any individual truck's actual route/capacity later if it differs.</p>
+    <div class="form-row">
+      <label>From city (shared)<input type="text" id="bulkFrom" list="cityList" placeholder="e.g. Hazira"></label>
+      <label>Truck type (shared)
+        <select id="bulkTruckType">
+          <option>Open Body</option><option>Container</option><option>Trailer</option>
+          <option>Tanker</option><option>LCV</option><option>Hyva</option>
+        </select>
+      </label>
+    </div>
+    <label>Capacity in tonnes (shared)<input type="number" step="0.1" id="bulkCapacity" placeholder="16"></label>
+    <button class="btn btn-primary" id="bulkAddBtn">Post All Vehicles</button>
+    <p class="hint" id="bulkAddResult"></p>
+  </div>
+
+  <div class="fleet-panel" style="margin-bottom:20px;">
     <h3>📍 Update a truck's position manually</h3>
     <p class="hint" style="margin-top:0;">Using a GPS app or tracker (like Aditi Tracking) that doesn't give you API access? Check its dashboard whenever you want, then paste the location here — it updates the same "live" marker on the map above. Not continuously automatic, but real position data with no API keys needed.</p>
     <div class="form-row">
