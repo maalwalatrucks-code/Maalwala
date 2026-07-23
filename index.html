@@ -16,6 +16,79 @@
 </head>
 <body>
 
+<!-- ===== AUTH GATE / LANDING PAGE — shown until OTP login succeeds ===== -->
+<div class="auth-gate" id="authGate">
+  <div class="ag-topbar">
+    <div class="brand"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+    <button class="theme-toggle" id="gateThemeToggle" title="Toggle dark mode">🌙</button>
+  </div>
+
+  <section class="ag-hero">
+    <p class="eyebrow">India's Load &amp; Fleet Marketplace</p>
+    <h1 class="ag-hero-title">One platform for every load,<br>every truck, every fleet.</h1>
+    <p class="ag-hero-sub">Maalwala connects shippers, booking agents, brokers, and fleet owners across India — post a load, find a truck, track your fleet live, and get paid securely through escrow. No middlemen, no guesswork.</p>
+    <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Mobile</button>
+  </section>
+
+  <section class="ag-stats">
+    <div class="ag-stat"><strong>Pan-India</strong><span>Network coverage</span></div>
+    <div class="ag-stat"><strong>Escrow</strong><span>Secure booking payments</span></div>
+    <div class="ag-stat"><strong>Live GPS</strong><span>Fleet tracking</span></div>
+    <div class="ag-stat"><strong>WhatsApp</strong><span>One-tap broadcast</span></div>
+  </section>
+
+  <section class="ag-services">
+    <h2 class="section-title" style="text-align:center;">Built for everyone who moves freight</h2>
+    <div class="ag-service-grid">
+      <div class="ag-service-card">
+        <div class="ag-service-icon">📦</div>
+        <h3>Shippers &amp; Agents</h3>
+        <p>Post a load in minutes, reach thousands of verified transporters, and pay securely — 90% released on booking, 10% held until delivery.</p>
+      </div>
+      <div class="ag-service-card">
+        <div class="ag-service-icon">🚚</div>
+        <h3>Fleet Owners &amp; Transporters</h3>
+        <p>List trucks for free, get booked directly, track your whole fleet live, and get paid straight to your UPI — automatically.</p>
+      </div>
+      <div class="ag-service-card">
+        <div class="ag-service-icon">🤝</div>
+        <h3>Brokers</h3>
+        <p>Match loads to trucks across your network, broadcast instantly to your WhatsApp groups, and manage every booking from one dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ag-login">
+    <div class="auth-card" id="gateLoginCard">
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <h1 class="auth-title">Login or Sign Up</h1>
+      <p class="auth-sub">Enter your mobile number — we'll text you a one-time code on WhatsApp. No password to remember.</p>
+      <div class="auth-error hidden" id="gatePhoneError"></div>
+
+      <div id="gatePhoneStep">
+        <label>Mobile number
+          <input type="tel" id="gatePhoneInput" placeholder="98765 43210" maxlength="10">
+        </label>
+        <button class="btn btn-primary btn-lg full" id="gateSendOtpBtn">Send OTP</button>
+      </div>
+
+      <div id="gateOtpStep" class="hidden">
+        <p class="hint" style="margin-top:0;" id="gateOtpSentTo"></p>
+        <label>Enter 6-digit code
+          <input type="text" id="gateOtpInput" placeholder="123456" maxlength="6" inputmode="numeric">
+        </label>
+        <div class="legal-notice hidden" id="gateDevCodeNotice"></div>
+        <button class="btn btn-primary btn-lg full" id="gateVerifyOtpBtn">Verify &amp; Continue</button>
+        <button class="link-btn" id="gateBackToPhoneBtn" style="margin-top:10px;">← Use a different number</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="ag-footer">
+    <span>© <span id="gateFooterYear"></span> Maalwala — proudly developed by Rahul Roadways Hazira, 25+ years in transportation.</span>
+  </footer>
+</div>
+
 <div class="site-bg" id="siteBg"></div>
 <div class="site-bg-scrim"></div>
 
@@ -45,11 +118,7 @@
     <button class="btn btn-primary" id="bookTruckBtnTop" title="Browse available trucks and book one">Book a Truck</button>
     <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load">+ Post a Load</button>
     <span class="topbar-divider"></span>
-    <div class="auth-buttons" id="authButtons">
-      <button class="btn-link" id="accountSignInBtn">Sign In</button>
-      <button class="btn btn-accent btn-sm" id="accountSignUpBtn">Sign Up</button>
-    </div>
-    <div class="nav-dropdown hidden" id="accountDropdown">
+    <div class="nav-dropdown" id="accountDropdown">
       <button class="btn btn-ghost btn-account" id="accountDropdownBtn">👤 <span id="accountLabel">Account</span> <span class="caret">▾</span></button>
       <div class="nav-dropdown-menu nav-dropdown-menu-right" id="accountDropdownMenu">
         <button class="nav-dropdown-item" id="accountSignOutBtn">Sign Out</button>
@@ -78,9 +147,7 @@
   <button class="nav-tab drawer-indent" data-screen="broadcast">📣 Broadcast</button>
   <button class="nav-tab drawer-indent" data-screen="bookings">💰 Bookings</button>
   <div class="drawer-section-label">Account</div>
-  <button class="nav-tab drawer-indent" id="drawerSignInBtn">Sign In</button>
-  <button class="nav-tab drawer-indent" id="drawerSignUpBtn">Sign Up</button>
-  <button class="nav-tab drawer-indent hidden" id="drawerSignOutBtn">Sign Out</button>
+  <button class="nav-tab drawer-indent" id="drawerSignOutBtn">Sign Out</button>
   <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;">+ Post a Load</button>
   <button class="btn btn-primary full" id="bookTruckBtnDrawer" style="margin-top:8px;">Book a Truck</button>
 </nav>
@@ -115,13 +182,13 @@
     </div>
   </section>
 
-  <!-- ===== RAHUL ROADWAYS BRANDING ===== -->
+  <!-- ===== TRUST / ABOUT ===== -->
   <section class="trust-section">
     <div class="trust-inner">
       <div class="trust-head">
-        <p class="trust-eyebrow">Why trust Maalwala</p>
-        <h2 class="section-title">Built by transporters, not just developers</h2>
-        <p class="trust-statement">Maalwala is proudly developed by <b>Rahul Roadways Hazira</b>, bringing more than <b>25 years</b> of real transportation experience into a modern digital logistics platform. This isn't a platform guessing at what transporters need — it's built on decades of actually running trucks on Indian roads.</p>
+        <p class="trust-eyebrow">Why transporters trust Maalwala</p>
+        <h2 class="section-title">A marketplace, open to every fleet owner, broker and shipper in India</h2>
+        <p class="trust-statement">Maalwala connects thousands of transporters, fleet owners, brokers and shippers across the country — post a load, list a truck, get booked, and get paid securely. Founded by <b>Rahul Roadways Hazira</b>, bringing <b>25+ years</b> of real transportation experience into the platform — but built as an open marketplace for the whole industry, not just one company's fleet.</p>
       </div>
 
       <div class="trust-stats">

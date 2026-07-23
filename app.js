@@ -359,78 +359,21 @@ document.querySelectorAll('.nav-dropdown-item[data-screen]').forEach(btn=>{
   });
 });
 
-// ---------- Account / session state ----------
+// ---------- Account / session state (now driven by the OTP gate) ----------
 function renderAccountState(){
-  const user = Auth.getUser();
+  const user = AuthGate.getUser();
   const label = document.getElementById('accountLabel');
-  const authButtons = document.getElementById('authButtons');
-  const accountDropdown = document.getElementById('accountDropdown');
-  const drawerSignIn = document.getElementById('drawerSignInBtn');
-  const drawerSignUp = document.getElementById('drawerSignUpBtn');
+  if(user) label.textContent = user.businessName || ('+91 ' + user.phone);
   const drawerSignOut = document.getElementById('drawerSignOutBtn');
-  if(user){
-    label.textContent = user.businessName;
-    authButtons.classList.add('hidden');
-    accountDropdown.classList.remove('hidden');
-    drawerSignIn.classList.add('hidden');
-    drawerSignUp.classList.add('hidden');
-    drawerSignOut.classList.remove('hidden');
-  } else {
-    authButtons.classList.remove('hidden');
-    accountDropdown.classList.add('hidden');
-    drawerSignIn.classList.remove('hidden');
-    drawerSignUp.classList.remove('hidden');
-    drawerSignOut.classList.add('hidden');
-  }
+  if(drawerSignOut) drawerSignOut.classList.remove('hidden');
 }
-[['accountSignInBtn'],['drawerSignInBtn']].forEach(([id])=>{
-  document.getElementById(id).addEventListener('click', ()=>{ showScreen('signin'); closeDrawer(); });
-});
-[['accountSignUpBtn'],['drawerSignUpBtn']].forEach(([id])=>{
-  document.getElementById(id).addEventListener('click', ()=>{ showScreen('signup'); closeDrawer(); });
-});
 [['accountSignOutBtn'],['drawerSignOutBtn']].forEach(([id])=>{
-  document.getElementById(id).addEventListener('click', async ()=>{
-    await Auth.logout();
-    renderAccountState();
+  document.getElementById(id)?.addEventListener('click', async ()=>{
+    AuthGate.clearSession();
     closeDrawer();
     toast('Signed out.');
-    showScreen('home');
+    window.location.reload(); // simplest reliable way back to the gate with a clean app state
   });
-});
-
-function showAuthError(elId, message){
-  const el = document.getElementById(elId);
-  el.textContent = message;
-  el.classList.remove('hidden');
-}
-document.getElementById('signinSubmitBtn').addEventListener('click', async ()=>{
-  const email = document.getElementById('signinEmail').value.trim();
-  const password = document.getElementById('signinPassword').value;
-  document.getElementById('signinError').classList.add('hidden');
-  if(!email || !password){ showAuthError('signinError', 'Enter your email and password.'); return; }
-  try{
-    const {token, user} = await Auth.login(email, password);
-    Auth.setSession(token, user);
-    renderAccountState();
-    toast(`Welcome back, ${user.businessName}.`);
-    showScreen('home');
-  }catch(e){ showAuthError('signinError', e.message); }
-});
-document.getElementById('signupSubmitBtn').addEventListener('click', async ()=>{
-  const businessName = document.getElementById('signupBusinessName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-  const password = document.getElementById('signupPassword').value;
-  document.getElementById('signupError').classList.add('hidden');
-  if(!businessName || !email || !password){ showAuthError('signupError', 'Fill in all fields.'); return; }
-  if(password.length < 6){ showAuthError('signupError', 'Password must be at least 6 characters.'); return; }
-  try{
-    const {token, user} = await Auth.signup(businessName, email, password);
-    Auth.setSession(token, user);
-    renderAccountState();
-    toast(`Welcome to Maalwala, ${user.businessName}.`);
-    showScreen('home');
-  }catch(e){ showAuthError('signupError', e.message); }
 });
 renderAccountState();
 
@@ -1053,16 +996,117 @@ document.getElementById('copyMsgBtn').addEventListener('click', ()=>{
 });
 
 // ---------- Init ----------
-(async function init(){
+async function initApp(){
   seedLocalIfEmpty();
   await renderAll();
   await loadProfileForm();
-})();
-
-// Register service worker for installability (best-effort, ignore failures)
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  renderAccountState();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
 }
+
+// ---------- Auth gate (mandatory OTP login before anything else loads) ----------
+const AuthGate = {
+  getToken: ()=> localStorage.getItem('mw_token'),
+  getUser: ()=> { try{ return JSON.parse(localStorage.getItem('mw_user')||'null'); }catch(e){ return null; } },
+  setSession: (token, user)=>{ localStorage.setItem('mw_token', token); localStorage.setItem('mw_user', JSON.stringify(user)); },
+  clearSession: ()=>{ localStorage.removeItem('mw_token'); localStorage.removeItem('mw_user'); },
+};
+async function checkExistingSession(){
+  const token = AuthGate.getToken();
+  if(!token || !USE_API) return false;
+  try{
+    const r = await fetch(API_BASE + '/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+    if(r.ok) return true;
+  }catch(e){}
+  AuthGate.clearSession();
+  return false;
+}
+function hideAuthGate(){
+  document.getElementById('authGate').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function showAuthGate(){
+  document.getElementById('authGate').style.display = '';
+  document.getElementById('gateFooterYear').textContent = new Date().getFullYear();
+}
+
+document.getElementById('gateGetStartedBtn')?.addEventListener('click', ()=>{
+  document.getElementById('gateLoginCard').scrollIntoView({behavior:'smooth', block:'center'});
+});
+document.getElementById('gateThemeToggle')?.addEventListener('click', ()=>{
+  document.getElementById('themeToggle').click(); // reuse the same theme logic
+});
+
+let lastOtpPhone = '';
+document.getElementById('gateSendOtpBtn')?.addEventListener('click', async ()=>{
+  const phone = document.getElementById('gatePhoneInput').value.replace(/\D/g,'');
+  const errEl = document.getElementById('gatePhoneError');
+  errEl.classList.add('hidden');
+  if(phone.length !== 10){ errEl.textContent = 'Enter a valid 10-digit mobile number.'; errEl.classList.remove('hidden'); return; }
+  if(!USE_API){ errEl.textContent = 'Backend not connected — see config.js. Login needs a server.'; errEl.classList.remove('hidden'); return; }
+
+  const btn = document.getElementById('gateSendOtpBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch(API_BASE + '/api/auth/request-otp', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({phone})});
+    const data = await r.json();
+    if(!r.ok){ errEl.textContent = data.error || 'Could not send code.'; errEl.classList.remove('hidden'); }
+    else{
+      lastOtpPhone = phone;
+      document.getElementById('gatePhoneStep').classList.add('hidden');
+      document.getElementById('gateOtpStep').classList.remove('hidden');
+      document.getElementById('gateOtpSentTo').textContent = `Code sent to WhatsApp on +91 ${phone}`;
+      const devNotice = document.getElementById('gateDevCodeNotice');
+      if(data.via === 'dev-fallback'){
+        devNotice.textContent = `⚠️ ${data.warning} Your code: ${data.devCode}`;
+        devNotice.classList.remove('hidden');
+      } else {
+        devNotice.classList.add('hidden');
+      }
+    }
+  }catch(e){ errEl.textContent = 'Could not reach the server.'; errEl.classList.remove('hidden'); }
+  btn.disabled = false; btn.textContent = 'Send OTP';
+});
+
+document.getElementById('gateBackToPhoneBtn')?.addEventListener('click', ()=>{
+  document.getElementById('gateOtpStep').classList.add('hidden');
+  document.getElementById('gatePhoneStep').classList.remove('hidden');
+  document.getElementById('gateOtpInput').value = '';
+});
+
+document.getElementById('gateVerifyOtpBtn')?.addEventListener('click', async ()=>{
+  const code = document.getElementById('gateOtpInput').value.trim();
+  const errEl = document.getElementById('gatePhoneError');
+  errEl.classList.add('hidden');
+  if(code.length !== 6){ errEl.textContent = 'Enter the 6-digit code.'; errEl.classList.remove('hidden'); return; }
+
+  const btn = document.getElementById('gateVerifyOtpBtn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try{
+    const r = await fetch(API_BASE + '/api/auth/verify-otp', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({phone:lastOtpPhone, code})});
+    const data = await r.json();
+    if(!r.ok){ errEl.textContent = data.error || 'Incorrect code.'; errEl.classList.remove('hidden'); }
+    else{
+      AuthGate.setSession(data.token, data.user);
+      hideAuthGate();
+      await initApp();
+      toast('Welcome to Maalwala.');
+    }
+  }catch(e){ errEl.textContent = 'Could not reach the server.'; errEl.classList.remove('hidden'); }
+  btn.disabled = false; btn.textContent = 'Verify & Continue';
+});
+
+(async function boot(){
+  const loggedIn = await checkExistingSession();
+  if(loggedIn){
+    hideAuthGate();
+    await initApp();
+  } else {
+    showAuthGate();
+  }
+})();
 
 // ---------- Fleet dashboard (Sprint 3) ----------
 // Approximate coordinates for major Indian logistics hubs used in demo data.
