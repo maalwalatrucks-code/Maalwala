@@ -310,7 +310,7 @@ initSlideshow('heroSlideshow', 6000, 0);
 initSlideshow('siteBg', 6000, 3000); // offset so the two don't crossfade in perfect sync
 
 // ---------- Navigation ----------
-const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment','fastag','signin','signup'];
+const screens = ['home','loads','trucks','fleet','records','broadcast','profile','terms','payment','fastag','signin','signup','bookings'];
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 function showScreen(name){
   screens.forEach(s=>{
@@ -323,6 +323,7 @@ function showScreen(name){
   if(name === 'fleet'){ setTimeout(renderFleetMap, 50); checkAditiStatus(); startAditiAutoSync(); } // let the container become visible first
   else{ stopAditiAutoSync(); }
   if(name === 'records') renderActiveRecordTab();
+  if(name === 'bookings') renderBookings();
 }
 document.getElementById('navTabs').addEventListener('click', e=>{
   const btn = e.target.closest('.nav-tab');
@@ -506,6 +507,7 @@ function routeCardHTML(item, type){
       ${trackingBtn}
       ${editVehicleBtn}
       <button class="btn btn-primary" onclick="openSendForItem('${item.id}','${type}')">Share to WhatsApp</button>
+      <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">💰 Book Now</button>
     </div>
   </div>`;
 }
@@ -750,6 +752,7 @@ async function loadProfileForm(){
   document.getElementById('profCity').value = p.city||'';
   document.getElementById('profPhone').value = p.phone||'';
   document.getElementById('profGST').value = p.gst||'';
+  document.getElementById('profPayoutUpi').value = p.payoutUpiId||'';
   currentDrivers = p.drivers || [];
   renderDriverList();
   renderVerificationStatus(p);
@@ -771,6 +774,7 @@ async function persistProfile(){
     city: document.getElementById('profCity').value.trim(),
     phone: document.getElementById('profPhone').value.trim(),
     gst: document.getElementById('profGST').value.trim(),
+    payoutUpiId: document.getElementById('profPayoutUpi').value.trim(),
     drivers: currentDrivers,
   };
   await Profile.save(p);
@@ -861,6 +865,7 @@ document.getElementById('truckForm').addEventListener('submit', async e=>{
     poster: profile.name || 'You', phone: profile.phone || '',
     driverName: val('truckDriverName'), driverPhone: val('truckDriverPhone'),
     vehicleNumber: val('truckVehicleNumber').trim().toUpperCase(),
+    payoutUpiId: val('truckPayoutUpi').trim(),
     verified: Boolean(profile.name && profile.phone && profile.gst),
   };
   const doBroadcast = document.getElementById('truckBroadcast').checked;
@@ -875,6 +880,106 @@ function val(id){ return document.getElementById(id).value; }
 
 // ---------- Broadcast / Send modal ----------
 let currentSendMessage = '';
+window.openBookingModal = async function(id, type){
+  const list = type==='load' ? CACHE.loads : CACHE.trucks;
+  let item = list.find(i=>i.id===id);
+  if(!item){
+    const fresh = type==='load' ? await Loads.all() : await Trucks.all();
+    item = fresh.find(i=>i.id===id);
+  }
+  if(!item) return;
+
+  document.getElementById('bookingItemId').value = id;
+  document.getElementById('bookingItemType').value = type;
+  document.getElementById('bookingSummary').textContent =
+    `${item.from} → ${item.to||'Anywhere'} · ${item.truckType||''} · Posted by ${item.poster}`;
+  document.getElementById('bookingTotalAmount').value = item.rate || '';
+  document.getElementById('bookingResult').textContent = '';
+
+  const profile = await Profile.get();
+  document.getElementById('bookingMyName').value = profile.name || '';
+  document.getElementById('bookingMyPhone').value = profile.phone || '';
+
+  // Booking a truck: the truck's own listed payout UPI is used automatically.
+  // Booking a load: you (the transporter) need to supply your own payout UPI.
+  const payoutRow = document.getElementById('bookingPayoutRow');
+  if(type === 'truck'){
+    payoutRow.innerHTML = item.payoutUpiId
+      ? `<p class="hint" style="margin-top:0;">Payout goes to this truck's registered UPI: <b>${escapeHtml(item.payoutUpiId)}</b></p>`
+      : `<div class="legal-notice">This truck has no payout UPI on file — booking is disabled until the transporter adds one via "Edit vehicle #" style edit on their listing.</div>`;
+  } else {
+    payoutRow.innerHTML = `<label>Your payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(where you'll receive payment as the transporter)</span>
+      <input required type="text" id="bookingMyUpi" placeholder="yourname@upi" value="${escapeHtml(profile.payoutUpiId||'')}"></label>`;
+  }
+
+  updateEscrowPreview();
+  document.getElementById('bookingTotalAmount').oninput = updateEscrowPreview;
+
+  const status = await (async ()=>{ try{ const r = await fetch(API_BASE + '/api/payments/status'); return r.ok ? r.json() : {paymentsConfigured:false}; }catch(e){ return {paymentsConfigured:false}; } })();
+  document.getElementById('bookingConfigWarning').style.display = status.paymentsConfigured ? 'none' : 'block';
+
+  openModal('bookingModal');
+};
+function updateEscrowPreview(){
+  const total = Number(document.getElementById('bookingTotalAmount').value) || 0;
+  const advance = Math.round(total * 0.9);
+  const balance = total - advance;
+  document.getElementById('escrowSplitPreview').innerHTML = total
+    ? `<span>90% now: <b>₹${advance.toLocaleString('en-IN')}</b></span> <span>10% on delivery: <b>₹${balance.toLocaleString('en-IN')}</b></span>`
+    : '';
+}
+document.getElementById('bookingForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const id = document.getElementById('bookingItemId').value;
+  const type = document.getElementById('bookingItemType').value;
+  const list = type==='load' ? CACHE.loads : CACHE.trucks;
+  const item = list.find(i=>i.id===id);
+  if(!item) return;
+
+  const totalAmount = Number(document.getElementById('bookingTotalAmount').value);
+  const myName = document.getElementById('bookingMyName').value.trim();
+  const myPhone = document.getElementById('bookingMyPhone').value.trim();
+  const resultEl = document.getElementById('bookingResult');
+
+  let payload;
+  if(type === 'truck'){
+    if(!item.payoutUpiId){ resultEl.textContent = 'This truck has no payout UPI on file.'; return; }
+    payload = {
+      truckId: id, route: `${item.from} → ${item.to||'Anywhere'}`, totalAmount,
+      shipperName: myName, shipperPhone: myPhone,
+      transporterName: item.poster, transporterPhone: item.phone, transporterUpiId: item.payoutUpiId,
+      termsAccepted: document.getElementById('bookingTermsAccept').checked,
+    };
+  } else {
+    const myUpi = document.getElementById('bookingMyUpi').value.trim();
+    if(!myUpi){ resultEl.textContent = 'Enter your payout UPI ID.'; return; }
+    payload = {
+      loadId: id, route: `${item.from} → ${item.to||'Anywhere'}`, totalAmount,
+      shipperName: item.poster, shipperPhone: item.phone,
+      transporterName: myName, transporterPhone: myPhone, transporterUpiId: myUpi,
+      termsAccepted: document.getElementById('bookingTermsAccept').checked,
+    };
+  }
+
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'Creating payment link…';
+  try{
+    const r = await fetch(API_BASE + '/api/bookings', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const data = await r.json();
+    if(!r.ok){ resultEl.textContent = data.error || 'Could not create booking.'; }
+    else{
+      resultEl.textContent = 'Booking created — opening payment page…';
+      window.open(data.paymentLinkUrl, '_blank');
+      closeModal('bookingModal');
+      toast('Booking created. Check "My Bookings" for status.');
+      showScreen('bookings');
+    }
+  }catch(err){
+    resultEl.textContent = 'Could not reach the server.';
+  }
+  btn.disabled = false; btn.textContent = 'Pay & Book';
+});
+
 window.openSendForItem = async function(id, type){
   const list = type==='load' ? CACHE.loads : CACHE.trucks;
   let item = list.find(i=>i.id===id);
@@ -1454,6 +1559,98 @@ document.getElementById('manualPingBtn')?.addEventListener('click', async ()=>{
     resultEl.textContent = e.message;
   }
 });
+
+// ---------- Bookings (escrow) ----------
+const BOOKING_STATUS_LABEL = {
+  awaiting_payment: { text: 'Awaiting payment', color: '#8a96ab' },
+  funded: { text: 'Paid — arranging advance payout', color: '#c98a00' },
+  in_transit: { text: 'Advance paid — in transit', color: '#1565C0' },
+  delivered_pending_confirmation: { text: 'Delivered — balance releases automatically', color: '#c98a00' },
+  disputed: { text: '⚠️ Disputed', color: '#b23' },
+  completed: { text: '✅ Completed — fully paid', color: '#1b7a41' },
+  refund_pending_manual: { text: 'Refund pending (manual)', color: '#b23' },
+};
+async function renderBookings(){
+  // Ask the server to release anything past its window first, so the list is current.
+  try{ await fetch(API_BASE + '/api/bookings/check-releases', {method:'POST'}); }catch(e){}
+
+  const el = document.getElementById('bookingsList');
+  let bookings = [];
+  try{
+    const r = await fetch(API_BASE + '/api/bookings');
+    if(r.ok) bookings = await r.json();
+  }catch(e){}
+
+  if(!bookings.length){ el.innerHTML = emptyState('No bookings yet — book a load or truck to see it here.'); return; }
+
+  const profile = await Profile.get();
+  el.innerHTML = bookings.sort((a,b)=>b.ts-a.ts).map(bk=>{
+    const status = BOOKING_STATUS_LABEL[bk.status] || { text: bk.status, color: '#8a96ab' };
+    const isTransporter = bk.transporterPhone && bk.transporterPhone === profile.phone;
+    const isShipper = bk.shipperPhone && bk.shipperPhone === profile.phone;
+
+    let actions = '';
+    if(isTransporter && ['funded','in_transit'].includes(bk.status)){
+      actions = `<button class="btn btn-primary" onclick="markBookingDelivered('${bk.id}')">📦 Mark Delivered</button>`;
+    }
+    if(isShipper && bk.status === 'delivered_pending_confirmation'){
+      const hoursLeft = Math.max(0, Math.round(48 - (Date.now()-bk.deliveryConfirmedAt)/3600000));
+      actions = `<span class="hint" style="margin:0;">Auto-releases in ~${hoursLeft}h unless disputed</span>
+        <button class="btn btn-ghost" onclick="disputeBooking('${bk.id}')">⚠️ Raise Dispute</button>`;
+    }
+    if(bk.status === 'disputed'){
+      actions = `<span class="hint" style="margin:0;">Reason: ${escapeHtml(bk.disputeReason||'')}</span>`;
+    }
+
+    return `
+    <div class="route-card">
+      <div class="route-card-top">
+        <div class="route-line"><span class="route-dot"></span>${escapeHtml(bk.route||'Booking')}</div>
+        <span class="tag" style="background:${status.color}22; color:${status.color};">${escapeHtml(status.text)}</span>
+      </div>
+      <div class="route-meta">
+        <span>Shipper: <b>${escapeHtml(bk.shipperName)}</b></span>
+        <span>Transporter: <b>${escapeHtml(bk.transporterName)}</b></span>
+      </div>
+      <div class="route-meta">
+        <span>Total: <b>₹${Number(bk.totalAmount).toLocaleString('en-IN')}</b></span>
+        <span>Advance (90%): ₹${Number(bk.advanceAmount).toLocaleString('en-IN')}</span>
+        <span>Held (10%): ₹${Number(bk.balanceAmount).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="route-card-actions">${actions}</div>
+    </div>`;
+  }).join('');
+}
+window.markBookingDelivered = async function(bookingId){
+  const podFile = document.createElement('input');
+  podFile.type = 'file'; podFile.accept = 'image/*';
+  podFile.onchange = async ()=>{
+    let podPhoto = null;
+    if(podFile.files[0]){
+      if(podFile.files[0].size > 4*1024*1024){ toast('Photo too large — use one under 4MB.'); return; }
+      podPhoto = await fileToBase64(podFile.files[0]);
+    }
+    try{
+      const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/mark-delivered', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({podPhoto})
+      });
+      if(r.ok){ toast('Marked delivered — 10% releases automatically in 48h unless disputed.'); renderBookings(); }
+      else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not update booking.'); }
+    }catch(e){ toast('Could not reach the server.'); }
+  };
+  podFile.click();
+};
+window.disputeBooking = async function(bookingId){
+  const reason = prompt('Reason for the dispute (required):');
+  if(!reason) return;
+  try{
+    const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/dispute', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({reason})
+    });
+    if(r.ok){ toast('Dispute raised — the balance payout is frozen pending review.'); renderBookings(); }
+    else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not raise dispute.'); }
+  }catch(e){ toast('Could not reach the server.'); }
+};
 
 // ---------- Onboarding tour ----------
 const TOUR_STEPS = [

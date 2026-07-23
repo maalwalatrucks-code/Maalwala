@@ -38,6 +38,7 @@
           <button class="nav-dropdown-item" data-screen="fleet" data-tour="nav-fleet">🚚 Fleet</button>
           <button class="nav-dropdown-item" data-screen="records" data-tour="nav-records">📒 Records</button>
           <button class="nav-dropdown-item" data-screen="broadcast" data-tour="nav-broadcast">📣 Broadcast</button>
+          <button class="nav-dropdown-item" data-screen="bookings">💰 Bookings</button>
         </div>
       </div>
     </nav>
@@ -75,6 +76,7 @@
   <button class="nav-tab drawer-indent" data-screen="fleet">🚚 Fleet</button>
   <button class="nav-tab drawer-indent" data-screen="records">📒 Records</button>
   <button class="nav-tab drawer-indent" data-screen="broadcast">📣 Broadcast</button>
+  <button class="nav-tab drawer-indent" data-screen="bookings">💰 Bookings</button>
   <div class="drawer-section-label">Account</div>
   <button class="nav-tab drawer-indent" id="drawerSignInBtn">Sign In</button>
   <button class="nav-tab drawer-indent" id="drawerSignUpBtn">Sign Up</button>
@@ -499,6 +501,13 @@ NL02AA0526</textarea>
   </div>
 </section>
 
+<!-- ===== BOOKINGS (escrow) ===== -->
+<section class="screen hidden" id="screen-bookings">
+  <div class="screen-header"><h1>Bookings</h1></div>
+  <p class="screen-intro">Every load/truck you've booked or been booked for. Payment status updates automatically once Razorpay confirms — nothing here can be faked by clicking a button.</p>
+  <div id="bookingsList" class="card-list"></div>
+</section>
+
 <!-- ===== BROADCAST (WhatsApp groups) ===== -->
 <section class="screen hidden" id="screen-broadcast">
   <div class="screen-header">
@@ -555,6 +564,9 @@ NL02AA0526</textarea>
       <label>Phone (for bids &amp; WhatsApp)<input type="tel" id="profPhone" placeholder="9XXXXXXXXX"></label>
       <label>GST number (optional)<input type="text" id="profGST" placeholder="24AAAAA0000A1Z5"></label>
     </div>
+    <label>Payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(used if you book someone else's load — this is where you'd get paid)</span>
+      <input type="text" id="profPayoutUpi" placeholder="yourname@upi">
+    </label>
     <button class="btn btn-primary" id="saveProfileBtn">Save Business Profile</button>
     <p class="hint">This name &amp; phone appear on every load/truck you post, and get inserted into your WhatsApp broadcast messages automatically.</p>
     <div class="verification-row" id="verificationStatus"></div>
@@ -783,6 +795,9 @@ NL02AA0526</textarea>
       <label>Vehicle number <span style="font-weight:400;color:var(--text-muted);">(optional — enables live GPS sync if this vehicle is on Aditi Tracking)</span>
         <input type="text" id="truckVehicleNumber" placeholder="e.g. GJ01KT0057">
       </label>
+      <label>Payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(where you'll receive payment if this truck gets booked)</span>
+        <input type="text" id="truckPayoutUpi" placeholder="yourname@upi">
+      </label>
       <label>Driver
         <select id="truckDriverSelect"><option value="">— Enter manually —</option></select>
       </label>
@@ -797,6 +812,31 @@ NL02AA0526</textarea>
 </div>
 
 <!-- ===== BROADCAST SEND MODAL ===== -->
+<div class="modal-backdrop hidden" id="bookingModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Book &amp; Pay</h2><button class="modal-close" data-close="bookingModal">✕</button></div>
+    <div class="legal-notice" id="bookingConfigWarning" style="display:none;">Payments aren't set up on this server yet — booking isn't available until Razorpay is configured.</div>
+    <form id="bookingForm">
+      <input type="hidden" id="bookingItemId">
+      <input type="hidden" id="bookingItemType">
+      <p class="hint" id="bookingSummary" style="margin-top:0;"></p>
+      <label>Total freight amount (₹)<input required type="number" id="bookingTotalAmount" placeholder="45000"></label>
+      <div class="escrow-split" id="escrowSplitPreview"></div>
+      <div class="form-row">
+        <label>Your name<input required type="text" id="bookingMyName"></label>
+        <label>Your phone<input required type="tel" id="bookingMyPhone"></label>
+      </div>
+      <div id="bookingPayoutRow"></div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="bookingTermsAccept" required>
+        I agree to pay the full amount now — 90% goes to the transporter immediately, 10% is held in escrow and released automatically 48 hours after confirmed delivery unless I raise a dispute with a reason.
+      </label>
+      <button type="submit" class="btn btn-primary btn-lg full">Pay &amp; Book</button>
+      <p class="hint" id="bookingResult"></p>
+    </form>
+  </div>
+</div>
+
 <div class="modal-backdrop hidden" id="sendModal">
   <div class="modal">
     <div class="modal-head"><h2>Send to your WhatsApp groups</h2><button class="modal-close" data-close="sendModal">✕</button></div>

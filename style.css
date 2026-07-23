@@ -405,6 +405,11 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 }
 .form-row{ display:grid; grid-template-columns:1fr 1fr; gap: 12px; }
 .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:0.85rem; }
+.escrow-split{
+  display:flex; gap:16px; flex-wrap:wrap; background: var(--surface-2); border-radius:10px;
+  padding:12px 16px; margin-bottom:14px; font-size:0.86rem;
+}
+.escrow-split b{ color: var(--orange-dark); }
 .checkbox-row input{ width:auto; margin:0; }
 
 /* ---------- Send modal ---------- */
