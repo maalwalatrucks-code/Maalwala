@@ -375,7 +375,6 @@ function renderAccountState(){
     window.location.reload(); // simplest reliable way back to the gate with a clean app state
   });
 });
-renderAccountState();
 
 // ---------- Modals ----------
 function openModal(id){ document.getElementById(id).classList.remove('hidden'); }

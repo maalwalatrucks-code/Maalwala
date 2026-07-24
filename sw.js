@@ -1,4 +1,4 @@
-const CACHE = 'maalwala-v36';
+const CACHE = 'maalwala-v37';
 const ASSETS = ['./', './index.html', './driver.html', './style.css', './app.js', './config.js', './manifest.json', './icon.svg', './slide-1.jpg', './slide-2.jpg'];
 
 self.addEventListener('install', e=>{
