@@ -908,6 +908,11 @@ document.getElementById('bookingForm').addEventListener('submit', async e=>{
       termsAccepted: document.getElementById('bookingTermsAccept').checked,
     };
   }
+   if (type !== 'truck') {
+        payload.vehicleNumber = document.getElementById('bookingVehicleNumber').value.trim().toUpperCase();
+        payload.driverName = document.getElementById('bookingDriverName').value.trim();
+        payload.driverPhone = document.getElementById('bookingDriverPhone').value.trim();
+   }
 
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true; btn.textContent = 'Creating payment link…';
@@ -916,6 +921,13 @@ document.getElementById('bookingForm').addEventListener('submit', async e=>{
     const data = await r.json();
     if(!r.ok){ resultEl.textContent = data.error || 'Could not create booking.'; }
     else{
+       if (!data.paymentLinkUrl) {
+            closeModal('bookingModal');
+            toast(`Load booked! Contact ${data.shipperName || 'the shipper'}${data.shipperPhone ? ' (' + data.shipperPhone + ')' : ''} to coordinate pickup.`);
+            showScreen('bookings');
+            btn.disabled = false; btn.textContent = 'Confirm Booking';
+            return;
+       }
       resultEl.textContent = 'Booking created — opening payment page…';
       window.open(data.paymentLinkUrl, '_blank');
       closeModal('bookingModal');
