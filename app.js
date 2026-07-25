@@ -852,6 +852,12 @@ window.openBookingModal = async function(id, type){
   } else {
     payoutRow.innerHTML = `<label>Your payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(where you'll receive payment as the transporter)</span>
       <input required type="text" id="bookingMyUpi" placeholder="yourname@upi" value="${escapeHtml(profile.payoutUpiId||'')}"></label>`;
+       if (type !== 'truck') {
+              payoutRow.innerHTML += `<label>Your vehicle number <input required type="text" id="bookingVehicleNumber" placeholder="e.g. GJ01KT0057"></label>
+                  <label>Driver name <input required type="text" id="bookingDriverName" placeholder="Driver's full name"></label>
+                      <label>Driver phone <input required type="text" id="bookingDriverPhone" placeholder="10-digit mobile"></label>
+                          <p class="hint">No payment happens now — the shipper pays once your truck is loaded and you've shared the e-way bill. You'll get 90% immediately after that, and the remaining 10% 48 hours after confirmed delivery.</p>`;
+       }
   }
 
   updateEscrowPreview();
