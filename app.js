@@ -846,6 +846,7 @@ window.openBookingModal = async function(id, type){
   // Booking a load: you (the transporter) need to supply your own payout UPI.
   const payoutRow = document.getElementById('bookingPayoutRow');
   if(type === 'truck'){
+         document.getElementById('bookingTermsAccept').closest('label').style.display = '';
     payoutRow.innerHTML = item.payoutUpiId
       ? `<p class="hint" style="margin-top:0;">Payout goes to this truck's registered UPI: <b>${escapeHtml(item.payoutUpiId)}</b></p>`
       : `<div class="legal-notice">This truck has no payout UPI on file — booking is disabled until the transporter adds one via "Edit vehicle #" style edit on their listing.</div>`;
@@ -857,6 +858,7 @@ window.openBookingModal = async function(id, type){
                   <label>Driver name <input required type="text" id="bookingDriverName" placeholder="Driver's full name"></label>
                       <label>Driver phone <input required type="text" id="bookingDriverPhone" placeholder="10-digit mobile"></label>
                           <p class="hint">No payment happens now — the shipper pays once your truck is loaded and you've shared the e-way bill. You'll get 90% immediately after that, and the remaining 10% 48 hours after confirmed delivery.</p>`;
+              document.getElementById('bookingTermsAccept').closest('label').style.display = 'none';
        }
   }
 
