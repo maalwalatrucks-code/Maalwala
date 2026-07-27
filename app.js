@@ -459,11 +459,12 @@ function fmtDate(d){ if(!d) return '—'; const dt = new Date(d); return dt.toLo
 function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 window.toggleFeatured = async function(id, type, newVal){
   try{
+    const profile = await Profile.get();
     const r = await fetch(API_BASE + '/api/' + (type==='load'?'loads':'trucks') + '/' + id + '/feature', {
-      method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({featured:newVal})
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({featured:newVal, requesterPhone: profile.phone||''})
     });
     if(r.ok){ await renderAll(); toast(newVal ? 'Featured — this listing now shows at the top.' : 'Unfeatured.'); }
-    else{ toast('Could not update.'); }
+    else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not update.'); }
   }catch(e){ toast('Could not reach the server.'); }
 };
 window.callPoster = function(phone){
@@ -1651,15 +1652,14 @@ async function renderBookings(){
   try{ await fetch(API_BASE + '/api/bookings/check-releases', {method:'POST'}); }catch(e){}
 
   const el = document.getElementById('bookingsList');
+  const profile = await Profile.get();
   let bookings = [];
   try{
-    const r = await fetch(API_BASE + '/api/bookings');
+    const r = await fetch(API_BASE + '/api/bookings?phone=' + encodeURIComponent(profile.phone||''));
     if(r.ok) bookings = await r.json();
   }catch(e){}
 
   if(!bookings.length){ el.innerHTML = emptyState('No bookings yet — book a load or truck to see it here.'); return; }
-
-  const profile = await Profile.get();
   el.innerHTML = bookings.sort((a,b)=>b.ts-a.ts).map(bk=>{
     const status = BOOKING_STATUS_LABEL[bk.status] || { text: bk.status, color: '#8a96ab' };
     const isTransporter = bk.transporterPhone && bk.transporterPhone === profile.phone;
