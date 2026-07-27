@@ -246,7 +246,14 @@ const Auth = {
   },
 };
 const Profile = {
-  get: ()=> apiGet('/api/profile', 'profile', {name:'', role:'Transporter', city:'', phone:'', gst:'', drivers:[]}),
+  get: async ()=> {
+    const cached = LocalDB.get('profile', null);
+    const phone = cached && cached.phone ? cached.phone : '';
+    const path = '/api/profile' + (phone ? ('?phone=' + encodeURIComponent(phone)) : '');
+    const result = await apiGet(path, 'profile', {name:'', role:'Transporter', city:'', phone:'', gst:'', drivers:[]});
+    if(result && result.phone) LocalDB.set('profile', result);
+    return result;
+  },
   save: (p)=> apiPost('/api/profile', p).then(res=>{ LocalDB.set('profile', p); return res; }),
 };
 async function whatsappStatus(){
