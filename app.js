@@ -438,6 +438,7 @@ function routeCardHTML(item, type){
         <span class="route-dot end"></span>${escapeHtml(item.to)}
       </div>
       <span class="tag">${type==='load' ? 'Load' : 'Truck'}</span>
+      ${item.featured ? '<span class="tag" style="background:#ffd70022;color:#a8790a;">⭐ Featured</span>' : ''}
     </div>
     ${meta}
     ${driverLine}
@@ -448,6 +449,7 @@ function routeCardHTML(item, type){
       <button class="btn btn-ghost" onclick="callPoster('${item.phone}')">Call / Bid</button>
       ${trackingBtn}
       ${editVehicleBtn}
+      <button class="btn btn-ghost" onclick="toggleFeatured('${item.id}','${type}',${!item.featured})">${item.featured ? '☆ Unfeature' : '⭐ Feature'}</button>
       <button class="btn btn-primary" onclick="openSendForItem('${item.id}','${type}')">Share to WhatsApp</button>
       <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">💰 Book Now</button>
     </div>
@@ -455,6 +457,15 @@ function routeCardHTML(item, type){
 }
 function fmtDate(d){ if(!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
 function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+window.toggleFeatured = async function(id, type, newVal){
+  try{
+    const r = await fetch(API_BASE + '/api/' + (type==='load'?'loads':'trucks') + '/' + id + '/feature', {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({featured:newVal})
+    });
+    if(r.ok){ await renderAll(); toast(newVal ? 'Featured — this listing now shows at the top.' : 'Unfeatured.'); }
+    else{ toast('Could not update.'); }
+  }catch(e){ toast('Could not reach the server.'); }
+};
 window.callPoster = function(phone){
   if(!phone){ toast('No phone number on file for this listing.'); return; }
   toast(`Calling ${phone}… if nothing opens, dial it manually.`);
@@ -1625,7 +1636,9 @@ document.getElementById('manualPingBtn')?.addEventListener('click', async ()=>{
 
 // ---------- Bookings (escrow) ----------
 const BOOKING_STATUS_LABEL = {
+  booked: { text: 'Booked — awaiting loading', color: '#8a96ab' },
   awaiting_payment: { text: 'Awaiting payment', color: '#8a96ab' },
+  cancelled: { text: 'Cancelled', color: '#8a96ab' },
   funded: { text: 'Paid — arranging advance payout', color: '#c98a00' },
   in_transit: { text: 'Advance paid — in transit', color: '#1565C0' },
   delivered_pending_confirmation: { text: 'Delivered — balance releases automatically', color: '#c98a00' },
@@ -1653,8 +1666,14 @@ async function renderBookings(){
     const isShipper = bk.shipperPhone && bk.shipperPhone === profile.phone;
 
     let actions = '';
+    if(isTransporter && bk.status==='booked'){
+      actions = `<button class="btn btn-ghost" onclick="cancelBooking('${bk.id}','transporter')">✖ Cancel Booking</button>`;
+    }
     if(isTransporter && ['funded','in_transit'].includes(bk.status)){
       actions = `<button class="btn btn-primary" onclick="markBookingDelivered('${bk.id}')">📦 Mark Delivered</button>`;
+    }
+    if(isShipper && bk.status==='awaiting_payment' && bk.truckId){
+      actions = `<button class="btn btn-ghost" onclick="cancelBooking('${bk.id}','shipper')">✖ Cancel Booking</button>`;
     }
     if(isShipper && bk.status === 'delivered_pending_confirmation'){
       const hoursLeft = Math.max(0, Math.round(48 - (Date.now()-bk.deliveryConfirmedAt)/3600000));
@@ -1712,6 +1731,21 @@ window.disputeBooking = async function(bookingId){
     });
     if(r.ok){ toast('Dispute raised — the balance payout is frozen pending review.'); renderBookings(); }
     else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not raise dispute.'); }
+  }catch(e){ toast('Could not reach the server.'); }
+};
+
+window.cancelBooking = async function(bookingId, cancelledBy){
+  if(!confirm('Cancel this booking? A cancellation fee may apply.')) return;
+  const reason = prompt('Reason for cancelling (optional):') || '';
+  try{
+    const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/cancel', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cancelledBy, reason})
+    });
+    const d = await r.json().catch(()=>({}));
+    if(r.ok){
+      toast(d.cancellationFeeLinkUrl ? 'Booking cancelled — a cancellation fee link has been generated.' : 'Booking cancelled.');
+      renderBookings();
+    } else { toast(d.error || 'Could not cancel booking.'); }
   }catch(e){ toast('Could not reach the server.'); }
 };
 
