@@ -446,12 +446,12 @@ function routeCardHTML(item, type){
     <div class="route-meta"><span>Posted by <b>${escapeHtml(item.poster)}</b></span> ${verifiedBadge}</div>
     <div class="route-card-actions">
       ${rate}
-      <button class="btn btn-ghost" onclick="callPoster('${item.phone}')">Call / Bid</button>
+      <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">${type==='load' ? '📦 Book Load' : '🚚 Book Truck'}</button>
       ${trackingBtn}
       ${editVehicleBtn}
       <button class="btn btn-ghost" onclick="toggleFeatured('${item.id}','${type}',${!item.featured})">${item.featured ? '☆ Unfeature' : '⭐ Feature'}</button>
       <button class="btn btn-primary" onclick="openSendForItem('${item.id}','${type}')">Share to WhatsApp</button>
-      <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">💰 Book Now</button>
+      
     </div>
   </div>`;
 }
