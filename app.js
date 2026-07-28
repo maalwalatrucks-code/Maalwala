@@ -838,6 +838,23 @@ document.getElementById('truckForm').addEventListener('submit', async e=>{
   showScreen('trucks');
 });
 function val(id){ return document.getElementById(id).value; }
+window.checkRateEstimate = async function(){
+  const from = val('loadFrom').trim();
+  const to = val('loadTo').trim();
+  const truckType = val('loadTruckType');
+  const resultEl = document.getElementById('rateEstimateResult');
+  if(!from || !to){ resultEl.textContent = 'Enter both From and To city first.'; return; }
+  resultEl.textContent = 'Checking...';
+  try{
+    const r = await fetch(API_BASE + '/api/rate-estimate?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to) + '&truckType=' + encodeURIComponent(truckType||''));
+    const d = await r.json();
+    if(d.available){
+      resultEl.textContent = `Typical rate for this route: ₹${d.avgRate.toLocaleString('en-IN')} (from ${d.sampleSize} recent load${d.sampleSize>1?'s':''}, ₹${d.minRate.toLocaleString('en-IN')}–₹${d.maxRate.toLocaleString('en-IN')})`;
+    } else {
+      resultEl.textContent = d.message || 'No pricing history yet for this route.';
+    }
+  }catch(e){ resultEl.textContent = 'Could not reach the server.'; }
+};
 
 // ---------- Broadcast / Send modal ----------
 let currentSendMessage = '';

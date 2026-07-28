@@ -853,6 +853,10 @@ NL02AA0526</textarea>
         </label>
         <label>Offered rate (₹)<input type="number" id="loadRate" placeholder="35000"></label>
       </div>
+      <div class="form-row" style="align-items:center;">
+        <button type="button" class="btn btn-ghost" id="checkRateBtn" onclick="checkRateEstimate()">Check average rate for this route</button>
+        <p class="hint" id="rateEstimateResult" style="margin:0;"></p>
+      </div>
       <label>Loading date<input type="date" id="loadDate"></label>
       <label class="checkbox-row"><input type="checkbox" id="loadBroadcast" checked> Broadcast this load to my linked WhatsApp groups after posting</label>
             <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I agree to pay the full amount once a transporter is confirmed and the load is loaded — 90% goes to the transporter immediately, 10% is held in escrow and released automatically 48 hours after confirmed delivery unless I raise a dispute with a reason.</label>
