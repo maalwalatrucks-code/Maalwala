@@ -470,8 +470,16 @@ window.toggleFeatured = async function(id, type, newVal){
     const r = await fetch(API_BASE + '/api/' + (type==='load'?'loads':'trucks') + '/' + id + '/feature', {
       method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({featured:newVal, requesterPhone: profile.phone||''})
     });
-    if(r.ok){ await renderAll(); toast(newVal ? 'Featured — this listing now shows at the top.' : 'Unfeatured.'); }
-    else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not update.'); }
+    const d = await r.json().catch(()=>({}));
+    if(r.ok && d.paymentRequired){
+      toast(`Featuring costs ₹${d.fee} — opening the payment page. It'll show as featured once paid.`);
+      if(d.paymentLinkUrl) window.open(d.paymentLinkUrl, '_blank');
+    } else if(r.ok){
+      await renderAll();
+      toast(newVal ? 'Featured — this listing now shows at the top.' : 'Unfeatured.');
+    } else {
+      toast(d.error || 'Could not update.');
+    }
   }catch(e){ toast('Could not reach the server.'); }
 };
 window.callPoster = function(phone){
@@ -1693,8 +1701,14 @@ async function renderBookings(){
     if(isTransporter && bk.status==='booked'){
       actions = `<button class="btn btn-ghost" onclick="cancelBooking('${bk.id}','transporter')">✖ Cancel Booking</button>`;
     }
+    if(isShipper && bk.status==='booked' && bk.loadId){
+      actions = `<button class="btn btn-accent" onclick="markLoadedAndRequestPayment('${bk.id}')">📦 Mark Loaded & Request Payment</button>`;
+    }
     if(isTransporter && ['funded','in_transit'].includes(bk.status)){
       actions = `<button class="btn btn-primary" onclick="markBookingDelivered('${bk.id}')">📦 Mark Delivered</button>`;
+    }
+    if(isTransporter && bk.status==='delivered_pending_confirmation'){
+      actions = `<button class="btn btn-primary" onclick="requestEarlyPayout('${bk.id}')">⚡ Get Balance Now (2% fee)</button>`;
     }
     if(isShipper && bk.status==='awaiting_payment' && bk.truckId){
       actions = `<button class="btn btn-ghost" onclick="cancelBooking('${bk.id}','shipper')">✖ Cancel Booking</button>`;
@@ -1770,6 +1784,34 @@ window.cancelBooking = async function(bookingId, cancelledBy){
       toast(d.cancellationFeeLinkUrl ? 'Booking cancelled — a cancellation fee link has been generated.' : 'Booking cancelled.');
       renderBookings();
     } else { toast(d.error || 'Could not cancel booking.'); }
+  }catch(e){ toast('Could not reach the server.'); }
+};
+
+window.markLoadedAndRequestPayment = async function(bookingId){
+  const ewayBillNumber = prompt('Enter the e-way bill number for this shipment:');
+  if(!ewayBillNumber) return;
+  try{
+    const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/mark-loaded', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ewayBillNumber})
+    });
+    const d = await r.json().catch(()=>({}));
+    if(r.ok){
+      toast('Loaded — payment requested from the shipper.');
+      if(d.paymentLinkUrl) window.open(d.paymentLinkUrl, '_blank');
+      renderBookings();
+    } else { toast(d.error || 'Could not mark this booking as loaded.'); }
+  }catch(e){ toast('Could not reach the server.'); }
+};
+
+window.requestEarlyPayout = async function(bookingId){
+  if(!confirm("Get your balance now instead of waiting 48 hours? A 2% fee will be deducted.")) return;
+  try{
+    const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/early-payout', { method:'POST' });
+    const d = await r.json().catch(()=>({}));
+    if(r.ok){
+      toast('Early payout requested — the balance (minus the 2% fee) is on its way.');
+      renderBookings();
+    } else { toast(d.error || 'Could not process early payout.'); }
   }catch(e){ toast('Could not reach the server.'); }
 };
 
