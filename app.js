@@ -451,14 +451,14 @@ function routeCardHTML(item, type){
     ${driverLine}
     ${vehicleLine}
     <div class="route-meta"><span>Posted by <b>${escapeHtml(item.poster)}</b></span> ${verifiedBadge}</div>
-    <div class="route-card-actions">
+    <div class="route-card-actions-primary">
       ${rate}
       <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">${type==='load' ? '📦 Book Load' : '🚚 Book Truck'}</button>
-      ${trackingBtn}
-      ${editVehicleBtn}
+    </div>
+    ${(trackingBtn || editVehicleBtn) ? `<div class="route-card-actions-manage">${trackingBtn}${editVehicleBtn}</div>` : ''}
+    <div class="route-card-actions-secondary">
       <button class="btn btn-ghost" onclick="toggleFeatured('${item.id}','${type}',${!item.featured})">${item.featured ? '☆ Unfeature' : '⭐ Feature'}</button>
-      <button class="btn btn-primary" onclick="openSendForItem('${item.id}','${type}')">Share to WhatsApp</button>
-      
+      <button class="btn btn-ghost" onclick="openSendForItem('${item.id}','${type}')">💬 Share to WhatsApp</button>
     </div>
   </div>`;
 }
