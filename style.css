@@ -774,3 +774,100 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   background:#fdeceb; color:#c0392b; border-radius:8px; padding:10px 12px; font-size:0.84rem;
   margin-bottom:16px; text-align:left;
 }
+
+/* ===========================================================
+   P0/P1 board density, trust, empty states, i18n, role picker
+=========================================================== */
+.board-filters{ align-items:center; margin-bottom:10px; }
+.board-filters .btn-icon{
+  flex: 0 0 auto; padding: 8px 12px; font-size:1.05rem; line-height:1; min-width:42px;
+}
+.filter-chips{ display:flex; flex-wrap:wrap; gap:6px; margin: 0 0 14px; min-height:0; }
+.filter-chip{
+  font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:999px;
+  background: var(--surface-2); color: var(--text-muted); border:1px solid var(--border-c);
+}
+.card-list.board-list{
+  display:flex; flex-direction:column; gap:10px;
+}
+.route-card.board-row{
+  padding: 12px 14px;
+}
+.route-card.board-row:hover{ transform: translateY(-1px); }
+.board-tags{ display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+.board-grid{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap:8px 12px; margin-top:10px; font-size:0.86rem; color: var(--text);
+}
+.board-grid em{
+  display:block; font-style:normal; font-size:0.68rem; text-transform:uppercase;
+  letter-spacing:0.04em; color: var(--text-muted); font-weight:600;
+}
+.board-rate-cell .route-rate{ font-size:1.15rem; }
+.route-rate.muted{ color: var(--text-muted); font-size:0.9rem; font-weight:600; }
+.age-tag{ background:#eef2f7; color:#4a5a70; }
+.sample-tag{ background:#fff4d6; color:#8a6a10; }
+.featured-tag{ background:#ffd70022; color:#a8790a; }
+.bid-chip{
+  font-size:0.7rem; font-weight:700; padding:3px 8px; border-radius:999px;
+  background:#e8f1ff; color:#1565C0;
+}
+.counterparty-card{
+  margin-top:10px; padding:8px 10px; border-radius:10px;
+  background: var(--surface-2); border:1px solid var(--border-c);
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:center;
+}
+.cp-main{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; }
+.cp-hint{ font-size:0.75rem; color: var(--text-muted); }
+.cp-meta{ display:flex; flex-wrap:wrap; gap:8px 12px; font-size:0.78rem; color: var(--text-muted); }
+.cp-phone{ font-family: ui-monospace, monospace; }
+
+.empty-state-rich{ padding: 36px 18px; }
+.empty-state-rich p{ margin: 0 0 14px; font-size:0.98rem; }
+.empty-state-rich .btn{ margin-top:4px; }
+
+.hero-trust-line{
+  margin: 10px 0 0; font-size:0.85rem; color: rgba(246,241,228,0.75);
+}
+.hero-stats.soft-empty{ opacity: 0.55; }
+.hero-stat.is-zero strong{ opacity: 0.45; }
+.hero-empty-cta{
+  margin-top:16px; padding:14px 16px; border-radius:12px;
+  background: rgba(20,23,28,0.45); border:1px solid rgba(255,255,255,0.12);
+  max-width: 520px;
+}
+.hero-empty-cta p{ margin:0 0 10px; color: rgba(246,241,228,0.9); font-size:0.92rem; }
+
+.lang-toggle{ padding: 8px 12px; font-weight:700; min-width:44px; }
+.footer-contact{ display:block; font-size:0.78rem; color: var(--text-muted); margin-top:4px; }
+
+.role-picker-modal{ max-width: 520px; }
+.role-picker-grid{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:8px; }
+@media (min-width:560px){ .role-picker-grid{ grid-template-columns: repeat(3, 1fr); } }
+.role-pick-card{
+  display:flex; flex-direction:column; align-items:flex-start; gap:6px; text-align:left;
+  padding:14px; border-radius:14px; border:2px solid var(--border-c); background: var(--surface);
+  cursor:pointer; transition: border-color .15s, transform .15s;
+}
+.role-pick-card:hover{ border-color: var(--orange); transform: translateY(-2px); }
+.role-pick-icon{ font-size:1.4rem; }
+.role-pick-card strong{ font-size:0.98rem; }
+.role-pick-card span:last-child{ font-size:0.8rem; color: var(--text-muted); line-height:1.4; }
+
+.toast.toast-action{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  bottom: 72px;
+}
+.toast.toast-action a{
+  color: #fff; font-weight:700; text-decoration:underline;
+}
+.lane-alert-chip{ border-style: solid; border-color: #1565C0; }
+
+.escrow-split{
+  background: var(--surface-2); border-radius:10px; padding:10px 12px; margin: 8px 0 12px;
+  font-size:0.86rem; color: var(--text-muted);
+}
+
+.bid-manage{ margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+.bid-row{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.8rem; }
+.bid-row .btn{ padding:4px 10px; font-size:0.72rem; }

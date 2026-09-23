@@ -26,15 +26,15 @@
   <section class="ag-hero">
     <p class="eyebrow">India's Load &amp; Fleet Marketplace</p>
     <h1 class="ag-hero-title">One platform for every load,<br>every truck, every fleet.</h1>
-    <p class="ag-hero-sub">Maalwala connects shippers, booking agents, brokers, and fleet owners across India — post a load, find a truck, track your fleet live, and get paid securely through escrow. No middlemen, no guesswork.</p>
+    <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify GST &amp; RC before advances.</p>
     <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Mobile</button>
   </section>
 
   <section class="ag-stats">
-    <div class="ag-stat"><strong>Pan-India</strong><span>Network coverage</span></div>
-    <div class="ag-stat"><strong>Escrow</strong><span>Secure booking payments</span></div>
-    <div class="ag-stat"><strong>Live GPS</strong><span>Fleet tracking</span></div>
+    <div class="ag-stat"><strong>Free board</strong><span>Loads &amp; trucks</span></div>
     <div class="ag-stat"><strong>WhatsApp</strong><span>One-tap broadcast</span></div>
+    <div class="ag-stat"><strong>Live GPS</strong><span>Fleet tracking</span></div>
+    <div class="ag-stat"><strong>Direct settle</strong><span>UPI / NEFT / cash</span></div>
   </section>
 
   <section class="ag-services">
@@ -43,12 +43,12 @@
       <div class="ag-service-card">
         <div class="ag-service-icon">📦</div>
         <h3>Shippers &amp; Agents</h3>
-        <p>Post a load in minutes, reach thousands of verified transporters, and pay securely — 90% released on booking, 10% held until delivery.</p>
+        <p>Post a load in minutes, broadcast to your WhatsApp network, and settle freight directly with the transporter — verify GST &amp; RC before any advance.</p>
       </div>
       <div class="ag-service-card">
         <div class="ag-service-icon">🚚</div>
         <h3>Fleet Owners &amp; Transporters</h3>
-        <p>List trucks for free, get booked directly, track your whole fleet live, and get paid straight to your UPI — automatically.</p>
+        <p>List trucks for free, get booked directly, track your fleet live, and collect freight on your own UPI / bank — parties settle off-platform.</p>
       </div>
       <div class="ag-service-card">
         <div class="ag-service-icon">🤝</div>
@@ -86,7 +86,7 @@
   </section>
 
   <footer class="ag-footer">
-    <span>© <span id="gateFooterYear"></span> Maalwala — proudly developed by Rahul Roadways Hazira, 25+ years in transportation.</span>
+    <span>© <span id="gateFooterYear"></span> Maalwala — Rahul Roadways, Hazira, Gujarat · Contact via profile after login</span>
   </footer>
 </div>
 
@@ -101,23 +101,23 @@
       <span class="brand-word">Maalwala</span>
     </div>
     <nav class="nav-tabs" id="navTabs">
-      <button class="nav-tab active" data-screen="home" data-tour="nav-home">Home</button>
-      <button class="nav-tab" data-screen="loads" data-tour="nav-loads">Find Loads</button>
-      <button class="nav-tab" data-screen="trucks" data-tour="nav-trucks">Find Trucks</button>
-      <button class="nav-tab" data-screen="fastag">Services</button>
+      <button class="nav-tab active" data-screen="home" data-tour="nav-home" data-i18n="navHome">Home</button>
+      <button class="nav-tab" data-screen="loads" data-tour="nav-loads" data-i18n="navLoads">Find Loads</button>
+      <button class="nav-tab" data-screen="trucks" data-tour="nav-trucks" data-i18n="navTrucks">Find Trucks</button>
+      <button class="nav-tab" data-screen="fleet" data-tour="nav-fleet" data-i18n="navFleet">Fleet</button>
+      <button class="nav-tab" data-screen="bookings" data-i18n="navBookings">Bookings</button>
+      <button class="nav-tab" data-screen="broadcast" data-tour="nav-broadcast" data-i18n="navBroadcast">Broadcast</button>
       <div class="nav-dropdown" id="businessDropdown">
-        <button class="nav-tab nav-dropdown-trigger" id="businessDropdownBtn" data-tour="nav-business">My Business</button>
+        <button class="nav-tab nav-dropdown-trigger" id="businessDropdownBtn" data-tour="nav-business" data-i18n="navMore">More</button>
         <div class="nav-dropdown-menu" id="businessDropdownMenu">
           <button class="nav-dropdown-item" data-screen="profile" data-tour="nav-profile">👤 Profile</button>
-          <button class="nav-dropdown-item" data-screen="fleet" data-tour="nav-fleet">🚚 Fleet</button>
           <button class="nav-dropdown-item" data-screen="records" data-tour="nav-records">📒 Records</button>
-          <button class="nav-dropdown-item" data-screen="broadcast" data-tour="nav-broadcast">📣 Broadcast</button>
-          <button class="nav-dropdown-item" data-screen="bookings">💰 Bookings</button>
+          <button class="nav-dropdown-item" data-screen="fastag">Services</button>
         </div>
       </div>
     </nav>
-    <button class="btn btn-primary" id="bookTruckBtnTop" title="Browse available trucks and book one">Book Truck</button>
-    <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load">Post Load</button>
+    <button class="btn btn-ghost lang-toggle" id="langToggle" title="Language">EN</button>
+    <button class="btn btn-primary" id="postLoadBtnTop" data-tour="post-load" data-i18n="navPost">Post</button>
     <span class="topbar-divider"></span>
     <div class="nav-dropdown" id="accountDropdown">
       <button class="btn btn-ghost btn-account" id="accountDropdownBtn">👤 <span id="accountLabel">Account</span> <span class="caret">▾</span></button>
@@ -137,20 +137,21 @@
     <div class="brand"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
     <button class="mobile-drawer-close" id="drawerClose">✕</button>
   </div>
-  <button class="nav-tab active" data-screen="home">Home</button>
-  <button class="nav-tab" data-screen="loads">Find Loads</button>
-  <button class="nav-tab" data-screen="trucks">Find Trucks</button>
-  <button class="nav-tab" data-screen="fastag">Services</button>
-  <div class="drawer-section-label">My Business</div>
+  <button class="nav-tab active" data-screen="home" data-i18n="navHome">Home</button>
+  <button class="nav-tab" data-screen="loads" data-i18n="navLoads">Find Loads</button>
+  <button class="nav-tab" data-screen="trucks" data-i18n="navTrucks">Find Trucks</button>
+  <button class="nav-tab" data-screen="fleet" data-i18n="navFleet">Fleet</button>
+  <button class="nav-tab" data-screen="bookings" data-i18n="navBookings">Bookings</button>
+  <button class="nav-tab" data-screen="broadcast" data-i18n="navBroadcast">Broadcast</button>
+  <div class="drawer-section-label">More</div>
   <button class="nav-tab drawer-indent" data-screen="profile">👤 Profile</button>
-  <button class="nav-tab drawer-indent" data-screen="fleet">🚚 Fleet</button>
   <button class="nav-tab drawer-indent" data-screen="records">📒 Records</button>
-  <button class="nav-tab drawer-indent" data-screen="broadcast">📣 Broadcast</button>
-  <button class="nav-tab drawer-indent" data-screen="bookings">💰 Bookings</button>
+  <button class="nav-tab drawer-indent" data-screen="fastag">Services</button>
   <div class="drawer-section-label">Account</div>
   <button class="nav-tab drawer-indent" id="drawerSignOutBtn">Sign Out</button>
-  <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;">+ Post a Load</button>
-  <button class="btn btn-primary full" id="bookTruckBtnDrawer" style="margin-top:8px;">Book a Truck</button>
+  <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;" data-i18n="ctaPostLoad">+ Post a Load</button>
+  <button class="btn btn-ghost full" id="bookTruckBtnDrawer" style="margin-top:8px;" data-i18n="ctaFindTrucks">Find Trucks</button>
+  <button class="btn btn-ghost full" id="drawerLangToggle" style="margin-top:8px;">Language: EN / हिं</button>
 </nav>
 
 <main id="mainContent">
@@ -164,15 +165,20 @@
     <div class="hero-inner">
       <p class="eyebrow">Ab har truck ko milega maal</p>
       <h1 class="hero-title">Post a load.<br>The road finds a truck.</h1>
-      <p class="hero-sub">Free load &amp; truck marketplace for Indian transporters, brokers and consignors — with one-tap broadcast straight to your WhatsApp groups.</p>
+      <p class="hero-sub" data-i18n="heroSub">Free load &amp; truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast. Freight is settled directly between parties (UPI / NEFT / cash).</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" id="heroPostLoad">+ Post a Load</button>
-        <button class="btn btn-ghost btn-lg" id="heroPostTruck">+ Post Truck Availability</button>
+        <button class="btn btn-primary btn-lg" id="heroPostLoad" data-i18n="ctaPostLoad">+ Post a Load</button>
+        <button class="btn btn-ghost btn-lg" id="heroPostTruck" data-i18n="ctaPostTruck">+ Post Truck Availability</button>
       </div>
-      <div class="hero-stats">
-        <div><strong id="statLoads" data-count="0">0</strong><span>live loads</span></div>
-        <div><strong id="statTrucks" data-count="0">0</strong><span>trucks available</span></div>
-        <div><strong id="statGroups" data-count="0">0</strong><span>WhatsApp groups linked</span></div>
+      <p class="hero-trust-line" data-i18n="heroTrust">Verify GST &amp; RC before advances · Parties settle freight off-platform</p>
+      <div class="hero-stats" id="heroStats">
+        <div class="hero-stat" id="statLoadsWrap"><strong id="statLoads" data-count="0">—</strong><span data-i18n="statLoads">live loads</span></div>
+        <div class="hero-stat" id="statTrucksWrap"><strong id="statTrucks" data-count="0">—</strong><span data-i18n="statTrucks">trucks available</span></div>
+        <div class="hero-stat" id="statGroupsWrap"><strong id="statGroups" data-count="0">—</strong><span data-i18n="statGroups">WhatsApp groups linked</span></div>
+      </div>
+      <div class="hero-empty-cta hidden" id="heroEmptyCta">
+        <p data-i18n="emptyBoardLead">Be the first on this lane — post a load or truck and broadcast to your groups.</p>
+        <button class="btn btn-accent" id="heroEmptyPost" data-i18n="ctaPostLoad">+ Post a Load</button>
       </div>
     </div>
 
@@ -188,8 +194,8 @@
     <div class="trust-inner">
       <div class="trust-head">
         <p class="trust-eyebrow">Why transporters trust Maalwala</p>
-        <h2 class="section-title">A marketplace, open to every fleet owner, broker and shipper in India</h2>
-        <p class="trust-statement">Maalwala connects thousands of transporters, fleet owners, brokers and shippers across the country — post a load, list a truck, get booked, and get paid securely. Founded by <b>Rahul Roadways Hazira</b> in <b>2010</b>, and led today by proprietors and managers with <b>25+ years</b> of hands-on experience in the transport industry. Rahul Roadways operates across <b>5 cities in India</b> and has served <b>several lakh customers</b> over the years — and by helping fellow transporters load their trucks in exchange for brokerage, the business today effectively manages a combined fleet of <b>50+ trailers</b>. Built as an open marketplace for the whole industry, not just one company's fleet.</p>
+        <h2 class="section-title">A free board, open to every fleet owner, broker and shipper in India</h2>
+        <p class="trust-statement">Maalwala is a free load &amp; truck board with WhatsApp broadcast — post a load, list a truck, match locally, and settle freight directly with the other party. Founded by <b>Rahul Roadways, Hazira</b> in <b>2010</b>, and led today by proprietors and managers with <b>25+ years</b> of hands-on experience in the transport industry. Rahul Roadways operates across <b>5 cities in India</b> and has served <b>several lakh customers</b> over the years — and by helping fellow transporters load their trucks in exchange for brokerage, the business today effectively manages a combined fleet of <b>50+ trailers</b>. Built as an open marketplace for the whole industry, not just one company's fleet.</p>
       </div>
 
       <div class="trust-stats">
@@ -255,8 +261,8 @@
 <!-- ===== FIND LOADS ===== -->
 <section class="screen hidden" id="screen-loads">
   <div class="screen-header">
-    <h1>Find Loads</h1>
-    <button class="btn btn-primary" id="postLoadBtnLoads">+ Post a Load</button>
+    <h1 data-i18n="navLoads">Find Loads</h1>
+    <button class="btn btn-primary" id="postLoadBtnLoads" data-i18n="ctaPostLoad">+ Post a Load</button>
   </div>
 
   <div class="search-row">
@@ -271,8 +277,9 @@
 
   <div class="route-chips" id="popularRoutes"></div>
 
-  <div class="filter-bar">
+  <div class="filter-bar board-filters">
     <input type="text" id="filterFromLoads" list="cityList" placeholder="From city">
+    <button type="button" class="btn btn-ghost btn-icon" id="swapLoadRoute" title="Swap from/to (backhaul)">⇄</button>
     <input type="text" id="filterToLoads" list="cityList" placeholder="To city">
     <select id="filterTruckType">
       <option value="">Any truck type</option>
@@ -283,19 +290,29 @@
       <option>LCV</option>
       <option>Hyva</option>
     </select>
-    <button class="btn btn-ghost" id="applyLoadFilter">Search</button>
+    <input type="number" step="0.1" id="filterMinMtLoads" placeholder="Min MT" min="0" style="max-width:100px;">
+    <input type="text" id="filterMaterialLoads" placeholder="Material" style="max-width:140px;">
+    <select id="filterFreshLoads">
+      <option value="">Any age</option>
+      <option value="2">Posted &lt; 2h</option>
+      <option value="24">Posted &lt; 24h</option>
+    </select>
+    <button class="btn btn-ghost" id="applyLoadFilter" data-i18n="btnSearch">Search</button>
     <button class="btn btn-ghost" id="saveSearchLoads" title="Save this search">☆ Save search</button>
+    <button class="btn btn-ghost" id="saveLaneAlertLoads" title="Alert when new loads match this lane">🔔 Lane alert</button>
   </div>
+  <div class="filter-chips" id="loadFilterChips"></div>
   <div class="saved-search-row" id="savedSearches-loads"></div>
+  <div class="saved-search-row" id="laneAlerts-loads"></div>
 
-  <div id="loadsList" class="card-list wide"></div>
+  <div id="loadsList" class="card-list wide board-list"></div>
 </section>
 
 <!-- ===== FIND TRUCKS ===== -->
 <section class="screen hidden" id="screen-trucks">
   <div class="screen-header">
-    <h1>Find Trucks</h1>
-    <button class="btn btn-primary" id="postTruckBtnTrucks">+ Post Truck Availability</button>
+    <h1 data-i18n="navTrucks">Find Trucks</h1>
+    <button class="btn btn-primary" id="postTruckBtnTrucks" data-i18n="ctaPostTruck">+ Post Truck Availability</button>
   </div>
 
   <div class="search-row">
@@ -306,8 +323,9 @@
     </select>
   </div>
 
-  <div class="filter-bar">
+  <div class="filter-bar board-filters">
     <input type="text" id="filterFromTrucks" list="cityList" placeholder="From city">
+    <button type="button" class="btn btn-ghost btn-icon" id="swapTruckRoute" title="Swap from/to (backhaul)">⇄</button>
     <input type="text" id="filterToTrucks" list="cityList" placeholder="To city">
     <select id="filterTruckType2">
       <option value="">Any truck type</option>
@@ -318,12 +336,21 @@
       <option>LCV</option>
       <option>Hyva</option>
     </select>
-    <button class="btn btn-ghost" id="applyTruckFilter">Search</button>
+    <input type="number" step="0.1" id="filterMinMtTrucks" placeholder="Min MT" min="0" style="max-width:100px;">
+    <select id="filterFreshTrucks">
+      <option value="">Any age</option>
+      <option value="2">Posted &lt; 2h</option>
+      <option value="24">Posted &lt; 24h</option>
+    </select>
+    <button class="btn btn-ghost" id="applyTruckFilter" data-i18n="btnSearch">Search</button>
     <button class="btn btn-ghost" id="saveSearchTrucks" title="Save this search">☆ Save search</button>
+    <button class="btn btn-ghost" id="saveLaneAlertTrucks" title="Alert when new trucks match this lane">🔔 Lane alert</button>
   </div>
+  <div class="filter-chips" id="truckFilterChips"></div>
   <div class="saved-search-row" id="savedSearches-trucks"></div>
+  <div class="saved-search-row" id="laneAlerts-trucks"></div>
 
-  <div id="trucksList" class="card-list wide"></div>
+  <div id="trucksList" class="card-list wide board-list"></div>
 </section>
 
 <datalist id="cityList"></datalist>
@@ -371,7 +398,7 @@
 
   <div class="fleet-panel" style="margin-bottom:20px;">
     <h3>🚛 Bulk-add your fleet</h3>
-    <p class="hint" style="margin-top:0;">Post every vehicle at once instead of one at a time — each becomes a real, public "Find Trucks" listing using the shared details below, with its vehicle number already set for Aditi sync. 16 numbers from your Aditi dashboard are pre-filled; 4 more were cut off in the screenshot — add those too before submitting.</p>
+    <p class="hint" style="margin-top:0;">Post every vehicle at once instead of one at a time — each becomes a public "Find Trucks" listing using the shared details below. Vehicle numbers enable Aditi Tracking sync when configured.</p>
     <label>Vehicle numbers <span style="font-weight:400;color:var(--text-muted);">(one per line)</span>
       <textarea id="bulkVehicleNumbers" rows="8" style="width:100%; margin-top:6px; padding:10px 12px; border-radius:8px; border:2px solid var(--border-c); font-size:0.9rem; font-family:inherit; background:var(--surface); color:var(--text);">GJ05BV4811
 GJ05BV4879
@@ -569,10 +596,10 @@ NL02AA0526</textarea>
   </div>
 </section>
 
-<!-- ===== BOOKINGS (escrow) ===== -->
+<!-- ===== BOOKINGS ===== -->
 <section class="screen hidden" id="screen-bookings">
   <div class="screen-header"><h1>Bookings</h1></div>
-  <p class="screen-intro">Every load/truck you've booked or been booked for. Payment status updates automatically once Razorpay confirms — nothing here can be faked by clicking a button.</p>
+  <p class="screen-intro">Every load/truck you've booked or been booked for. Freight is settled directly between you and the other party. If Razorpay is used, it is only for a booking confirmation / platform fee — not freight escrow.</p>
   <div id="bookingsList" class="card-list"></div>
 </section>
 
@@ -657,13 +684,13 @@ NL02AA0526</textarea>
 <section class="screen hidden" id="screen-terms">
   <div class="screen-header"><h1>Terms &amp; Conditions</h1></div>
   <div class="legal-notice">
-    <strong>Before you publish this:</strong> this is a starting template, not legal advice. Replace every <code>[bracketed]</code> placeholder with your real business details and have a lawyer review it before real users rely on it — the right terms depend on your business structure, state, and how you actually operate.
+    <strong>Note:</strong> These terms describe how Maalwala operates today. They are not a substitute for legal advice — have a lawyer review them for your structure and state before relying on them for disputes.
   </div>
   <div class="legal-doc">
-    <p class="legal-updated">Last updated: [date]</p>
+    <p class="legal-updated">Last updated: 23 September 2026</p>
 
     <h3>1. Who we are</h3>
-    <p>Maalwala ("we", "us", "the platform") is operated by [Your Business/Company Name], based in [City, State, India]. These Terms &amp; Conditions govern your use of the Maalwala website and app.</p>
+    <p>Maalwala ("we", "us", "the platform") is operated by Rahul Roadways, based in Hazira, Gujarat, India. These Terms &amp; Conditions govern your use of the Maalwala website and app.</p>
 
     <h3>2. What Maalwala is — and isn't</h3>
     <p>Maalwala is a listing and matchmaking platform that lets consignors, transporters, brokers and truck owners post and browse loads and truck availability. We do not own, operate, or control any vehicle, and we are not a transporter, broker, freight forwarder, or party to any agreement made between users. Any deal you make with another user — rate, route, payment, delivery terms — is strictly between you and them.</p>
@@ -678,25 +705,25 @@ NL02AA0526</textarea>
     <p>We do not verify the identity, GST registration, vehicle documents, insurance, or creditworthiness of any user. Before agreeing to any load or truck, verify the other party yourself — check ID, GST number, vehicle RC, and get terms in writing.</p>
 
     <h3>6. Payments</h3>
-    <p>Maalwala does not process payments between users. Freight charges, advances, and balances are negotiated and settled directly between the shipper and transporter, outside the platform. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for common ways users settle freight.</p>
+    <p>Freight charges, advances, and balances are negotiated and settled directly between the shipper and transporter (UPI, NEFT/RTGS/IMPS, cash, or cheque) — outside the platform. Maalwala does not hold freight in escrow. If Razorpay (or a similar processor) is enabled, it may be used only for a booking confirmation or optional platform fee, which will be labelled clearly at checkout — never as freight escrow. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for common ways users settle freight.</p>
 
     <h3>7. WhatsApp broadcast</h3>
     <p>If you add a WhatsApp group or connect an opted-in contact list, you confirm you have the right to send messages there. Contacts who opt in via our official WhatsApp integration can leave at any time by replying STOP. Don't use the broadcast feature to spam groups you don't have permission to message.</p>
 
     <h3>8. Limitation of liability</h3>
-    <p>To the maximum extent permitted by law, Maalwala and [Your Business/Company Name] are not liable for any loss, damage, delay, or dispute arising from a transaction between users, including damaged or lost goods, vehicle breakdowns, non-payment, or inaccurate listings.</p>
+    <p>To the maximum extent permitted by law, Maalwala and Rahul Roadways are not liable for any loss, damage, delay, or dispute arising from a transaction between users, including damaged or lost goods, vehicle breakdowns, non-payment, or inaccurate listings.</p>
 
     <h3>9. Suspension &amp; termination</h3>
     <p>We may suspend or terminate access for any account that violates these terms, posts fraudulent content, or misuses the broadcast feature.</p>
 
     <h3>10. Governing law</h3>
-    <p>These terms are governed by the laws of India, and disputes are subject to the exclusive jurisdiction of the courts of [Your City/State].</p>
+    <p>These terms are governed by the laws of India, and disputes are subject to the exclusive jurisdiction of the courts of Hazira, Gujarat.</p>
 
     <h3>11. Changes to these terms</h3>
     <p>We may update these terms from time to time. Continued use of Maalwala after changes means you accept the updated terms.</p>
 
     <h3>12. Contact</h3>
-    <p>Questions about these terms? Reach us at [your email / phone].</p>
+    <p>Questions about these terms? Message us on the site after login, or use WhatsApp broadcast / profile contact once your account is set up. We do not publish a public phone number here.</p>
   </div>
 </section>
 
@@ -704,7 +731,7 @@ NL02AA0526</textarea>
 <section class="screen hidden" id="screen-payment">
   <div class="screen-header"><h1>Payment Options</h1></div>
   <div class="legal-notice">
-    Maalwala doesn't process payments — it's a listing platform. Freight is paid directly between the shipper and transporter, however they agree. Here's how most users on load boards like this typically settle up, and a few safety habits worth following.
+    Maalwala is a listing &amp; matchmaking board — freight is settled directly between shipper and transporter (UPI / NEFT / cash). Any Razorpay checkout in the app is only for a booking confirmation or platform fee, not freight escrow. Here's how most users settle freight, and a few safety habits.
   </div>
 
   <div class="payment-grid">
@@ -826,7 +853,8 @@ NL02AA0526</textarea>
 <!-- ===== FOOTER ===== -->
 <footer class="site-footer">
   <div class="site-footer-inner">
-    <span>© <span id="footerYear"></span> Maalwala — proudly developed by Rahul Roadways Hazira, 25+ years in transportation.</span>
+    <span>© <span id="footerYear"></span> Maalwala — Rahul Roadways, Hazira, Gujarat · Last updated 23 September 2026</span>
+    <span class="footer-contact">Contact: message us on the site after login · WhatsApp via your profile</span>
     <button class="footer-link" data-goto="terms">Terms &amp; Conditions</button>
     <button class="footer-link" data-goto="payment">Payment Options</button>
   </div>
@@ -852,15 +880,15 @@ NL02AA0526</textarea>
             <option>Tanker</option><option>LCV</option><option>Hyva</option>
           </select>
         </label>
-        <label>Offered rate (₹)<input type="number" id="loadRate" placeholder="35000"></label>
+        <label>Offered rate (₹)<input required type="number" id="loadRate" placeholder="35000"></label>
       </div>
       <div class="form-row" style="align-items:center;">
         <button type="button" class="btn btn-ghost" id="checkRateBtn" onclick="checkRateEstimate()">Check average rate for this route</button>
         <p class="hint" id="rateEstimateResult" style="margin:0;"></p>
       </div>
-      <label>Loading date<input type="date" id="loadDate"></label>
+      <label>Loading date<input required type="date" id="loadDate"></label>
       <label class="checkbox-row"><input type="checkbox" id="loadBroadcast" checked> Broadcast this load to my linked WhatsApp groups after posting</label>
-            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I agree to pay the full amount once a transporter is confirmed and the load is loaded — 90% goes to the transporter immediately, 10% is held in escrow and released automatically 48 hours after confirmed delivery unless I raise a dispute with a reason.</label>
+            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I understand freight is settled directly with the transporter (UPI / NEFT / cash) off-platform, and I will verify GST &amp; RC before paying any advance. Maalwala does not hold freight in escrow.</label>
       <button type="submit" class="btn btn-primary btn-lg full">Post Load</button>
     </form>
   </div>
@@ -884,7 +912,10 @@ NL02AA0526</textarea>
         </label>
         <label>Capacity (tonnes)<input required type="number" step="0.1" id="truckCapacity" placeholder="16"></label>
       </div>
-      <label>Available from<input type="date" id="truckDate"></label>
+      <div class="form-row">
+        <label>Available from<input required type="date" id="truckDate"></label>
+        <label>Expected rate (₹)<input type="number" id="truckRate" placeholder="Optional"></label>
+      </div>
       <label>Vehicle number <span style="font-weight:400;color:var(--text-muted);">(optional — enables live GPS sync if this vehicle is on Aditi Tracking)</span>
         <input type="text" id="truckVehicleNumber" placeholder="e.g. GJ01KT0057">
       </label>
@@ -907,13 +938,15 @@ NL02AA0526</textarea>
 <!-- ===== BROADCAST SEND MODAL ===== -->
 <div class="modal-backdrop hidden" id="bookingModal">
   <div class="modal">
-    <div class="modal-head"><h2>Book &amp; Pay</h2><button class="modal-close" data-close="bookingModal">✕</button></div>
-    <div class="legal-notice" id="bookingConfigWarning" style="display:none;">Payments aren't set up on this server yet — booking isn't available until Razorpay is configured.</div>
+    <div class="modal-head"><h2>Confirm Booking</h2><button class="modal-close" data-close="bookingModal">✕</button></div>
+    <div class="legal-notice" id="bookingConfigWarning" style="display:none;">Online checkout isn't configured yet — you can still confirm the booking and settle freight directly with the other party.</div>
     <form id="bookingForm">
       <input type="hidden" id="bookingItemId">
       <input type="hidden" id="bookingItemType">
       <p class="hint" id="bookingSummary" style="margin-top:0;"></p>
-      <label>Total freight amount (₹)<input required type="number" id="bookingTotalAmount" placeholder="45000"></label>
+      <label>Agreed freight amount (₹) <span style="font-weight:400;color:var(--text-muted);">(settled off-platform)</span>
+        <input required type="number" id="bookingTotalAmount" placeholder="45000">
+      </label>
       <div class="escrow-split" id="escrowSplitPreview"></div>
       <div class="form-row">
         <label>Your name<input required type="text" id="bookingMyName"></label>
@@ -922,9 +955,9 @@ NL02AA0526</textarea>
       <div id="bookingPayoutRow"></div>
       <label class="checkbox-row">
         <input type="checkbox" id="bookingTermsAccept" required>
-        I agree to pay the full amount now — 90% goes to the transporter immediately, 10% is held in escrow and released automatically 48 hours after confirmed delivery unless I raise a dispute with a reason.
+        I understand freight is settled directly between us (UPI / NEFT / cash). Any online payment here is only a booking confirmation / platform fee if shown — not freight escrow. I will verify GST &amp; RC before advances.
       </label>
-      <button type="submit" class="btn btn-primary btn-lg full">Pay &amp; Book</button>
+      <button type="submit" class="btn btn-primary btn-lg full">Confirm Booking</button>
       <p class="hint" id="bookingResult"></p>
     </form>
   </div>
@@ -947,7 +980,55 @@ NL02AA0526</textarea>
   </div>
 </div>
 
+
+<!-- ===== ROLE PICKER (first run) ===== -->
+<div class="modal-backdrop hidden" id="rolePickerModal">
+  <div class="modal role-picker-modal">
+    <div class="modal-head"><h2 data-i18n="roleTitle">How do you use Maalwala?</h2><button class="modal-close" data-close="rolePickerModal">✕</button></div>
+    <p class="hint" data-i18n="roleSub">We'll tailor the home shortcuts. You can change this anytime in Profile.</p>
+    <div class="role-picker-grid">
+      <button type="button" class="role-pick-card" data-role="Shipper">
+        <span class="role-pick-icon">📦</span>
+        <strong data-i18n="roleShipper">Shipper</strong>
+        <span data-i18n="roleShipperDesc">I post loads that need trucks</span>
+      </button>
+      <button type="button" class="role-pick-card" data-role="Broker">
+        <span class="role-pick-icon">🤝</span>
+        <strong data-i18n="roleBroker">Broker</strong>
+        <span data-i18n="roleBrokerDesc">I match loads and trucks</span>
+      </button>
+      <button type="button" class="role-pick-card" data-role="Fleet Owner">
+        <span class="role-pick-icon">🚚</span>
+        <strong data-i18n="roleFleet">Fleet owner</strong>
+        <span data-i18n="roleFleetDesc">I run trucks and want backhauls</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BID MODAL ===== -->
+<div class="modal-backdrop hidden" id="bidModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Send bid / interest</h2><button class="modal-close" data-close="bidModal">✕</button></div>
+    <form id="bidForm">
+      <input type="hidden" id="bidItemId">
+      <input type="hidden" id="bidItemType">
+      <p class="hint" id="bidSummary" style="margin-top:0;"></p>
+      <label>Your offer (₹)<input required type="number" id="bidAmount" placeholder="Posted rate or your counter"></label>
+      <label>Note (optional)<input type="text" id="bidNote" placeholder="Ready today / need advance details…"></label>
+      <div class="form-row">
+        <label>Your name<input required type="text" id="bidMyName"></label>
+        <label>Your phone<input required type="tel" id="bidMyPhone"></label>
+      </div>
+      <p class="hint">Bids are shared with the poster. Freight still settles off-platform after you agree.</p>
+      <button type="submit" class="btn btn-primary btn-lg full">Send bid</button>
+      <p class="hint" id="bidResult"></p>
+    </form>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+<div class="toast toast-action hidden" id="laneAlertToast"></div>
 
 <!-- ===== ONBOARDING TOUR OVERLAY ===== -->
 <div class="tour-overlay hidden" id="tourOverlay">

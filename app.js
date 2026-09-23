@@ -47,8 +47,9 @@ mobileDrawer.querySelectorAll('.nav-tab').forEach(btn=>{
   btn.addEventListener('click', ()=>{ showScreen(btn.dataset.screen); closeDrawer(); });
 });
 document.getElementById('postLoadBtnDrawer').addEventListener('click', ()=>{ closeDrawer(); openModal('loadModal'); });
-document.getElementById('bookTruckBtnTop').addEventListener('click', ()=> showScreen('trucks'));
-document.getElementById('bookTruckBtnDrawer').addEventListener('click', ()=>{ closeDrawer(); showScreen('trucks'); });
+document.getElementById('bookTruckBtnTop')?.addEventListener('click', ()=> showScreen('trucks'));
+document.getElementById('bookTruckBtnDrawer')?.addEventListener('click', ()=>{ closeDrawer(); showScreen('trucks'); });
+document.getElementById('heroEmptyPost')?.addEventListener('click', ()=> openModal('loadModal'));
 
 // ---------- Topbar scroll shadow ----------
 const topbarEl = document.getElementById('topbar');
@@ -276,17 +277,17 @@ function seedLocalIfEmpty(){
   if(USE_API) return;
   if(LocalDB.get('loads', null) === null){
     LocalDB.set('loads', [
-      {id:cid(), from:'Ahmedabad', to:'Indore', material:'Cotton Bales', weight:14, truckType:'Open Body', rate:38000, date:'2026-07-18', poster:'Patel Roadlines', phone:'9825000001', ts:Date.now()-3600e3},
-      {id:cid(), from:'Surat', to:'Pune', material:'Textile Rolls', weight:9, truckType:'Container', rate:29500, date:'2026-07-17', poster:'Shree Ganesh Transport', phone:'9825000002', ts:Date.now()-7200e3},
-      {id:cid(), from:'Rajkot', to:'Delhi', material:'Ceramic Tiles', weight:18, truckType:'Trailer', rate:64000, date:'2026-07-19', poster:'Om Logistics', phone:'9825000003', ts:Date.now()-10800e3},
-      {id:cid(), from:'Vadodara', to:'Nagpur', material:'Chemicals (Drums)', weight:12, truckType:'Tanker', rate:41000, date:'2026-07-20', poster:'Narmada Carriers', phone:'9825000004', ts:Date.now()-5400e3},
+      {id:cid(), from:'Ahmedabad', to:'Indore', material:'Cotton Bales', weight:14, truckType:'Open Body', rate:38000, date:'2026-07-18', poster:'[Sample] Patel Roadlines', phone:'9825000001', ts:Date.now()-3600e3, sample:true},
+      {id:cid(), from:'Surat', to:'Pune', material:'Textile Rolls', weight:9, truckType:'Container', rate:29500, date:'2026-07-17', poster:'[Sample] Shree Ganesh Transport', phone:'9825000002', ts:Date.now()-7200e3, sample:true},
+      {id:cid(), from:'Rajkot', to:'Delhi', material:'Ceramic Tiles', weight:18, truckType:'Trailer', rate:64000, date:'2026-07-19', poster:'[Sample] Om Logistics', phone:'9825000003', ts:Date.now()-10800e3, sample:true},
+      {id:cid(), from:'Vadodara', to:'Nagpur', material:'Chemicals (Drums)', weight:12, truckType:'Tanker', rate:41000, date:'2026-07-20', poster:'[Sample] Narmada Carriers', phone:'9825000004', ts:Date.now()-5400e3, sample:true},
     ]);
   }
   if(LocalDB.get('trucks', null) === null){
     LocalDB.set('trucks', [
-      {id:cid(), from:'Ahmedabad', to:'Anywhere Mumbai side', truckType:'Open Body', capacity:16, date:'2026-07-17', poster:'Desai Fleet Owners', phone:'9825000011', ts:Date.now()-4000e3},
-      {id:cid(), from:'Indore', to:'Ahmedabad / Rajkot', truckType:'Container', capacity:10, date:'2026-07-18', poster:'Malwa Transport Co.', phone:'9825000012', ts:Date.now()-9000e3},
-      {id:cid(), from:'Jaipur', to:'Anywhere North', truckType:'Trailer', capacity:20, date:'2026-07-19', poster:'Rajputana Roadways', phone:'9825000013', ts:Date.now()-2000e3},
+      {id:cid(), from:'Ahmedabad', to:'Anywhere Mumbai side', truckType:'Open Body', capacity:16, date:'2026-07-17', poster:'[Sample] Desai Fleet Owners', phone:'9825000011', ts:Date.now()-4000e3, sample:true},
+      {id:cid(), from:'Indore', to:'Ahmedabad / Rajkot', truckType:'Container', capacity:10, date:'2026-07-18', poster:'[Sample] Malwa Transport Co.', phone:'9825000012', ts:Date.now()-9000e3, sample:true},
+      {id:cid(), from:'Jaipur', to:'Anywhere North', truckType:'Trailer', capacity:20, date:'2026-07-19', poster:'[Sample] Rajputana Roadways', phone:'9825000013', ts:Date.now()-2000e3, sample:true},
     ]);
   }
   if(LocalDB.get('groups', null) === null){ LocalDB.set('groups', []); }
@@ -409,56 +410,117 @@ function toast(msg){
 }
 
 // ---------- Rendering: cards ----------
+function timeAgo(ts){
+  if(!ts) return '';
+  const mins = Math.max(0, Math.round((Date.now() - Number(ts)) / 60000));
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins + 'm ago';
+  const hrs = Math.round(mins / 60);
+  if(hrs < 48) return hrs + 'h ago';
+  const days = Math.round(hrs / 24);
+  return days + 'd ago';
+}
+function maskPhone(phone){
+  const p = String(phone||'').replace(/\D/g,'');
+  if(p.length < 6) return '';
+  return p.slice(0,2) + '******' + p.slice(-2);
+}
+function counterpartyHTML(item){
+  const city = item.city || item.posterCity || '';
+  const trips = item.completedTrips != null ? `${item.completedTrips} trips` : '';
+  const last = item.lastActive ? timeAgo(item.lastActive) : (item.ts ? timeAgo(item.ts) : '');
+  const phoneMasked = maskPhone(item.phone);
+  const profileBadge = item.verified
+    ? `<span class="verified-badge" title="Name, phone and GST were on file when posting — not GSTN-confirmed">Profile complete</span>`
+    : '';
+  return `<div class="counterparty-card">
+    <div class="cp-main">
+      <strong>${escapeHtml(item.poster || 'Business')}</strong>
+      <span class="cp-hint">on Maalwala${city ? ' · ' + escapeHtml(city) : ''}</span>
+      ${profileBadge}
+    </div>
+    <div class="cp-meta">
+      ${trips ? `<span>${escapeHtml(String(trips))}</span>` : ''}
+      ${last ? `<span>Active ${escapeHtml(last)}</span>` : ''}
+      ${phoneMasked ? `<span class="cp-phone" title="Full number after interest / login">📞 ${escapeHtml(phoneMasked)}</span>` : ''}
+    </div>
+  </div>`;
+}
 function routeCardHTML(item, type){
-  const meta = type==='load'
-    ? `<div class="route-meta">
-         <span><b>${escapeHtml(item.material)}</b></span>
-         <span>${item.weight ?? '—'} T</span>
-         <span>${escapeHtml(item.truckType)}</span>
-         <span>${fmtDate(item.date)}</span>
-       </div>`
-    : `<div class="route-meta">
-         <span>${escapeHtml(item.truckType)}</span>
-         <span>${item.capacity ?? '—'} T capacity</span>
-         <span>${fmtDate(item.date)}</span>
-       </div>`;
-  const rate = type==='load' && item.rate ? `<span class="route-rate">₹${Number(item.rate).toLocaleString('en-IN')}</span>` : '';
-  const verifiedBadge = item.verified ? `<span class="verified-badge" title="This business had GST and contact details on file when they posted">✅ Verified profile</span>` : '';
+  const mt = type==='load' ? (item.weight ?? '—') : (item.capacity ?? '—');
+  const material = type==='load' ? escapeHtml(item.material||'—') : '—';
+  const rateVal = item.rate ? Number(item.rate) : 0;
+  const rate = rateVal ? `<span class="route-rate">₹${rateVal.toLocaleString('en-IN')}</span>` : `<span class="route-rate muted">Rate on ask</span>`;
+  const age = timeAgo(item.ts);
+  const bids = getBidsForItem(item.id);
+  const pending = bids.filter(b=>b.status==='pending').length;
+  const accepted = bids.filter(b=>b.status==='accepted').length;
+  const bidState = bids.length
+    ? `<span class="bid-chip">${bids.length} bid${bids.length>1?'s':''}${pending?` · ${pending} pending`:''}${accepted?` · ${accepted} accepted`:''}</span>`
+    : '';
+  const myPhone = (LocalDB.get('profile',{})||{}).phone || '';
+  const isMine = myPhone && item.phone && String(myPhone)===String(item.phone);
+  const bidManage = (isMine && pending)
+    ? `<div class="bid-manage">${bids.filter(b=>b.status==='pending').slice(0,3).map(b=>`
+        <div class="bid-row">
+          <span>₹${Number(b.amount).toLocaleString('en-IN')} · ${escapeHtml(b.name)} · ${escapeHtml(b.status)}</span>
+          <button class="btn btn-ghost" onclick="updateBidStatus('${b.id}','accepted')">Accept</button>
+          <button class="btn btn-ghost" onclick="updateBidStatus('${b.id}','countered')">Counter</button>
+        </div>`).join('')}</div>`
+    : (bids.filter(b=>b.phone===myPhone).length
+        ? `<div class="bid-manage"><span class="hint" style="margin:0;">Your bid: ${escapeHtml(bids.filter(b=>b.phone===myPhone)[0].status)}</span></div>`
+        : '');
   const driverLine = (type==='truck' && item.driverName)
-    ? `<div class="route-meta"><span>🧑‍✈️ Driver: <b>${escapeHtml(item.driverName)}</b>${item.driverPhone ? ' · '+escapeHtml(item.driverPhone) : ''}</span></div>`
+    ? `<div class="route-meta"><span>🧑‍✈️ ${escapeHtml(item.driverName)}${item.driverPhone ? ' · '+escapeHtml(maskPhone(item.driverPhone)||item.driverPhone) : ''}</span></div>`
     : '';
   const vehicleLine = (type==='truck' && item.vehicleNumber)
-    ? `<div class="route-meta"><span>🚚 Vehicle: <b>${escapeHtml(item.vehicleNumber)}</b></span></div>`
+    ? `<div class="route-meta"><span>🚚 ${escapeHtml(item.vehicleNumber)}</span></div>`
     : '';
   const trackingBtn = type==='truck'
-    ? `<button class="btn btn-ghost" onclick="shareTrackingLink('${item.id}')" title="Send your driver a link to share live location">📍 Get tracking link</button>`
+    ? `<button class="btn btn-ghost" onclick="shareTrackingLink('${item.id}')" title="Send your driver a link to share live location">📍 Tracking link</button>`
     : '';
   const editVehicleBtn = type==='truck'
-    ? `<button class="btn btn-ghost" onclick="editVehicleNumber('${item.id}','${escapeHtml(item.vehicleNumber||'')}')" title="Set or fix this truck's vehicle number for Aditi Tracking sync">✏️ ${item.vehicleNumber ? 'Edit' : 'Add'} vehicle #</button>`
+    ? `<button class="btn btn-ghost" onclick="editVehicleNumber('${item.id}','${escapeHtml(item.vehicleNumber||'')}')">✏️ ${item.vehicleNumber ? 'Edit' : 'Add'} vehicle #</button>`
     : '';
+  const backhaulBtn = type==='load'
+    ? `<button class="btn btn-ghost" onclick="findBackhaulNear('${escapeHtml(item.to||'')}','load')" title="Loads near unload city">↩ Backhaul near ${escapeHtml(item.to||'')}</button>`
+    : `<button class="btn btn-ghost" onclick="findBackhaulNear('${escapeHtml(item.from||'')}','truck')" title="Loads from this city">📦 Loads from ${escapeHtml(item.from||'')}</button>`;
   return `
-  <div class="route-card">
+  <div class="route-card board-row">
     <div class="route-card-top">
       <div class="route-line">
-        <span class="route-dot"></span>${escapeHtml(item.from)}
+        <span class="route-dot"></span><b>${escapeHtml(item.from)}</b>
         <span class="route-dash"></span>
-        <span class="route-dot end"></span>${escapeHtml(item.to)}
+        <span class="route-dot end"></span><b>${escapeHtml(item.to||'Anywhere')}</b>
       </div>
-      <span class="tag">${type==='load' ? 'Load' : 'Truck'}</span>
-      ${item.featured ? '<span class="tag" style="background:#ffd70022;color:#a8790a;">⭐ Featured</span>' : ''}
+      <div class="board-tags">
+        <span class="tag">${type==='load' ? 'Load' : 'Truck'}</span>
+        ${item.featured ? '<span class="tag featured-tag">⭐ Featured</span>' : ''}
+        ${(item.sample || String(item.poster||'').startsWith('[Sample]')) ? '<span class="tag sample-tag">Sample</span>' : ''}
+        ${age ? `<span class="tag age-tag">${escapeHtml(age)}</span>` : ''}
+        ${bidState}
+      </div>
     </div>
-    ${meta}
+    <div class="board-grid">
+      <span><em>MT</em> ${escapeHtml(String(mt))}</span>
+      <span><em>Type</em> ${escapeHtml(item.truckType||'—')}</span>
+      ${type==='load' ? `<span><em>Material</em> ${material}</span>` : ''}
+      <span><em>Date</em> ${fmtDate(item.date)}</span>
+      <span class="board-rate-cell">${rate}</span>
+    </div>
     ${driverLine}
     ${vehicleLine}
-    <div class="route-meta"><span>Posted by <b>${escapeHtml(item.poster)}</b></span> ${verifiedBadge}</div>
+    ${counterpartyHTML(item)}
+    ${bidManage}
     <div class="route-card-actions-primary">
-      ${rate}
-      <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">${type==='load' ? '📦 Book Load' : '🚚 Book Truck'}</button>
+      <button class="btn btn-accent" onclick="openBookingModal('${item.id}','${type}')">${type==='load' ? '📦 Book' : '🚚 Book'}</button>
+      <button class="btn btn-primary" onclick="openBidModal('${item.id}','${type}')">💬 Bid / Interest</button>
     </div>
     ${(trackingBtn || editVehicleBtn) ? `<div class="route-card-actions-manage">${trackingBtn}${editVehicleBtn}</div>` : ''}
     <div class="route-card-actions-secondary">
+      ${backhaulBtn}
       <button class="btn btn-ghost" onclick="toggleFeatured('${item.id}','${type}',${!item.featured})">${item.featured ? '☆ Unfeature' : '⭐ Feature'}</button>
-      <button class="btn btn-ghost" onclick="openSendForItem('${item.id}','${type}')">💬 Share to WhatsApp</button>
+      <button class="btn btn-ghost" onclick="openSendForItem('${item.id}','${type}')">📣 WhatsApp</button>
     </div>
   </div>`;
 }
@@ -509,7 +571,19 @@ window.editVehicleNumber = async function(truckId, current){
     toast('Could not update — try again.');
   }
 };
-function emptyState(msg){ return `<div class="empty-state">${msg}</div>`; }
+function emptyState(msg, cta){
+  const action = cta || '';
+  return `<div class="empty-state empty-state-rich">
+    <p>${msg}</p>
+    ${action}
+  </div>`;
+}
+function emptyBoardCTA(kind){
+  if(kind==='loads'){
+    return emptyState(t('emptyLoads'), `<button class="btn btn-primary" onclick="openModal('loadModal')">${t('ctaPostLoad')}</button>`);
+  }
+  return emptyState(t('emptyTrucks'), `<button class="btn btn-primary" onclick="openModal('truckModal')">${t('ctaPostTruck')}</button>`);
+}
 
 // ---------- Main render ----------
 let CACHE = { loads:[], trucks:[], groups:[], contacts:[], savedSearches:[] };
@@ -520,12 +594,11 @@ async function renderAll(){
   ]);
   CACHE = { loads, trucks, groups, contacts, savedSearches };
 
-  animateCount(document.getElementById('statLoads'), loads.length);
-  animateCount(document.getElementById('statTrucks'), trucks.length);
-  animateCount(document.getElementById('statGroups'), groups.length);
+  updateHeroStats(loads.length, trucks.length, groups.length);
+  checkLaneAlerts(loads, trucks);
 
-  document.getElementById('homeLoadsPreview').innerHTML = loads.slice(0,3).map(l=>routeCardHTML(l,'load')).join('') || emptyState('No loads posted yet.');
-  document.getElementById('homeTrucksPreview').innerHTML = trucks.slice(0,3).map(t=>routeCardHTML(t,'truck')).join('') || emptyState('No trucks posted yet.');
+  document.getElementById('homeLoadsPreview').innerHTML = loads.slice(0,3).map(l=>routeCardHTML(l,'load')).join('') || emptyBoardCTA('loads');
+  document.getElementById('homeTrucksPreview').innerHTML = trucks.slice(0,3).map(t=>routeCardHTML(t,'truck')).join('') || emptyBoardCTA('trucks');
 
   renderLoadsList();
   renderTrucksList();
@@ -536,6 +609,22 @@ async function renderAll(){
   renderCityDatalists();
   renderPopularRoutes();
   renderSavedSearches();
+  renderLaneAlertsUI();
+}
+function updateHeroStats(nLoads, nTrucks, nGroups){
+  const hasAny = (nLoads + nTrucks) > 0;
+  const emptyCta = document.getElementById('heroEmptyCta');
+  const stats = document.getElementById('heroStats');
+  if(emptyCta) emptyCta.classList.toggle('hidden', hasAny);
+  if(stats) stats.classList.toggle('soft-empty', !hasAny);
+  const pairs = [['statLoads', nLoads], ['statTrucks', nTrucks], ['statGroups', nGroups]];
+  pairs.forEach(([id, n])=>{
+    const el = document.getElementById(id);
+    const wrap = document.getElementById(id+'Wrap');
+    if(!el) return;
+    if(n > 0){ animateCount(el, n); if(wrap) wrap.classList.remove('is-zero'); }
+    else { el.textContent = '—'; if(wrap) wrap.classList.add('is-zero'); }
+  });
 }
 
 function renderCityDatalists(){
@@ -579,17 +668,63 @@ function sortItems(items, sortBy){
   return arr;
 }
 
+function withinFreshness(item, hours){
+  if(!hours) return true;
+  if(!item.ts) return true;
+  return (Date.now() - Number(item.ts)) <= (Number(hours) * 3600000);
+}
+function renderFilterChips(kind){
+  const el = document.getElementById(kind==='loads' ? 'loadFilterChips' : 'truckFilterChips');
+  if(!el) return;
+  const chips = [];
+  if(kind==='loads'){
+    const f = document.getElementById('filterFromLoads').value.trim();
+    const t = document.getElementById('filterToLoads').value.trim();
+    const tt = document.getElementById('filterTruckType').value;
+    const mt = document.getElementById('filterMinMtLoads').value;
+    const mat = document.getElementById('filterMaterialLoads').value.trim();
+    const fr = document.getElementById('filterFreshLoads').value;
+    if(f) chips.push('From: '+f);
+    if(t) chips.push('To: '+t);
+    if(tt) chips.push(tt);
+    if(mt) chips.push('≥ '+mt+' MT');
+    if(mat) chips.push(mat);
+    if(fr) chips.push('<'+fr+'h');
+  } else {
+    const f = document.getElementById('filterFromTrucks').value.trim();
+    const t = document.getElementById('filterToTrucks').value.trim();
+    const tt = document.getElementById('filterTruckType2').value;
+    const mt = document.getElementById('filterMinMtTrucks').value;
+    const fr = document.getElementById('filterFreshTrucks').value;
+    if(f) chips.push('From: '+f);
+    if(t) chips.push('To: '+t);
+    if(tt) chips.push(tt);
+    if(mt) chips.push('≥ '+mt+' MT');
+    if(fr) chips.push('<'+fr+'h');
+  }
+  el.innerHTML = chips.map(c=>`<span class="filter-chip">${escapeHtml(c)}</span>`).join('');
+}
 function renderLoadsList(){
   let loads = sortItems(CACHE.loads, document.getElementById('sortLoads')?.value);
   const q = (document.getElementById('searchLoads')?.value || '').trim().toLowerCase();
   const f = document.getElementById('filterFromLoads').value.trim().toLowerCase();
   const t = document.getElementById('filterToLoads').value.trim().toLowerCase();
   const tt = document.getElementById('filterTruckType').value;
+  const minMt = Number(document.getElementById('filterMinMtLoads')?.value) || 0;
+  const mat = (document.getElementById('filterMaterialLoads')?.value || '').trim().toLowerCase();
+  const fresh = document.getElementById('filterFreshLoads')?.value || '';
   if(q) loads = loads.filter(l=> [l.from,l.to,l.material,l.poster].join(' ').toLowerCase().includes(q));
-  if(f) loads = loads.filter(l=>l.from.toLowerCase().includes(f));
-  if(t) loads = loads.filter(l=>l.to.toLowerCase().includes(t));
+  if(f) loads = loads.filter(l=>(l.from||'').toLowerCase().includes(f));
+  if(t) loads = loads.filter(l=>(l.to||'').toLowerCase().includes(t));
   if(tt) loads = loads.filter(l=>l.truckType===tt);
-  document.getElementById('loadsList').innerHTML = loads.map(l=>routeCardHTML(l,'load')).join('') || emptyState('No loads match your search.');
+  if(minMt) loads = loads.filter(l=> Number(l.weight||0) >= minMt);
+  if(mat) loads = loads.filter(l=> (l.material||'').toLowerCase().includes(mat));
+  if(fresh) loads = loads.filter(l=> withinFreshness(l, fresh));
+  renderFilterChips('loads');
+  const emptyMsg = (CACHE.loads.length === 0)
+    ? emptyBoardCTA('loads')
+    : emptyState(t('emptyNoMatch'), `<button class="btn btn-ghost" onclick="clearLoadFilters()">${t('btnClearFilters')}</button>`);
+  document.getElementById('loadsList').innerHTML = loads.map(l=>routeCardHTML(l,'load')).join('') || emptyMsg;
 }
 function renderTrucksList(){
   let trucks = sortItems(CACHE.trucks, document.getElementById('sortTrucks')?.value);
@@ -597,18 +732,73 @@ function renderTrucksList(){
   const f = document.getElementById('filterFromTrucks').value.trim().toLowerCase();
   const t = document.getElementById('filterToTrucks').value.trim().toLowerCase();
   const tt = document.getElementById('filterTruckType2').value;
+  const minMt = Number(document.getElementById('filterMinMtTrucks')?.value) || 0;
+  const fresh = document.getElementById('filterFreshTrucks')?.value || '';
   if(q) trucks = trucks.filter(l=> [l.from,l.to,l.poster,l.driverName].join(' ').toLowerCase().includes(q));
-  if(f) trucks = trucks.filter(l=>l.from.toLowerCase().includes(f));
+  if(f) trucks = trucks.filter(l=>(l.from||'').toLowerCase().includes(f));
   if(t) trucks = trucks.filter(l=>(l.to||'').toLowerCase().includes(t));
   if(tt) trucks = trucks.filter(l=>l.truckType===tt);
-  document.getElementById('trucksList').innerHTML = trucks.map(t=>routeCardHTML(t,'truck')).join('') || emptyState('No trucks match your search.');
+  if(minMt) trucks = trucks.filter(l=> Number(l.capacity||0) >= minMt);
+  if(fresh) trucks = trucks.filter(l=> withinFreshness(l, fresh));
+  renderFilterChips('trucks');
+  const emptyMsg = (CACHE.trucks.length === 0)
+    ? emptyBoardCTA('trucks')
+    : emptyState(t('emptyNoMatch'), `<button class="btn btn-ghost" onclick="clearTruckFilters()">${t('btnClearFilters')}</button>`);
+  document.getElementById('trucksList').innerHTML = trucks.map(tr=>routeCardHTML(tr,'truck')).join('') || emptyMsg;
 }
+window.clearLoadFilters = function(){
+  ['filterFromLoads','filterToLoads','filterTruckType','filterMinMtLoads','filterMaterialLoads','filterFreshLoads','searchLoads'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  renderLoadsList();
+};
+window.clearTruckFilters = function(){
+  ['filterFromTrucks','filterToTrucks','filterTruckType2','filterMinMtTrucks','filterFreshTrucks','searchTrucks'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  renderTrucksList();
+};
 document.getElementById('applyLoadFilter').addEventListener('click', renderLoadsList);
 document.getElementById('applyTruckFilter').addEventListener('click', renderTrucksList);
 document.getElementById('searchLoads')?.addEventListener('input', renderLoadsList);
 document.getElementById('searchTrucks')?.addEventListener('input', renderTrucksList);
 document.getElementById('sortLoads')?.addEventListener('change', renderLoadsList);
 document.getElementById('sortTrucks')?.addEventListener('change', renderTrucksList);
+['filterMinMtLoads','filterMaterialLoads','filterFreshLoads','filterMinMtTrucks','filterFreshTrucks'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', id.includes('Truck') ? renderTrucksList : renderLoadsList);
+  document.getElementById(id)?.addEventListener('input', id.includes('Truck') ? renderTrucksList : renderLoadsList);
+});
+document.getElementById('swapLoadRoute')?.addEventListener('click', ()=>{
+  const a = document.getElementById('filterFromLoads');
+  const b = document.getElementById('filterToLoads');
+  const tmp = a.value; a.value = b.value; b.value = tmp;
+  renderLoadsList();
+  toast(t('swappedRoute'));
+});
+document.getElementById('swapTruckRoute')?.addEventListener('click', ()=>{
+  const a = document.getElementById('filterFromTrucks');
+  const b = document.getElementById('filterToTrucks');
+  const tmp = a.value; a.value = b.value; b.value = tmp;
+  renderTrucksList();
+  toast(t('swappedRoute'));
+});
+window.findBackhaulNear = function(city, mode){
+  if(!city){ toast('No city on this listing.'); return; }
+  if(mode === 'load'){
+    // After a load to CITY, find loads FROM that unload city (backhaul)
+    showScreen('loads');
+    document.getElementById('filterFromLoads').value = city;
+    document.getElementById('filterToLoads').value = '';
+    renderLoadsList();
+    toast('Showing loads from ' + city);
+  } else {
+    showScreen('loads');
+    document.getElementById('filterFromLoads').value = city;
+    document.getElementById('filterToLoads').value = '';
+    renderLoadsList();
+    toast('Showing loads from ' + city);
+  }
+};
 
 // ---------- Saved searches ----------
 function renderSavedSearches(){
@@ -733,8 +923,8 @@ function renderVerificationStatus(p){
   if(!el) return;
   const complete = Boolean(p.name && p.phone && p.gst);
   el.innerHTML = complete
-    ? `<span class="verified-badge">✅ Verified profile</span> <span class="hint" style="margin:0;">Name, phone and GST are on file — your posts show this badge. This means your details are on record, not that Maalwala has confirmed them with GSTN.</span>`
-    : `<span class="unverified-badge">○ Not yet verified</span> <span class="hint" style="margin:0;">Add your GST number and phone above to get the verified badge on your posts.</span>`;
+    ? `<span class="verified-badge">Profile complete</span> <span class="hint" style="margin:0;">Name, phone and GST are on file — your posts show this badge. Details on record only — not GSTN-confirmed.</span>`
+    : `<span class="unverified-badge">○ Profile incomplete</span> <span class="hint" style="margin:0;">Add your GST number and phone above to show "Profile complete" on your posts.</span>`;
 }
 async function persistProfile(){
   const p = {
@@ -831,6 +1021,7 @@ document.getElementById('truckForm').addEventListener('submit', async e=>{
   const payload = {
     from: val('truckFrom'), to: val('truckTo'), truckType: val('truckType'),
     capacity: val('truckCapacity'), date: val('truckDate'),
+    rate: val('truckRate') || '',
     poster: profile.name || 'You', phone: profile.phone || '',
     driverName: val('truckDriverName'), driverPhone: val('truckDriverPhone'),
     vehicleNumber: val('truckVehicleNumber').trim().toUpperCase(),
@@ -892,8 +1083,8 @@ window.openBookingModal = async function(id, type){
   if(type === 'truck'){
          document.getElementById('bookingTermsAccept').closest('label').style.display = '';
     payoutRow.innerHTML = item.payoutUpiId
-      ? `<p class="hint" style="margin-top:0;">Payout goes to this truck's registered UPI: <b>${escapeHtml(item.payoutUpiId)}</b></p>`
-      : `<div class="legal-notice">This truck has no payout UPI on file — booking is disabled until the transporter adds one via "Edit vehicle #" style edit on their listing.</div>`;
+      ? `<p class="hint" style="margin-top:0;">Transporter UPI on file: <b>${escapeHtml(item.payoutUpiId)}</b> — use this when you settle freight directly. Online checkout (if any) is only a booking confirmation / platform fee.</p>`
+      : `<div class="legal-notice">This truck has no UPI on file — you can still confirm interest and settle freight directly once you agree terms. Add UPI on the listing for faster coordination.</div>`;
   } else {
     payoutRow.innerHTML = `<label>Your payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(where you'll receive payment as the transporter)</span>
       <input required type="text" id="bookingMyUpi" placeholder="yourname@upi" value="${escapeHtml(profile.payoutUpiId||'')}"></label>`;
@@ -901,7 +1092,7 @@ window.openBookingModal = async function(id, type){
               payoutRow.innerHTML += `<label>Your vehicle number <input required type="text" id="bookingVehicleNumber" placeholder="e.g. GJ01KT0057"></label>
                   <label>Driver name <input required type="text" id="bookingDriverName" placeholder="Driver's full name"></label>
                       <label>Driver phone <input required type="text" id="bookingDriverPhone" placeholder="10-digit mobile"></label>
-                          <p class="hint">No payment happens now — the shipper pays once your truck is loaded and you've shared the e-way bill. You'll get 90% immediately after that, and the remaining 10% 48 hours after confirmed delivery.</p>`;
+                          <p class="hint">Confirm the booking here. Freight is settled directly with the shipper (UPI / NEFT / cash) after loading — Maalwala does not hold freight in escrow. Any online checkout is only a booking confirmation / platform fee if enabled.</p>`;
               document.getElementById('bookingTermsAccept').closest('label').style.display = 'none';
        }
   }
@@ -916,11 +1107,12 @@ window.openBookingModal = async function(id, type){
 };
 function updateEscrowPreview(){
   const total = Number(document.getElementById('bookingTotalAmount').value) || 0;
-  const advance = Math.round(total * 0.9);
-  const balance = total - advance;
-  document.getElementById('escrowSplitPreview').innerHTML = total
-    ? `<span>90% now: <b>₹${advance.toLocaleString('en-IN')}</b></span> <span>10% on delivery: <b>₹${balance.toLocaleString('en-IN')}</b></span>`
-    : '';
+  const el = document.getElementById('escrowSplitPreview');
+  if(!el) return;
+  el.innerHTML = total
+    ? `<span>Agreed freight: <b>₹${total.toLocaleString('en-IN')}</b> — settle directly (UPI / NEFT / cash)</span>
+       <span class="hint" style="margin:0;display:block;">Not freight escrow. Online pay (if shown) = booking confirmation / platform fee only.</span>`
+    : `<span class="hint" style="margin:0;">Enter the freight you agreed — it is paid off-platform between you and the counterparty.</span>`;
 }
 document.getElementById('bookingForm').addEventListener('submit', async e=>{
   e.preventDefault();
@@ -937,11 +1129,10 @@ document.getElementById('bookingForm').addEventListener('submit', async e=>{
 
   let payload;
   if(type === 'truck'){
-    if(!item.payoutUpiId){ resultEl.textContent = 'This truck has no payout UPI on file.'; return; }
     payload = {
       truckId: id, route: `${item.from} → ${item.to||'Anywhere'}`, totalAmount,
       shipperName: myName, shipperPhone: myPhone,
-      transporterName: item.poster, transporterPhone: item.phone, transporterUpiId: item.payoutUpiId,
+      transporterName: item.poster, transporterPhone: item.phone, transporterUpiId: item.payoutUpiId || '',
       termsAccepted: document.getElementById('bookingTermsAccept').checked,
     };
   } else {
@@ -961,7 +1152,7 @@ document.getElementById('bookingForm').addEventListener('submit', async e=>{
    }
 
   const btn = e.target.querySelector('button[type="submit"]');
-  btn.disabled = true; btn.textContent = 'Creating payment link…';
+  btn.disabled = true; btn.textContent = 'Confirming…';
   try{
     const r = await fetch(API_BASE + '/api/bookings', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
     const data = await r.json();
@@ -983,7 +1174,7 @@ document.getElementById('bookingForm').addEventListener('submit', async e=>{
   }catch(err){
     resultEl.textContent = 'Could not reach the server.';
   }
-  btn.disabled = false; btn.textContent = 'Pay & Book';
+  btn.disabled = false; btn.textContent = 'Confirm Booking';
 });
 
 window.openSendForItem = async function(id, type){
@@ -1088,6 +1279,7 @@ async function checkExistingSession(){
 }
 function hideAuthGate(){
   document.getElementById('authGate').style.display = 'none';
+  setTimeout(maybeShowRolePicker, 500);
   document.body.style.overflow = '';
 }
 function showAuthGate(){
@@ -1748,16 +1940,16 @@ document.getElementById('manualPingBtn')?.addEventListener('click', async ()=>{
   }
 });
 
-// ---------- Bookings (escrow) ----------
+// ---------- Bookings ----------
 const BOOKING_STATUS_LABEL = {
   booked: { text: 'Booked — awaiting loading', color: '#8a96ab' },
   awaiting_payment: { text: 'Awaiting payment', color: '#8a96ab' },
   cancelled: { text: 'Cancelled', color: '#8a96ab' },
-  funded: { text: 'Paid — arranging advance payout', color: '#c98a00' },
-  in_transit: { text: 'Advance paid — in transit', color: '#1565C0' },
-  delivered_pending_confirmation: { text: 'Delivered — balance releases automatically', color: '#c98a00' },
+  funded: { text: 'Confirmation paid — coordinate with counterparty', color: '#c98a00' },
+  in_transit: { text: 'In transit — settle freight directly', color: '#1565C0' },
+  delivered_pending_confirmation: { text: 'Delivered — confirm remaining settlement', color: '#c98a00' },
   disputed: { text: '⚠️ Disputed', color: '#b23' },
-  completed: { text: '✅ Completed — fully paid', color: '#1b7a41' },
+  completed: { text: '✅ Completed', color: '#1b7a41' },
   refund_pending_manual: { text: 'Refund pending (manual)', color: '#b23' },
 };
 async function renderBookings(){
@@ -1815,8 +2007,9 @@ async function renderBookings(){
       </div>
       <div class="route-meta">
         <span>Total: <b>₹${Number(bk.totalAmount).toLocaleString('en-IN')}</b></span>
-        <span>Advance (90%): ₹${Number(bk.advanceAmount).toLocaleString('en-IN')}</span>
-        <span>Held (10%): ₹${Number(bk.balanceAmount).toLocaleString('en-IN')}</span>
+        ${bk.advanceAmount!=null ? `<span>Recorded advance: ₹${Number(bk.advanceAmount).toLocaleString('en-IN')}</span>` : ''}
+        ${bk.balanceAmount!=null ? `<span>Recorded balance: ₹${Number(bk.balanceAmount).toLocaleString('en-IN')}</span>` : ''}
+        <span class="hint" style="margin:0;">Freight settlement is between parties</span>
       </div>
       <div class="route-card-actions">${actions}</div>
     </div>`;
@@ -1835,7 +2028,7 @@ window.markBookingDelivered = async function(bookingId){
       const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/mark-delivered', {
         method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({podPhoto})
       });
-      if(r.ok){ toast('Marked delivered — 10% releases automatically in 48h unless disputed.'); renderBookings(); }
+      if(r.ok){ toast('Marked delivered — settle any remaining balance directly with the shipper unless your booking used a platform fee flow.'); renderBookings(); }
       else{ const d = await r.json().catch(()=>({})); toast(d.error || 'Could not update booking.'); }
     }catch(e){ toast('Could not reach the server.'); }
   };
@@ -1885,7 +2078,7 @@ window.markLoadedAndRequestPayment = async function(bookingId){
 };
 
 window.requestEarlyPayout = async function(bookingId){
-  if(!confirm("Get your balance now instead of waiting 48 hours? A 2% fee will be deducted.")) return;
+  if(!confirm("Request early payout of any platform-held balance? A 2% fee may apply if this booking used online checkout.")) return;
   try{
     const r = await fetch(API_BASE + '/api/bookings/'+bookingId+'/early-payout', { method:'POST' });
     const d = await r.json().catch(()=>({}));
@@ -1896,11 +2089,283 @@ window.requestEarlyPayout = async function(bookingId){
   }catch(e){ toast('Could not reach the server.'); }
 };
 
+
+// ---------- i18n (EN / HI chrome) ----------
+const I18N = {
+  en: {
+    navHome:'Home', navLoads:'Find Loads', navTrucks:'Find Trucks', navFleet:'Fleet',
+    navBookings:'Bookings', navBroadcast:'Broadcast', navMore:'More', navPost:'Post',
+    heroSub:'Free load & truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast. Freight is settled directly between parties (UPI / NEFT / cash).',
+    heroTrust:'Verify GST & RC before advances · Parties settle freight off-platform',
+    agHeroSub:'Free load & truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify GST & RC before advances.',
+    ctaPostLoad:'+ Post a Load', ctaPostTruck:'+ Post Truck Availability', ctaFindTrucks:'Find Trucks',
+    emptyBoardLead:'Be the first on this lane — post a load or truck and broadcast to your groups.',
+    emptyLoads:'No loads on the board yet. Be the first on this lane.',
+    emptyTrucks:'No trucks listed yet. Post availability and broadcast to your groups.',
+    emptyNoMatch:'No listings match your filters.',
+    btnClearFilters:'Clear filters', btnSearch:'Search', swappedRoute:'Route swapped (backhaul)',
+    statLoads:'live loads', statTrucks:'trucks available', statGroups:'WhatsApp groups linked',
+    roleTitle:'How do you use Maalwala?', roleSub:"We'll tailor the home shortcuts. You can change this anytime in Profile.",
+    roleShipper:'Shipper', roleShipperDesc:'I post loads that need trucks',
+    roleBroker:'Broker', roleBrokerDesc:'I match loads and trucks',
+    roleFleet:'Fleet owner', roleFleetDesc:'I run trucks and want backhauls',
+  },
+  hi: {
+    navHome:'होम', navLoads:'लोड खोजें', navTrucks:'ट्रक खोजें', navFleet:'फ्लीट',
+    navBookings:'बुकिंग', navBroadcast:'प्रसारण', navMore:'और', navPost:'पोस्ट',
+    heroSub:'भारतीय ट्रांसपोर्टर, ब्रोकर और कंसाइनर के लिए मुफ़्त लोड व ट्रक बोर्ड — और WhatsApp ग्रुप पर एक टैप प्रसारण। भाड़ा पार्टियाँ खुद तय करती हैं (UPI / NEFT / नकद)।',
+    heroTrust:'एडवांस से पहले GST और RC जाँचें · भाड़ा प्लेटफ़ॉर्म के बाहर तय होता है',
+    agHeroSub:'ब्रोकर और फ्लीट के लिए मुफ़्त लोड व ट्रक बोर्ड — लोड पोस्ट करें, ट्रक खोजें, फ्लीट ट्रैक करें, WhatsApp पर प्रसारण करें। भाड़ा सीधे तय करें (UPI / NEFT / नकद)। एडवांस से पहले GST व RC जाँचें।',
+    ctaPostLoad:'+ लोड पोस्ट करें', ctaPostTruck:'+ ट्रक उपलब्धता', ctaFindTrucks:'ट्रक खोजें',
+    emptyBoardLead:'इस लेन पर पहले बनें — लोड या ट्रक पोस्ट करें और अपने ग्रुप पर भेजें।',
+    emptyLoads:'अभी कोई लोड नहीं। इस लेन पर पहले पोस्ट करें।',
+    emptyTrucks:'अभी कोई ट्रक नहीं। उपलब्धता पोस्ट करें।',
+    emptyNoMatch:'फ़िल्टर से कोई लिस्टिंग नहीं मिली।',
+    btnClearFilters:'फ़िल्टर हटाएँ', btnSearch:'खोजें', swappedRoute:'रूट बदला (बैकहॉल)',
+    statLoads:'लाइव लोड', statTrucks:'उपलब्ध ट्रक', statGroups:'लिंक किए WhatsApp ग्रुप',
+    roleTitle:'आप Maalwala कैसे इस्तेमाल करते हैं?', roleSub:'होम शॉर्टकट आपके रोल के हिसाब से सेट होंगे। प्रोफ़ाइल से कभी भी बदल सकते हैं।',
+    roleShipper:'शिपर', roleShipperDesc:'मुझे ट्रक चाहिए — लोड पोस्ट करता/करती हूँ',
+    roleBroker:'ब्रोकर', roleBrokerDesc:'लोड और ट्रक मिलाता/मिलाती हूँ',
+    roleFleet:'फ्लीट ओनर', roleFleetDesc:'मेरे ट्रक हैं — बैकहॉल चाहिए',
+  }
+};
+let currentLang = localStorage.getItem('mw_lang') || 'en';
+function t(key){
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.en[key]) || key;
+}
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if(val) el.textContent = val;
+  });
+  const btn = document.getElementById('langToggle');
+  if(btn) btn.textContent = currentLang === 'en' ? 'हिं' : 'EN';
+  localStorage.setItem('mw_lang', currentLang);
+}
+function toggleLang(){
+  currentLang = currentLang === 'en' ? 'hi' : 'en';
+  applyI18n();
+  renderLoadsList();
+  renderTrucksList();
+}
+document.getElementById('langToggle')?.addEventListener('click', toggleLang);
+document.getElementById('drawerLangToggle')?.addEventListener('click', ()=>{ toggleLang(); closeDrawer(); });
+applyI18n();
+
+// ---------- Role picker (first run) ----------
+function maybeShowRolePicker(){
+  if(localStorage.getItem('mw_role_pref')) return;
+  // Only after auth gate is hidden
+  const gate = document.getElementById('authGate');
+  if(gate && gate.style.display !== 'none') return;
+  openModal('rolePickerModal');
+}
+document.querySelectorAll('.role-pick-card').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    const role = btn.dataset.role;
+    localStorage.setItem('mw_role_pref', role);
+    try{
+      const p = await Profile.get();
+      p.role = role === 'Fleet Owner' ? 'Fleet Owner' : role;
+      await Profile.save(p);
+      const sel = document.getElementById('profRole');
+      if(sel){
+        // map to existing select options if present
+        const opts = [...sel.options].map(o=>o.value);
+        if(opts.includes(role)) sel.value = role;
+        else if(role === 'Fleet Owner' && opts.includes('Fleet Owner')) sel.value = 'Fleet Owner';
+        else if(opts.includes('Transporter')) sel.value = 'Transporter';
+      }
+    }catch(e){}
+    closeModal('rolePickerModal');
+    toast('Saved as ' + role);
+    if(role === 'Shipper') openModal('loadModal');
+    else if(role === 'Fleet Owner') showScreen('trucks');
+    else showScreen('loads');
+  });
+});
+
+// ---------- Bids (client-side MVP + best-effort API) ----------
+function getAllBids(){ return LocalDB.get('bids', []); }
+function saveAllBids(list){ LocalDB.set('bids', list); }
+function getBidsForItem(itemId){ return getAllBids().filter(b=>b.itemId===itemId); }
+window.openBidModal = async function(id, type){
+  const list = type==='load' ? CACHE.loads : CACHE.trucks;
+  const item = list.find(i=>i.id===id);
+  if(!item) return;
+  document.getElementById('bidItemId').value = id;
+  document.getElementById('bidItemType').value = type;
+  document.getElementById('bidSummary').textContent =
+    `${item.from} → ${item.to||'Anywhere'} · posted ₹${item.rate?Number(item.rate).toLocaleString('en-IN'):'on ask'} · ${item.poster}`;
+  document.getElementById('bidAmount').value = item.rate || '';
+  document.getElementById('bidNote').value = '';
+  document.getElementById('bidResult').textContent = '';
+  const profile = await Profile.get();
+  document.getElementById('bidMyName').value = profile.name || '';
+  document.getElementById('bidMyPhone').value = profile.phone || '';
+  openModal('bidModal');
+};
+document.getElementById('bidForm')?.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const itemId = document.getElementById('bidItemId').value;
+  const itemType = document.getElementById('bidItemType').value;
+  const amount = Number(document.getElementById('bidAmount').value);
+  const note = document.getElementById('bidNote').value.trim();
+  const name = document.getElementById('bidMyName').value.trim();
+  const phone = document.getElementById('bidMyPhone').value.trim();
+  const resultEl = document.getElementById('bidResult');
+  if(!amount || !name || !phone){ resultEl.textContent = 'Fill offer, name and phone.'; return; }
+  const bid = {
+    id: cid(), itemId, itemType, amount, note, name, phone,
+    status: 'pending', ts: Date.now()
+  };
+  // Best-effort API (ignore if missing)
+  if(USE_API){
+    try{
+      const r = await fetch(API_BASE + '/api/bids', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(bid)
+      });
+      if(r.ok){
+        const serverBid = await r.json().catch(()=>null);
+        if(serverBid && serverBid.id) Object.assign(bid, serverBid);
+      }
+    }catch(err){ /* local only */ }
+  }
+  const all = getAllBids();
+  all.unshift(bid);
+  saveAllBids(all);
+  // WhatsApp share to poster if phone known
+  const item = (itemType==='load'?CACHE.loads:CACHE.trucks).find(i=>i.id===itemId);
+  resultEl.textContent = 'Bid sent (pending).';
+  toast('Bid sent — status: pending');
+  closeModal('bidModal');
+  renderLoadsList(); renderTrucksList();
+  if(item && item.phone){
+    const text = encodeURIComponent(`Maalwala bid on ${item.from}→${item.to||'Anywhere'}: ₹${amount.toLocaleString('en-IN')}${note?'. '+note:''} — ${name} (${phone})`);
+    // optional open
+  }
+});
+window.updateBidStatus = function(bidId, status){
+  const all = getAllBids();
+  const b = all.find(x=>x.id===bidId);
+  if(!b) return;
+  b.status = status; // pending | accepted | countered
+  saveAllBids(all);
+  toast('Bid ' + status);
+  renderLoadsList(); renderTrucksList();
+};
+
+// ---------- Saved lane alerts (localStorage MVP) ----------
+function getLaneAlerts(){ return LocalDB.get('laneAlerts', []); }
+function saveLaneAlerts(list){ LocalDB.set('laneAlerts', list); }
+function laneKey(a){ return [a.type, (a.from||'').toLowerCase(), (a.to||'').toLowerCase(), a.truckType||''].join('|'); }
+function saveLaneAlert(kind){
+  const type = kind === 'loads' ? 'load' : 'truck';
+  const from = document.getElementById(kind==='loads'?'filterFromLoads':'filterFromTrucks').value.trim();
+  const to = document.getElementById(kind==='loads'?'filterToLoads':'filterToTrucks').value.trim();
+  const truckType = document.getElementById(kind==='loads'?'filterTruckType':'filterTruckType2').value;
+  if(!from && !to){ toast('Set From and/or To before saving a lane alert.'); return; }
+  const alert = { id: cid(), type, from, to, truckType, createdAt: Date.now(), seenIds: [] };
+  const list = getLaneAlerts().filter(a=> laneKey(a) !== laneKey(alert));
+  // seed seen with current matches so we only toast on NEW ones
+  const pool = type==='load' ? CACHE.loads : CACHE.trucks;
+  alert.seenIds = pool.filter(i=> laneMatches(alert, i)).map(i=>i.id);
+  list.unshift(alert);
+  saveLaneAlerts(list);
+  renderLaneAlertsUI();
+  toast('Lane alert saved — we will toast when a new match appears.');
+}
+function laneMatches(alert, item){
+  if(alert.from && !(item.from||'').toLowerCase().includes(alert.from.toLowerCase())) return false;
+  if(alert.to && !(item.to||'').toLowerCase().includes(alert.to.toLowerCase())) return false;
+  if(alert.truckType && item.truckType !== alert.truckType) return false;
+  return true;
+}
+function checkLaneAlerts(loads, trucks){
+  const alerts = getLaneAlerts();
+  if(!alerts.length) return;
+  let changed = false;
+  alerts.forEach(alert=>{
+    const pool = alert.type==='load' ? loads : trucks;
+    const matches = pool.filter(i=> laneMatches(alert, i));
+    const seen = new Set(alert.seenIds || []);
+    const fresh = matches.filter(i=> !seen.has(i.id));
+    if(fresh.length){
+      fresh.forEach(i=> seen.add(i.id));
+      alert.seenIds = [...seen];
+      changed = true;
+      const sample = fresh[0];
+      const msg = `New ${alert.type} on ${sample.from} → ${sample.to||'Anywhere'}`;
+      showLaneAlertToast(msg, sample);
+    }
+  });
+  if(changed) saveLaneAlerts(alerts);
+}
+function showLaneAlertToast(msg, item){
+  const el = document.getElementById('laneAlertToast');
+  if(!el){ toast(msg); return; }
+  const wa = `https://wa.me/?text=${encodeURIComponent(msg + ' — via Maalwala')}`;
+  el.innerHTML = `<span>${escapeHtml(msg)}</span> <a href="${wa}" target="_blank" rel="noopener">Share WhatsApp</a>`;
+  el.classList.remove('hidden');
+  el.classList.add('show');
+  setTimeout(()=>{ el.classList.remove('show'); el.classList.add('hidden'); }, 8000);
+  toast(msg);
+}
+function renderLaneAlertsUI(){
+  const alerts = getLaneAlerts();
+  ['loads','trucks'].forEach(kind=>{
+    const type = kind==='loads'?'load':'truck';
+    const el = document.getElementById('laneAlerts-'+kind);
+    if(!el) return;
+    const items = alerts.filter(a=>a.type===type);
+    el.innerHTML = items.length ? `<span class="popular-label">Lane alerts:</span>` + items.map(a=>`
+      <div class="saved-search-chip lane-alert-chip">
+        <button onclick="applyLaneAlert('${a.id}')">🔔 ${escapeHtml(a.from||'*')} → ${escapeHtml(a.to||'*')}${a.truckType?' · '+escapeHtml(a.truckType):''}</button>
+        <span class="ss-remove" onclick="removeLaneAlert('${a.id}')" title="Remove">✕</span>
+      </div>`).join('') : '';
+  });
+}
+window.applyLaneAlert = function(id){
+  const a = getLaneAlerts().find(x=>x.id===id);
+  if(!a) return;
+  if(a.type==='load'){
+    document.getElementById('filterFromLoads').value = a.from||'';
+    document.getElementById('filterToLoads').value = a.to||'';
+    document.getElementById('filterTruckType').value = a.truckType||'';
+    renderLoadsList(); showScreen('loads');
+  } else {
+    document.getElementById('filterFromTrucks').value = a.from||'';
+    document.getElementById('filterToTrucks').value = a.to||'';
+    document.getElementById('filterTruckType2').value = a.truckType||'';
+    renderTrucksList(); showScreen('trucks');
+  }
+};
+window.removeLaneAlert = function(id){
+  saveLaneAlerts(getLaneAlerts().filter(a=>a.id!==id));
+  renderLaneAlertsUI();
+};
+document.getElementById('saveLaneAlertLoads')?.addEventListener('click', ()=>saveLaneAlert('loads'));
+document.getElementById('saveLaneAlertTrucks')?.addEventListener('click', ()=>saveLaneAlert('trucks'));
+
+// Hook role picker after successful gate hide — patch enterApp if present
+(function patchEnterApp(){
+  const origHide = document.getElementById('authGate');
+  // After initial load, if already past gate, show role picker
+  const obs = new MutationObserver(()=>{
+    if(origHide && origHide.style.display === 'none'){
+      setTimeout(maybeShowRolePicker, 600);
+    }
+  });
+  if(origHide) obs.observe(origHide, { attributes:true, attributeFilter:['style','class'] });
+  setTimeout(maybeShowRolePicker, 1800);
+})();
+
 // ---------- Onboarding tour ----------
 const TOUR_STEPS = [
   { target: '.brand', title: 'Welcome to Maalwala', text: 'A quick 30-second tour of what you can do here — post loads, find trucks, and broadcast to WhatsApp.' },
   { target: '[data-tour="post-load"]', title: 'Post a Load', text: 'Got goods to move? Post a load here with route, material, and rate — it goes straight onto the marketplace.' },
-  { target: '[data-tour="nav-loads"]', title: 'Find Loads', text: 'Browse every load posted, filter by route or truck type, and call or bid directly.' },
+  { target: '[data-tour="nav-loads"]', title: 'Find Loads', text: 'Browse the load board, filter by route, truck type, MT or freshness, then bid or book — freight settles off-platform.' },
   { target: '[data-tour="nav-trucks"]', title: 'Find Trucks', text: 'The same, but for truck availability — see who has space heading your way.' },
   { target: '[data-tour="nav-business"]', title: 'My Business', text: 'Your Profile, Fleet map, Records (invoices, expenses, salary), and WhatsApp Broadcast all live under this menu.' },
 ];
