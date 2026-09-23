@@ -860,10 +860,22 @@ async function saveCurrentSearch(kind){
 document.getElementById('saveSearchLoads')?.addEventListener('click', ()=>saveCurrentSearch('loads'));
 document.getElementById('saveSearchTrucks')?.addEventListener('click', ()=>saveCurrentSearch('trucks'));
 
-function renderTicker(loads){
-  const strip = loads.map(l=>`${escapeHtml(l.from)} <span class="dash">✈</span> ${escapeHtml(l.to)}`).join('    •    ');
+function renderTickerInto(id, loads){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const list = Array.isArray(loads) ? loads : [];
+  const strip = list.map(l=>`${escapeHtml(l.from)} <span class="dash">✈</span> ${escapeHtml(l.to)}`).join('    •    ');
   const full = strip ? (strip + '    •    ' + strip) : 'Post your first load to see it here    •    Post your first load to see it here';
-  document.getElementById('routeTicker').innerHTML = full;
+  el.innerHTML = full;
+}
+function renderTicker(loads){
+  renderTickerInto('routeTicker', loads);
+}
+function renderLiveRoutesTicker(loads){
+  // The public gate always has a useful demo strip; authenticated home prefers API data.
+  const demoLoads = HOME_ROUTE_MOCKS.loads;
+  renderTickerInto('gateRouteTicker', demoLoads);
+  renderTickerInto('routeTicker', loads && loads.length ? loads : demoLoads);
 }
 
 function renderGroups(){
@@ -1448,6 +1460,8 @@ document.getElementById('gateVerifyOtpBtn')?.addEventListener('click', async ()=
 });
 
 (async function boot(){
+  // Render the public preview before the async session check or auth gate decision.
+  renderLiveRoutesTicker();
   const loggedIn = await checkExistingSession();
   if(loggedIn){
     hideAuthGate();

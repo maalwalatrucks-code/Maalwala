@@ -731,6 +731,13 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
 }
 .ag-hero-sub{ font-size:1.05rem; color: var(--text-muted); line-height:1.6; max-width:620px; margin:0 auto 28px; }
 
+/* Public landing preview uses the same departure-board ticker as the home hero. */
+.ag-route-board{
+  max-width:1180px; margin:0 auto 24px;
+  background:var(--asphalt); border-top:0; border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
 .ag-stats{
   display:flex; justify-content:center; gap: 36px; flex-wrap:wrap; max-width:900px; margin: 0 auto;
   padding: 24px 20px; border-top:1px solid var(--border-c); border-bottom:1px solid var(--border-c);
