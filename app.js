@@ -431,7 +431,7 @@ function counterpartyHTML(item){
   const last = item.lastActive ? timeAgo(item.lastActive) : (item.ts ? timeAgo(item.ts) : '');
   const phoneMasked = maskPhone(item.phone);
   const profileBadge = item.verified
-    ? `<span class="verified-badge" title="Name, phone and GST were on file when posting — not GSTN-confirmed">Profile complete</span>`
+    ? `<span class="verified-badge" title="Name and phone were on file when posting — not independently verified">Profile complete</span>`
     : '';
   return `<div class="counterparty-card">
     <div class="cp-main">
@@ -921,10 +921,10 @@ async function loadProfileForm(){
 function renderVerificationStatus(p){
   const el = document.getElementById('verificationStatus');
   if(!el) return;
-  const complete = Boolean(p.name && p.phone && p.gst);
+  const complete = Boolean(p.name && p.phone);
   el.innerHTML = complete
-    ? `<span class="verified-badge">Profile complete</span> <span class="hint" style="margin:0;">Name, phone and GST are on file — your posts show this badge. Details on record only — not GSTN-confirmed.</span>`
-    : `<span class="unverified-badge">○ Profile incomplete</span> <span class="hint" style="margin:0;">Add your GST number and phone above to show "Profile complete" on your posts.</span>`;
+    ? `<span class="verified-badge">Profile complete</span> <span class="hint" style="margin:0;">Name and phone are on file — your posts show this badge. Details on record only — not independently verified.</span>`
+    : `<span class="unverified-badge">○ Profile incomplete</span> <span class="hint" style="margin:0;">Add your name and phone above to show "Profile complete" on your posts.</span>`;
 }
 async function persistProfile(){
   const p = {
@@ -1003,7 +1003,7 @@ document.getElementById('loadForm').addEventListener('submit', async e=>{
     from: val('loadFrom'), to: val('loadTo'), material: val('loadMaterial'),
     weight: val('loadWeight'), truckType: val('loadTruckType'), rate: val('loadRate'),
     date: val('loadDate'), poster: profile.name || 'You', phone: profile.phone || '',
-    verified: Boolean(profile.name && profile.phone && profile.gst),
+    verified: Boolean(profile.name && profile.phone),
   };
   const doBroadcast = document.getElementById('loadBroadcast').checked;
   const item = await Loads.create(payload);
@@ -1026,7 +1026,7 @@ document.getElementById('truckForm').addEventListener('submit', async e=>{
     driverName: val('truckDriverName'), driverPhone: val('truckDriverPhone'),
     vehicleNumber: val('truckVehicleNumber').trim().toUpperCase(),
     payoutUpiId: val('truckPayoutUpi').trim(),
-    verified: Boolean(profile.name && profile.phone && profile.gst),
+    verified: Boolean(profile.name && profile.phone),
   };
   const doBroadcast = document.getElementById('truckBroadcast').checked;
   const item = await Trucks.create(payload);
@@ -1833,7 +1833,7 @@ document.getElementById('bulkAddBtn')?.addEventListener('click', async ()=>{
         from, to: 'Anywhere', truckType, capacity,
         poster: profile.name || 'You', phone: profile.phone || '',
         vehicleNumber: vehicleNumbers[i],
-        verified: Boolean(profile.name && profile.phone && profile.gst),
+        verified: Boolean(profile.name && profile.phone),
       });
       created++;
     }catch(e){ failed++; }
@@ -2096,8 +2096,8 @@ const I18N = {
     navHome:'Home', navLoads:'Find Loads', navTrucks:'Find Trucks', navFleet:'Fleet',
     navBookings:'Bookings', navBroadcast:'Broadcast', navMore:'More', navPost:'Post',
     heroSub:'Free load & truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast. Freight is settled directly between parties (UPI / NEFT / cash).',
-    heroTrust:'Verify GST & RC before advances · Parties settle freight off-platform',
-    agHeroSub:'Free load & truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify GST & RC before advances.',
+    heroTrust:'Verify identity, RC & relevant documents before advances · Parties settle freight off-platform',
+    agHeroSub:'Free load & truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify identity, RC & relevant documents before advances.',
     ctaPostLoad:'+ Post a Load', ctaPostTruck:'+ Post Truck Availability', ctaFindTrucks:'Find Trucks',
     emptyBoardLead:'Be the first on this lane — post a load or truck and broadcast to your groups.',
     emptyLoads:'No loads on the board yet. Be the first on this lane.',
@@ -2114,8 +2114,8 @@ const I18N = {
     navHome:'होम', navLoads:'लोड खोजें', navTrucks:'ट्रक खोजें', navFleet:'फ्लीट',
     navBookings:'बुकिंग', navBroadcast:'प्रसारण', navMore:'और', navPost:'पोस्ट',
     heroSub:'भारतीय ट्रांसपोर्टर, ब्रोकर और कंसाइनर के लिए मुफ़्त लोड व ट्रक बोर्ड — और WhatsApp ग्रुप पर एक टैप प्रसारण। भाड़ा पार्टियाँ खुद तय करती हैं (UPI / NEFT / नकद)।',
-    heroTrust:'एडवांस से पहले GST और RC जाँचें · भाड़ा प्लेटफ़ॉर्म के बाहर तय होता है',
-    agHeroSub:'ब्रोकर और फ्लीट के लिए मुफ़्त लोड व ट्रक बोर्ड — लोड पोस्ट करें, ट्रक खोजें, फ्लीट ट्रैक करें, WhatsApp पर प्रसारण करें। भाड़ा सीधे तय करें (UPI / NEFT / नकद)। एडवांस से पहले GST व RC जाँचें।',
+    heroTrust:'एडवांस से पहले पहचान, RC और ज़रूरी दस्तावेज़ जाँचें · भाड़ा प्लेटफ़ॉर्म के बाहर तय होता है',
+    agHeroSub:'ब्रोकर और फ्लीट के लिए मुफ़्त लोड व ट्रक बोर्ड — लोड पोस्ट करें, ट्रक खोजें, फ्लीट ट्रैक करें, WhatsApp पर प्रसारण करें। भाड़ा सीधे तय करें (UPI / NEFT / नकद)। एडवांस से पहले पहचान, RC और ज़रूरी दस्तावेज़ जाँचें।',
     ctaPostLoad:'+ लोड पोस्ट करें', ctaPostTruck:'+ ट्रक उपलब्धता', ctaFindTrucks:'ट्रक खोजें',
     emptyBoardLead:'इस लेन पर पहले बनें — लोड या ट्रक पोस्ट करें और अपने ग्रुप पर भेजें।',
     emptyLoads:'अभी कोई लोड नहीं। इस लेन पर पहले पोस्ट करें।',

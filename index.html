@@ -19,14 +19,14 @@
 <!-- ===== AUTH GATE / LANDING PAGE — shown until OTP login succeeds ===== -->
 <div class="auth-gate" id="authGate">
   <div class="ag-topbar">
-    <div class="brand"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+    <div class="brand"><span class="brand-word">मालwala</span></div>
     <button class="theme-toggle" id="gateThemeToggle" title="Toggle dark mode">🌙</button>
   </div>
 
   <section class="ag-hero">
     <p class="eyebrow">India's Load &amp; Fleet Marketplace</p>
     <h1 class="ag-hero-title">One platform for every load,<br>every truck, every fleet.</h1>
-    <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify GST &amp; RC before advances.</p>
+    <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify identity, RC &amp; relevant documents before advances.</p>
     <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Mobile</button>
   </section>
 
@@ -43,7 +43,7 @@
       <div class="ag-service-card">
         <div class="ag-service-icon">📦</div>
         <h3>Shippers &amp; Agents</h3>
-        <p>Post a load in minutes, broadcast to your WhatsApp network, and settle freight directly with the transporter — verify GST &amp; RC before any advance.</p>
+        <p>Post a load in minutes, broadcast to your WhatsApp network, and settle freight directly with the transporter — verify identity, RC &amp; relevant documents before any advance.</p>
       </div>
       <div class="ag-service-card">
         <div class="ag-service-icon">🚚</div>
@@ -60,7 +60,7 @@
 
   <section class="ag-login">
     <div class="auth-card" id="gateLoginCard">
-      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-word">मालwala</span></div>
       <h1 class="auth-title">Login or Sign Up</h1>
       <p class="auth-sub">Enter your mobile number — we'll text you a one-time code by SMS. No password to remember.</p>
       <div class="auth-error hidden" id="gatePhoneError"></div>
@@ -97,8 +97,7 @@
 <header class="topbar" id="topbar">
   <div class="topbar-inner">
     <div class="brand" id="brandLogo" role="button" tabindex="0" title="Go to homepage">
-      <span class="brand-mark">माल</span>
-      <span class="brand-word">Maalwala</span>
+      <span class="brand-word">मालwala</span>
     </div>
     <nav class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-screen="home" data-tour="nav-home" data-i18n="navHome">Home</button>
@@ -134,7 +133,7 @@
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
 <nav class="mobile-drawer" id="mobileDrawer">
   <div class="mobile-drawer-head">
-    <div class="brand"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+    <div class="brand"><span class="brand-word">मालwala</span></div>
     <button class="mobile-drawer-close" id="drawerClose">✕</button>
   </div>
   <button class="nav-tab active" data-screen="home" data-i18n="navHome">Home</button>
@@ -170,7 +169,7 @@
         <button class="btn btn-primary btn-lg" id="heroPostLoad" data-i18n="ctaPostLoad">+ Post a Load</button>
         <button class="btn btn-ghost btn-lg" id="heroPostTruck" data-i18n="ctaPostTruck">+ Post Truck Availability</button>
       </div>
-      <p class="hero-trust-line" data-i18n="heroTrust">Verify GST &amp; RC before advances · Parties settle freight off-platform</p>
+      <p class="hero-trust-line" data-i18n="heroTrust">Verify identity, RC &amp; relevant documents before advances · Parties settle freight off-platform</p>
       <div class="hero-stats" id="heroStats">
         <div class="hero-stat" id="statLoadsWrap"><strong id="statLoads" data-count="0">—</strong><span data-i18n="statLoads">live loads</span></div>
         <div class="hero-stat" id="statTrucksWrap"><strong id="statTrucks" data-count="0">—</strong><span data-i18n="statTrucks">trucks available</span></div>
@@ -657,7 +656,7 @@ NL02AA0526</textarea>
     </div>
     <div class="profile-row">
       <label>Phone (for bids &amp; WhatsApp)<input type="tel" id="profPhone" placeholder="9XXXXXXXXX"></label>
-      <label>GST number (optional)<input type="text" id="profGST" placeholder="24AAAAA0000A1Z5"></label>
+      <label>GST number (optional — only if applicable)<input type="text" id="profGST" placeholder="24AAAAA0000A1Z5"></label>
     </div>
     <label>Payout UPI ID <span style="font-weight:400;color:var(--text-muted);">(used if you book someone else's load — this is where you'd get paid)</span>
       <input type="text" id="profPayoutUpi" placeholder="yourname@upi">
@@ -696,13 +695,13 @@ NL02AA0526</textarea>
     <p>Maalwala is a listing and matchmaking platform that lets consignors, transporters, brokers and truck owners post and browse loads and truck availability. We do not own, operate, or control any vehicle, and we are not a transporter, broker, freight forwarder, or party to any agreement made between users. Any deal you make with another user — rate, route, payment, delivery terms — is strictly between you and them.</p>
 
     <h3>3. Your account</h3>
-    <p>You must provide accurate business details (name, phone number, and GST number if applicable) and keep them up to date. You're responsible for everything posted from your account. You must be legally able to enter contracts to use Maalwala for business purposes.</p>
+    <p>You must provide accurate business details (name and phone number; GST details only if applicable and available) and keep them up to date. GST registration is not required to create an account or use the board. You're responsible for everything posted from your account. You must be legally able to enter contracts to use Maalwala for business purposes.</p>
 
     <h3>4. Posting rules</h3>
     <p>Loads and truck listings must be genuine and currently available. You may not post fraudulent listings, prohibited or illegal goods, or spam. We may remove listings or suspend accounts that break these rules, at our discretion.</p>
 
     <h3>5. We don't verify other users</h3>
-    <p>We do not verify the identity, GST registration, vehicle documents, insurance, or creditworthiness of any user. Before agreeing to any load or truck, verify the other party yourself — check ID, GST number, vehicle RC, and get terms in writing.</p>
+    <p>We do not verify the identity, tax registration (if any), vehicle documents, insurance, or creditworthiness of any user. Before agreeing to any load or truck, verify the other party yourself — check ID, vehicle RC, any applicable tax documents, and get terms in writing.</p>
 
     <h3>6. Payments</h3>
     <p>Freight charges, advances, and balances are negotiated and settled directly between the shipper and transporter (UPI, NEFT/RTGS/IMPS, cash, or cheque) — outside the platform. Maalwala does not hold freight in escrow. If Razorpay (or a similar processor) is enabled, it may be used only for a booking confirmation or optional platform fee, which will be labelled clearly at checkout — never as freight escrow. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for common ways users settle freight.</p>
@@ -759,7 +758,7 @@ NL02AA0526</textarea>
 
   <div class="legal-doc" style="margin-top:24px;">
     <h3>A few safety habits</h3>
-    <p>Get the rate, advance amount, and payment terms agreed in writing (even a WhatsApp message) before the truck loads. Verify the other party's GST number and, for larger loads, their vehicle RC. Always generate the e-way bill correctly. Never share OTPs with anyone, including someone claiming to be from Maalwala — we will never ask for one.</p>
+    <p>Get the rate, advance amount, and payment terms agreed in writing (even a WhatsApp message) before the truck loads. Verify the other party's identity and, where relevant, tax documents; for larger loads, their vehicle RC. Generate an e-way bill correctly where one is required. Never share OTPs with anyone, including someone claiming to be from Maalwala — we will never ask for one.</p>
   </div>
 </section>
 
@@ -820,7 +819,7 @@ NL02AA0526</textarea>
 <section class="screen hidden" id="screen-signin">
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-word">मालwala</span></div>
       <h1 class="auth-title">Welcome back</h1>
       <p class="auth-sub">Sign in to manage your loads, trucks, and fleet.</p>
       <div class="auth-error hidden" id="signinError"></div>
@@ -836,7 +835,7 @@ NL02AA0526</textarea>
 <section class="screen hidden" id="screen-signup">
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
+      <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-word">मालwala</span></div>
       <h1 class="auth-title">Create your account</h1>
       <p class="auth-sub">Set up your business on Maalwala in under a minute.</p>
       <div class="auth-error hidden" id="signupError"></div>
@@ -888,7 +887,7 @@ NL02AA0526</textarea>
       </div>
       <label>Loading date<input required type="date" id="loadDate"></label>
       <label class="checkbox-row"><input type="checkbox" id="loadBroadcast" checked> Broadcast this load to my linked WhatsApp groups after posting</label>
-            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I understand freight is settled directly with the transporter (UPI / NEFT / cash) off-platform, and I will verify GST &amp; RC before paying any advance. Maalwala does not hold freight in escrow.</label>
+            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I understand freight is settled directly with the transporter (UPI / NEFT / cash) off-platform, and I will verify identity, RC, and relevant documents before paying any advance. Maalwala does not hold freight in escrow.</label>
       <button type="submit" class="btn btn-primary btn-lg full">Post Load</button>
     </form>
   </div>
@@ -955,7 +954,7 @@ NL02AA0526</textarea>
       <div id="bookingPayoutRow"></div>
       <label class="checkbox-row">
         <input type="checkbox" id="bookingTermsAccept" required>
-        I understand freight is settled directly between us (UPI / NEFT / cash). Any online payment here is only a booking confirmation / platform fee if shown — not freight escrow. I will verify GST &amp; RC before advances.
+        I understand freight is settled directly between us (UPI / NEFT / cash). Any online payment here is only a booking confirmation / platform fee if shown — not freight escrow. I will verify identity, RC, and relevant documents before advances.
       </label>
       <button type="submit" class="btn btn-primary btn-lg full">Confirm Booking</button>
       <p class="hint" id="bookingResult"></p>
