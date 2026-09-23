@@ -124,9 +124,12 @@ input,select{font-family:'Inter',sans-serif; color: var(--text);}
   max-width: 1180px; margin: 0 auto; padding: 12px 20px;
   display:flex; align-items:center; gap: 14px;
 }
-.brand{ display:flex; align-items:baseline; gap:6px; font-family:'Baloo 2'; font-weight:800; font-size:1.35rem; margin-right:auto; cursor:pointer; }
+.brand{ display:flex; align-items:baseline; gap:0; font-family:'Baloo 2'; font-weight:800; font-size:1.35rem; margin-right:auto; cursor:pointer; }
+.brand-lockup{ display:inline-flex; align-items:baseline; gap:0; }
 .brand-mark{ color: var(--amber); }
 .brand-word{ color: var(--cream); }
+.brand-on-light .brand-mark{ color: var(--orange); }
+.brand-on-light .brand-word{ color: var(--asphalt); }
 .nav-tabs{ display:flex; gap: 4px; }
 .nav-tab{
   background:none; border:none; color: rgba(246,241,228,0.65);
