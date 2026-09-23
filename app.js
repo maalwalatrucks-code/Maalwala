@@ -272,24 +272,33 @@ async function officialBroadcast(message){
   return r.json();
 }
 
-// ---------- Seed local demo data (only used when running without a backend, first run) ----------
-function seedLocalIfEmpty(){
-  if(USE_API) return;
-  if(LocalDB.get('loads', null) === null){
-    LocalDB.set('loads', [
+// ---------- Demo route displays ----------
+// Keep the home page useful while the shared board is empty. These are display-only
+// fallbacks; real listings and all board filters continue to use CACHE unchanged.
+function makeDemoRouteMocks(){
+  return {
+    loads: [
       {id:cid(), from:'Ahmedabad', to:'Indore', material:'Cotton Bales', weight:14, truckType:'Open Body', rate:38000, date:'2026-07-18', poster:'[Sample] Patel Roadlines', phone:'9825000001', ts:Date.now()-3600e3, sample:true},
       {id:cid(), from:'Surat', to:'Pune', material:'Textile Rolls', weight:9, truckType:'Container', rate:29500, date:'2026-07-17', poster:'[Sample] Shree Ganesh Transport', phone:'9825000002', ts:Date.now()-7200e3, sample:true},
       {id:cid(), from:'Rajkot', to:'Delhi', material:'Ceramic Tiles', weight:18, truckType:'Trailer', rate:64000, date:'2026-07-19', poster:'[Sample] Om Logistics', phone:'9825000003', ts:Date.now()-10800e3, sample:true},
       {id:cid(), from:'Vadodara', to:'Nagpur', material:'Chemicals (Drums)', weight:12, truckType:'Tanker', rate:41000, date:'2026-07-20', poster:'[Sample] Narmada Carriers', phone:'9825000004', ts:Date.now()-5400e3, sample:true},
-    ]);
-  }
-  if(LocalDB.get('trucks', null) === null){
-    LocalDB.set('trucks', [
+    ],
+    trucks: [
       {id:cid(), from:'Ahmedabad', to:'Anywhere Mumbai side', truckType:'Open Body', capacity:16, date:'2026-07-17', poster:'[Sample] Desai Fleet Owners', phone:'9825000011', ts:Date.now()-4000e3, sample:true},
       {id:cid(), from:'Indore', to:'Ahmedabad / Rajkot', truckType:'Container', capacity:10, date:'2026-07-18', poster:'[Sample] Malwa Transport Co.', phone:'9825000012', ts:Date.now()-9000e3, sample:true},
       {id:cid(), from:'Jaipur', to:'Anywhere North', truckType:'Trailer', capacity:20, date:'2026-07-19', poster:'[Sample] Rajputana Roadways', phone:'9825000013', ts:Date.now()-2000e3, sample:true},
-    ]);
-  }
+    ],
+  };
+}
+const HOME_ROUTE_MOCKS = makeDemoRouteMocks();
+
+// Seed local demo data only when running without a backend, preserving the original
+// standalone demo while keeping API-backed boards honest.
+function seedLocalIfEmpty(){
+  if(USE_API) return;
+  const demo = makeDemoRouteMocks();
+  if(LocalDB.get('loads', null) === null) LocalDB.set('loads', demo.loads);
+  if(LocalDB.get('trucks', null) === null) LocalDB.set('trucks', demo.trucks);
   if(LocalDB.get('groups', null) === null){ LocalDB.set('groups', []); }
   if(LocalDB.get('profile', null) === null){ LocalDB.set('profile', {name:'', role:'Transporter', city:'', phone:'', gst:'', drivers:[]}); }
 }
@@ -594,17 +603,21 @@ async function renderAll(){
   ]);
   CACHE = { loads, trucks, groups, contacts, savedSearches };
 
-  updateHeroStats(loads.length, trucks.length, groups.length);
+  // Restore the pre-empty-marketplace home experience without seeding the real board.
+  // A populated API/local board wins; mocks appear only for an empty home-side preview.
+  const homeLoads = loads.length ? loads : HOME_ROUTE_MOCKS.loads;
+  const homeTrucks = trucks.length ? trucks : HOME_ROUTE_MOCKS.trucks;
+  updateHeroStats(homeLoads.length, homeTrucks.length, groups.length);
   checkLaneAlerts(loads, trucks);
 
-  document.getElementById('homeLoadsPreview').innerHTML = loads.slice(0,3).map(l=>routeCardHTML(l,'load')).join('') || emptyBoardCTA('loads');
-  document.getElementById('homeTrucksPreview').innerHTML = trucks.slice(0,3).map(t=>routeCardHTML(t,'truck')).join('') || emptyBoardCTA('trucks');
+  document.getElementById('homeLoadsPreview').innerHTML = homeLoads.slice(0,3).map(l=>routeCardHTML(l,'load')).join('');
+  document.getElementById('homeTrucksPreview').innerHTML = homeTrucks.slice(0,3).map(t=>routeCardHTML(t,'truck')).join('');
 
   renderLoadsList();
   renderTrucksList();
   renderGroups();
   renderContacts();
-  renderTicker(loads);
+  renderTicker(homeLoads);
   renderApiStatus();
   renderCityDatalists();
   renderPopularRoutes();
