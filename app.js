@@ -1102,34 +1102,87 @@ document.getElementById('gateThemeToggle')?.addEventListener('click', ()=>{
   document.getElementById('themeToggle').click(); // reuse the same theme logic
 });
 
+// Firebase Phone Auth (replaces MSG91 /api/auth/request-otp + verify-otp)
 let lastOtpPhone = '';
+let gateConfirmationResult = null;
+let gateRecaptchaVerifier = null;
+let firebaseAppReady = false;
+
+function isFirebaseConfigured(){
+  const cfg = window.MAALWALA_FIREBASE || {};
+  return Boolean(cfg.apiKey && cfg.authDomain && cfg.projectId && cfg.appId);
+}
+
+function ensureFirebaseApp(){
+  if(firebaseAppReady) return true;
+  if(typeof firebase === 'undefined') throw new Error('Firebase SDK failed to load. Check your network and refresh.');
+  if(!isFirebaseConfigured()) return false;
+  if(!firebase.apps.length){
+    firebase.initializeApp(window.MAALWALA_FIREBASE);
+  }
+  firebaseAppReady = true;
+  return true;
+}
+
+function clearGateRecaptcha(){
+  try{
+    if(gateRecaptchaVerifier){
+      gateRecaptchaVerifier.clear();
+      gateRecaptchaVerifier = null;
+    }
+  }catch(e){}
+  const el = document.getElementById('gateRecaptcha');
+  if(el) el.innerHTML = '';
+}
+
+function friendlyFirebaseError(err){
+  const code = (err && err.code) || '';
+  const msg = (err && err.message) || '';
+  if(code === 'auth/invalid-phone-number') return 'That mobile number looks invalid. Use a 10-digit Indian number.';
+  if(code === 'auth/too-many-requests') return 'Too many attempts. Please wait a few minutes and try again.';
+  if(code === 'auth/captcha-check-failed' || code === 'auth/invalid-app-credential')
+    return 'Security check failed. Refresh the page and try again.';
+  if(code === 'auth/quota-exceeded') return 'SMS quota exceeded. Please try again later.';
+  if(code === 'auth/invalid-verification-code') return 'Incorrect code. Check the SMS and try again.';
+  if(code === 'auth/code-expired' || code === 'auth/session-expired')
+    return 'That code has expired. Go back and request a new one.';
+  if(code === 'auth/missing-verification-code') return 'Enter the 6-digit code from your SMS.';
+  if(code === 'auth/network-request-failed') return 'Network error talking to Firebase. Check your connection.';
+  if(msg) return msg;
+  return 'Something went wrong. Please try again.';
+}
+
 document.getElementById('gateSendOtpBtn')?.addEventListener('click', async ()=>{
   const phone = document.getElementById('gatePhoneInput').value.replace(/\D/g,'');
   const errEl = document.getElementById('gatePhoneError');
   errEl.classList.add('hidden');
   if(phone.length !== 10){ errEl.textContent = 'Enter a valid 10-digit mobile number.'; errEl.classList.remove('hidden'); return; }
   if(!USE_API){ errEl.textContent = 'Backend not connected — see config.js. Login needs a server.'; errEl.classList.remove('hidden'); return; }
+  if(!isFirebaseConfigured()){
+    errEl.textContent = 'Firebase is not configured yet — see config.js';
+    errEl.classList.remove('hidden');
+    return;
+  }
 
   const btn = document.getElementById('gateSendOtpBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
   try{
-    const r = await fetch(API_BASE + '/api/auth/request-otp', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({phone})});
-    const data = await r.json();
-    if(!r.ok){ errEl.textContent = data.error || 'Could not send code.'; errEl.classList.remove('hidden'); }
-    else{
-      lastOtpPhone = phone;
-      document.getElementById('gatePhoneStep').classList.add('hidden');
-      document.getElementById('gateOtpStep').classList.remove('hidden');
-      document.getElementById('gateOtpSentTo').textContent = `Code sent to WhatsApp on +91 ${phone}`;
-      const devNotice = document.getElementById('gateDevCodeNotice');
-      if(data.via === 'dev-fallback'){
-        devNotice.textContent = `⚠️ ${data.warning} Your code: ${data.devCode}`;
-        devNotice.classList.remove('hidden');
-      } else {
-        devNotice.classList.add('hidden');
-      }
-    }
-  }catch(e){ errEl.textContent = 'Could not reach the server.'; errEl.classList.remove('hidden'); }
+    ensureFirebaseApp();
+    clearGateRecaptcha();
+    gateRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('gateRecaptcha', { size: 'invisible' });
+    const confirmation = await firebase.auth().signInWithPhoneNumber('+91' + phone, gateRecaptchaVerifier);
+    gateConfirmationResult = confirmation;
+    lastOtpPhone = phone;
+    document.getElementById('gatePhoneStep').classList.add('hidden');
+    document.getElementById('gateOtpStep').classList.remove('hidden');
+    document.getElementById('gateOtpSentTo').textContent = `Code sent by SMS to +91 ${phone}`;
+    const devNotice = document.getElementById('gateDevCodeNotice');
+    if(devNotice) devNotice.classList.add('hidden');
+  }catch(e){
+    clearGateRecaptcha();
+    errEl.textContent = friendlyFirebaseError(e);
+    errEl.classList.remove('hidden');
+  }
   btn.disabled = false; btn.textContent = 'Send OTP';
 });
 
@@ -1137,6 +1190,10 @@ document.getElementById('gateBackToPhoneBtn')?.addEventListener('click', ()=>{
   document.getElementById('gateOtpStep').classList.add('hidden');
   document.getElementById('gatePhoneStep').classList.remove('hidden');
   document.getElementById('gateOtpInput').value = '';
+  gateConfirmationResult = null;
+  lastOtpPhone = '';
+  clearGateRecaptcha();
+  document.getElementById('gatePhoneError').classList.add('hidden');
 });
 
 document.getElementById('gateVerifyOtpBtn')?.addEventListener('click', async ()=>{
@@ -1144,20 +1201,44 @@ document.getElementById('gateVerifyOtpBtn')?.addEventListener('click', async ()=
   const errEl = document.getElementById('gatePhoneError');
   errEl.classList.add('hidden');
   if(code.length !== 6){ errEl.textContent = 'Enter the 6-digit code.'; errEl.classList.remove('hidden'); return; }
+  if(!gateConfirmationResult){
+    errEl.textContent = 'Session expired. Go back and request a new code.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if(!USE_API){ errEl.textContent = 'Backend not connected — see config.js. Login needs a server.'; errEl.classList.remove('hidden'); return; }
 
   const btn = document.getElementById('gateVerifyOtpBtn');
   btn.disabled = true; btn.textContent = 'Verifying…';
   try{
-    const r = await fetch(API_BASE + '/api/auth/verify-otp', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({phone:lastOtpPhone, code})});
-    const data = await r.json();
-    if(!r.ok){ errEl.textContent = data.error || 'Incorrect code.'; errEl.classList.remove('hidden'); }
-    else{
+    const cred = await gateConfirmationResult.confirm(code);
+    const idToken = await cred.user.getIdToken();
+    const r = await fetch(API_BASE + '/api/auth/firebase-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    let data = {};
+    try{ data = await r.json(); }catch(_){}
+    if(!r.ok){
+      if(r.status === 503){
+        errEl.textContent = data.error || 'Phone login is not configured on the server yet (FIREBASE_SERVICE_ACCOUNT_JSON).';
+      } else {
+        errEl.textContent = data.error || 'Could not complete login.';
+      }
+      errEl.classList.remove('hidden');
+    } else {
       AuthGate.setSession(data.token, data.user);
+      gateConfirmationResult = null;
+      clearGateRecaptcha();
       hideAuthGate();
       await initApp();
       toast('Welcome to Maalwala.');
     }
-  }catch(e){ errEl.textContent = 'Could not reach the server.'; errEl.classList.remove('hidden'); }
+  }catch(e){
+    errEl.textContent = friendlyFirebaseError(e);
+    errEl.classList.remove('hidden');
+  }
   btn.disabled = false; btn.textContent = 'Verify & Continue';
 });
 
