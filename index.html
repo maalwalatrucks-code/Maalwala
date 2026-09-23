@@ -62,13 +62,14 @@
     <div class="auth-card" id="gateLoginCard">
       <div class="brand" style="justify-content:center; margin-bottom:6px;"><span class="brand-mark">माल</span><span class="brand-word">Maalwala</span></div>
       <h1 class="auth-title">Login or Sign Up</h1>
-      <p class="auth-sub">Enter your mobile number — we'll text you a one-time code on WhatsApp. No password to remember.</p>
+      <p class="auth-sub">Enter your mobile number — we'll text you a one-time code by SMS. No password to remember.</p>
       <div class="auth-error hidden" id="gatePhoneError"></div>
 
       <div id="gatePhoneStep">
         <label>Mobile number
           <input type="tel" id="gatePhoneInput" placeholder="98765 43210" maxlength="10">
         </label>
+        <div id="gateRecaptcha"></div>
         <button class="btn btn-primary btn-lg full" id="gateSendOtpBtn">Send OTP</button>
       </div>
 
@@ -966,6 +967,8 @@ NL02AA0526</textarea>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 </body>
