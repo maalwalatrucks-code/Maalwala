@@ -2140,9 +2140,9 @@ const I18N = {
   hi: {
     navHome:'होम', navLoads:'लोड खोजें', navTrucks:'ट्रक खोजें', navFleet:'फ्लीट',
     navBookings:'बुकिंग', navBroadcast:'प्रसारण', navMore:'और', navPost:'पोस्ट',
-    heroSub:'भारतीय ट्रांसपोर्टर, ब्रोकर और कंसाइनर के लिए मुफ़्त लोड व ट्रक बोर्ड — WhatsApp ग्रुप पर एक टैप प्रसारण और योग्य बुकिंग के लिए वैकल्पिक एस्क्रो भुगतान।',
+    heroSub:'भारतीय ट्रांसपोर्टर, ब्रोकर और कंसाइनर के लिए लोड और ट्रक मार्केटप्लेस — WhatsApp ग्रुप पर एक टैप प्रसारण और योग्य बुकिंग के लिए वैकल्पिक एस्क्रो भुगतान।',
     heroTrust:'योग्य बुकिंग के लिए एस्क्रो उपलब्ध होने पर · एडवांस से पहले पहचान, RC और ज़रूरी दस्तावेज़ जाँचें',
-    agHeroSub:'ब्रोकर और फ्लीट के लिए मुफ़्त लोड व ट्रक बोर्ड — लोड पोस्ट करें, ट्रक खोजें, फ्लीट ट्रैक करें, WhatsApp पर प्रसारण करें। योग्य बुकिंग के लिए, सेटअप होने पर वैकल्पिक एस्क्रो भुगतान उपलब्ध है। एडवांस से पहले पहचान, RC और ज़रूरी दस्तावेज़ जाँचें।',
+    agHeroSub:'ब्रोकर और फ्लीट के लिए लोड और ट्रक मार्केटप्लेस — लोड पोस्ट करें, ट्रक खोजें, फ्लीट ट्रैक करें, WhatsApp पर प्रसारण करें। योग्य बुकिंग के लिए, सेटअप होने पर वैकल्पिक एस्क्रो भुगतान उपलब्ध है। एडवांस से पहले पहचान, RC और ज़रूरी दस्तावेज़ जाँचें।',
     ctaPostLoad:'+ लोड पोस्ट करें', ctaPostTruck:'+ ट्रक उपलब्धता', ctaFindTrucks:'ट्रक खोजें',
     emptyBoardLead:'इस लेन पर पहले बनें — लोड या ट्रक पोस्ट करें और अपने ग्रुप पर भेजें।',
     emptyLoads:'अभी कोई लोड नहीं। इस लेन पर पहले पोस्ट करें।',
@@ -2469,7 +2469,7 @@ function updateGateAuthMode(){
   document.getElementById('gateBusinessNameLabel').classList.toggle('hidden', !signup);
   document.getElementById('gateBusinessName').required = signup;
   document.getElementById('gatePasswordInput').autocomplete = signup ? 'new-password' : 'current-password';
-  document.getElementById('gateAuthSubtitle').textContent = signup ? 'Create a free Maalwala account with your email and a password.' : 'Sign in with your email and password. Create a free account if you are new.';
+  document.getElementById('gateAuthSubtitle').textContent = signup ? 'Create a Maalwala account with your email and a password.' : 'Sign in with your email and password. Create an account if you are new.';
   document.getElementById('gateEmailSubmitBtn').textContent = signup ? 'Create Account' : 'Sign In';
   document.getElementById('gateAuthModePrompt').textContent = signup ? 'Already have an account?' : 'Need an account?';
   document.getElementById('gateAuthModeToggle').textContent = signup ? 'Sign in' : 'Create account';
