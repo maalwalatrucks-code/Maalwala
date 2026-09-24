@@ -26,7 +26,7 @@
   <section class="ag-hero">
     <p class="eyebrow">India's Load &amp; Fleet Marketplace</p>
     <h1 class="ag-hero-title">One platform for every load,<br>every truck, every fleet.</h1>
-    <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify identity, RC &amp; relevant documents before advances.</p>
+    <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Optional escrow payments are available for eligible bookings. Verify identity, RC &amp; relevant documents before advances.</p>
     <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Email</button>
   </section>
 
@@ -188,12 +188,12 @@
     <div class="hero-inner">
       <p class="eyebrow">Ab har truck ko milega maal</p>
       <h1 class="hero-title">Post a load.<br>The road finds a truck.</h1>
-      <p class="hero-sub" data-i18n="heroSub">Free load &amp; truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast. Freight is settled directly between parties (UPI / NEFT / cash).</p>
+      <p class="hero-sub" data-i18n="heroSub">Free load &amp; truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast and optional escrow payments for eligible bookings.</p>
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" id="heroPostLoad" data-i18n="ctaPostLoad">+ Post a Load</button>
         <button class="btn btn-ghost btn-lg" id="heroPostTruck" data-i18n="ctaPostTruck">+ Post Truck Availability</button>
       </div>
-      <p class="hero-trust-line" data-i18n="heroTrust">Verify identity, RC &amp; relevant documents before advances · Parties settle freight off-platform</p>
+      <p class="hero-trust-line" data-i18n="heroTrust">Optional escrow for eligible bookings · Verify identity, RC &amp; relevant documents before advances</p>
       <div class="hero-stats" id="heroStats">
         <div class="hero-stat" id="statLoadsWrap"><strong id="statLoads" data-count="0">—</strong><span data-i18n="statLoads">live loads</span></div>
         <div class="hero-stat" id="statTrucksWrap"><strong id="statTrucks" data-count="0">—</strong><span data-i18n="statTrucks">trucks available</span></div>
@@ -218,7 +218,7 @@
       <div class="trust-head">
         <p class="trust-eyebrow">Why transporters trust Maalwala</p>
         <h2 class="section-title">A free board, open to every fleet owner, broker and shipper in India</h2>
-        <p class="trust-statement">Maalwala is a free load &amp; truck board with WhatsApp broadcast — post a load, list a truck, match locally, and settle freight directly with the other party. Founded by <b>Rahul Roadways, Hazira</b> in <b>2010</b>, and led today by proprietors and managers with <b>25+ years</b> of hands-on experience in the transport industry. Rahul Roadways operates across <b>5 cities in India</b> and has served <b>several lakh customers</b> over the years — and by helping fellow transporters load their trucks in exchange for brokerage, the business today effectively manages a combined fleet of <b>50+ trailers</b>. Built as an open marketplace for the whole industry, not just one company's fleet.</p>
+        <p class="trust-statement">Maalwala is a free load &amp; truck board with WhatsApp broadcast and optional escrow payments for eligible bookings; if escrow is unavailable, users arrange settlement directly. Founded by <b>Rahul Roadways, Hazira</b> in <b>2010</b>, and led today by proprietors and managers with <b>25+ years</b> of hands-on experience in the transport industry. Rahul Roadways operates across <b>5 cities in India</b> and has served <b>several lakh customers</b> over the years — and by helping fellow transporters load their trucks in exchange for brokerage, the business today effectively manages a combined fleet of <b>50+ trailers</b>. Built as an open marketplace for the whole industry, not just one company's fleet.</p>
       </div>
 
       <div class="trust-stats">
@@ -622,7 +622,7 @@ NL02AA0526</textarea>
 <!-- ===== BOOKINGS ===== -->
 <section class="screen hidden" id="screen-bookings">
   <div class="screen-header"><h1>Bookings</h1></div>
-  <p class="screen-intro">Every load/truck you've booked or been booked for. Freight is settled directly between you and the other party. If Razorpay is used, it is only for a booking confirmation / platform fee — not freight escrow.</p>
+  <p class="screen-intro">For eligible bookings, Maalwala offers optional escrow payments when payment and payout services are configured and escrow appears at checkout. Review the fees and hold/release terms there. If escrow is unavailable, arrange settlement directly with the other party.</p>
   <div id="bookingsList" class="card-list"></div>
 </section>
 
@@ -728,7 +728,7 @@ NL02AA0526</textarea>
     <p>We do not verify the identity, tax registration (if any), vehicle documents, insurance, or creditworthiness of any user. Before agreeing to any load or truck, verify the other party yourself — check ID, vehicle RC, any applicable tax documents, and get terms in writing.</p>
 
     <h3>6. Payments</h3>
-    <p>Freight charges, advances, and balances are negotiated and settled directly between the shipper and transporter (UPI, NEFT/RTGS/IMPS, cash, or cheque) — outside the platform. Maalwala does not hold freight in escrow. If Razorpay (or a similar processor) is enabled, it may be used only for a booking confirmation or optional platform fee, which will be labelled clearly at checkout — never as freight escrow. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for common ways users settle freight.</p>
+    <p>For eligible bookings, Maalwala may offer an optional escrow payment flow when payment and payout services are configured. If escrow is shown at checkout, review its fees, hold and release conditions, and provider terms before paying. If escrow is not offered, users arrange freight settlement directly. We are not responsible for payment disputes, delays, non-payment, or fraud between users. See our <a href="#" data-goto="payment">Payment Options</a> page for details.</p>
 
     <h3>7. WhatsApp broadcast</h3>
     <p>If you add a WhatsApp group or connect an opted-in contact list, you confirm you have the right to send messages there. Contacts who opt in via our official WhatsApp integration can leave at any time by replying STOP. Don't use the broadcast feature to spam groups you don't have permission to message.</p>
@@ -754,7 +754,7 @@ NL02AA0526</textarea>
 <section class="screen hidden" id="screen-payment">
   <div class="screen-header"><h1>Payment Options</h1></div>
   <div class="legal-notice">
-    Maalwala is a listing &amp; matchmaking board — freight is settled directly between shipper and transporter (UPI / NEFT / cash). Any Razorpay checkout in the app is only for a booking confirmation or platform fee, not freight escrow. Here's how most users settle freight, and a few safety habits.
+    Maalwala is a listing &amp; matchmaking board with optional escrow payments for eligible bookings when payment and payout services are configured. If the escrow option appears at checkout, review its fees and hold/release terms there. If escrow is not offered, the shipper and transporter arrange payment directly.
   </div>
 
   <div class="payment-grid">
@@ -911,7 +911,7 @@ NL02AA0526</textarea>
       </div>
       <label>Loading date<input required type="date" id="loadDate"></label>
       <label class="checkbox-row"><input type="checkbox" id="loadBroadcast" checked> Broadcast this load to my linked WhatsApp groups after posting</label>
-            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I understand freight is settled directly with the transporter (UPI / NEFT / cash) off-platform, and I will verify identity, RC, and relevant documents before paying any advance. Maalwala does not hold freight in escrow.</label>
+            <label class="checkbox-row"><input type="checkbox" id="loadTermsAccept" required> I understand optional escrow is available only for eligible bookings when shown at checkout; otherwise, freight is settled directly between the parties. I will verify identity, RC, and relevant documents before paying any advance.</label>
       <button type="submit" class="btn btn-primary btn-lg full">Post Load</button>
     </form>
   </div>
@@ -978,7 +978,7 @@ NL02AA0526</textarea>
       <div id="bookingPayoutRow"></div>
       <label class="checkbox-row">
         <input type="checkbox" id="bookingTermsAccept" required>
-        I understand freight is settled directly between us (UPI / NEFT / cash). Any online payment here is only a booking confirmation / platform fee if shown — not freight escrow. I will verify identity, RC, and relevant documents before advances.
+        I understand that optional escrow is available only for eligible bookings when shown at checkout. I will review the fees and hold/release terms there. If escrow is unavailable, we will arrange settlement directly. I will verify identity, RC, and relevant documents before advances.
       </label>
       <button type="submit" class="btn btn-primary btn-lg full">Confirm Booking</button>
       <p class="hint" id="bookingResult"></p>
