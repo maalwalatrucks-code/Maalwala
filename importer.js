@@ -35,15 +35,20 @@
       const m=value.replace(/^(?:load|लोड)\s*[:：-]?\s*/i,'').match(/^(.*?)\s+(?:to|से)\s+(.+?)\s*$/i);
       return m?{from:m[1].replace(/[.\s,;:-]+$/g,'').trim(),to:m[2].replace(/[.\s,;:-]+$/g,'').trim()}:null;
     };
+    const truckTypeFrom=value=>/3\s*xl|semi/i.test(value)?'Semi trailer':/hbt|high\s*bed|hyva/i.test(value)?'HBT trailer':/trailer|trailor/i.test(value)?'Trailer':'';
     const spec=/(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)(?:\s*[x×*]\s*|\s*=\s*)(\d+(?:\.\d+)?)\s*(?:mt|tons?|tonnes?)/ig;
     for(const line of lines){
       spec.lastIndex=0; const matches=[...line.matchAll(spec)];
-      if(!matches.length){if(routeParts(line)) pendingRoute=line; continue;}
+      if(!matches.length){
+        if(routeParts(line)) pendingRoute=line;
+        else if(drafts.length){const type=truckTypeFrom(line);if(type)drafts[drafts.length-1].truckType=type;}
+        continue;
+      }
       for(const m of matches){
         const route=routeParts(line.slice(0,m.index))||routeParts(pendingRoute);
         if(!route) continue;
         const tail=line.slice(m.index+m[0].length).toLowerCase();
-        const truckType=/3\s*xl|semi/.test(tail)?'Semi trailer':/hbt|high\s*bed|hyva/.test(tail)?'HBT trailer':/trailer|trailor/.test(tail)?'Trailer':'Not specified';
+        const truckType=truckTypeFrom(tail)||'Not specified';
         drafts.push({...route,weight:Number(m[4]),truckType}); pendingRoute='';
       }
     }
