@@ -27,7 +27,7 @@
     <p class="eyebrow">India's Load &amp; Fleet Marketplace</p>
     <h1 class="ag-hero-title">One platform for every load,<br>every truck, every fleet.</h1>
     <p class="ag-hero-sub" data-i18n="agHeroSub">Free load &amp; truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Parties settle freight directly (UPI / NEFT / cash). Verify identity, RC &amp; relevant documents before advances.</p>
-    <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Mobile</button>
+    <button class="btn btn-primary btn-lg" id="gateGetStartedBtn">Get Started — Login with Email</button>
   </section>
 
   <!-- Public preview: keep route activity visible before OTP login. -->
@@ -68,10 +68,27 @@
     <div class="auth-card" id="gateLoginCard">
       <div class="brand brand-on-light" style="justify-content:center; margin-bottom:6px;"><span class="brand-lockup"><span class="brand-mark">माल</span><span class="brand-word">wala</span></span></div>
       <h1 class="auth-title">Login or Sign Up</h1>
-      <p class="auth-sub">Enter your mobile number — we'll text you a one-time code by SMS. No password to remember.</p>
-      <div class="auth-error hidden" id="gatePhoneError"></div>
+      <p class="auth-sub" id="gateAuthSubtitle">Sign in with your email and password. New to Maalwala? Create a free account.</p>
+      <div class="auth-error hidden" id="gateAuthError"></div>
 
-      <div id="gatePhoneStep">
+      <form id="gateEmailForm">
+        <label id="gateBusinessNameLabel" class="hidden">Business name
+          <input type="text" id="gateBusinessName" autocomplete="organization" maxlength="100" placeholder="Your business name">
+        </label>
+        <label>Email address
+          <input type="email" id="gateEmailInput" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input type="password" id="gatePasswordInput" autocomplete="current-password" minlength="6" maxlength="128" required placeholder="At least 6 characters">
+        </label>
+        <button class="btn btn-primary btn-lg full" id="gateEmailSubmitBtn" type="submit">Sign In</button>
+      </form>
+      <p class="hint" style="text-align:center; margin:12px 0 0;">
+        <span id="gateAuthModePrompt">Need an account?</span>
+        <button class="link-btn" id="gateAuthModeToggle" type="button">Create account</button>
+      </p>
+
+      <div id="gatePhoneStep" class="hidden">
         <label>Mobile number
           <input type="tel" id="gatePhoneInput" placeholder="98765 43210" maxlength="10">
         </label>
