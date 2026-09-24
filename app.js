@@ -2122,9 +2122,9 @@ const I18N = {
   en: {
     navHome:'Home', navLoads:'Find Loads', navTrucks:'Find Trucks', navFleet:'Fleet',
     navBookings:'Bookings', navBroadcast:'Broadcast', navMore:'More', navPost:'Post',
-    heroSub:'Free load & truck board for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast and optional escrow payments for eligible bookings.',
+    heroSub:'Load & truck marketplace for Indian transporters, brokers and consignors — plus one-tap WhatsApp broadcast and optional escrow payments for eligible bookings.',
     heroTrust:'Optional escrow for eligible bookings when enabled · Verify identity, RC & relevant documents before advances',
-    agHeroSub:'Free load & truck board for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Optional escrow payments are available for eligible bookings when configured. Verify identity, RC & relevant documents before advances.',
+    agHeroSub:'Load & truck marketplace for brokers and fleet owners — post a load, find a truck, track your fleet, and broadcast to your WhatsApp groups. Optional escrow payments are available for eligible bookings when configured. Verify identity, RC & relevant documents before advances.',
     ctaPostLoad:'+ Post a Load', ctaPostTruck:'+ Post Truck Availability', ctaFindTrucks:'Find Trucks',
     emptyBoardLead:'Be the first on this lane — post a load or truck and broadcast to your groups.',
     emptyLoads:'No loads on the board yet. Be the first on this lane.',
