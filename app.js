@@ -2461,3 +2461,43 @@ window.addEventListener('resize', ()=>{
 if(!localStorage.getItem('mw_tour_seen')){
   setTimeout(startTour, 1200);
 }
+
+
+let gateAuthMode = 'login';
+function updateGateAuthMode(){
+  const signup = gateAuthMode === 'signup';
+  document.getElementById('gateBusinessNameLabel').classList.toggle('hidden', !signup);
+  document.getElementById('gateBusinessName').required = signup;
+  document.getElementById('gatePasswordInput').autocomplete = signup ? 'new-password' : 'current-password';
+  document.getElementById('gateAuthSubtitle').textContent = signup ? 'Create a free Maalwala account with your email and a password.' : 'Sign in with your email and password. Create a free account if you are new.';
+  document.getElementById('gateEmailSubmitBtn').textContent = signup ? 'Create Account' : 'Sign In';
+  document.getElementById('gateAuthModePrompt').textContent = signup ? 'Already have an account?' : 'Need an account?';
+  document.getElementById('gateAuthModeToggle').textContent = signup ? 'Sign in' : 'Create account';
+  document.getElementById('gateAuthError').classList.add('hidden');
+}
+document.getElementById('gateAuthModeToggle')?.addEventListener('click', ()=>{
+  gateAuthMode = gateAuthMode === 'login' ? 'signup' : 'login'; updateGateAuthMode();
+});
+document.getElementById('gateEmailForm')?.addEventListener('submit', async (event)=>{
+  event.preventDefault();
+  const errorEl = document.getElementById('gateAuthError');
+  const button = document.getElementById('gateEmailSubmitBtn');
+  const modeToggle = document.getElementById('gateAuthModeToggle');
+  const isSignup = gateAuthMode === 'signup';
+  errorEl.classList.add('hidden');
+  if(!USE_API){ errorEl.textContent = 'Login service is unavailable. Please try again later.'; errorEl.classList.remove('hidden'); return; }
+  const email = document.getElementById('gateEmailInput').value.trim().toLowerCase();
+  const password = document.getElementById('gatePasswordInput').value;
+  const businessName = document.getElementById('gateBusinessName').value.trim();
+  button.disabled = true; modeToggle.disabled = true;
+  button.textContent = isSignup ? 'Creating account…' : 'Signing in…';
+  try{
+    const data = isSignup ? await Auth.signup(businessName, email, password) : await Auth.login(email, password);
+    AuthGate.setSession(data.token, data.user); hideAuthGate(); await initApp();
+    toast(isSignup ? 'Your account is ready.' : 'Welcome to Maalwala.');
+  }catch(e){
+    errorEl.textContent = e.message || 'Could not sign in. Please try again.'; errorEl.classList.remove('hidden');
+  }
+  button.disabled = false; modeToggle.disabled = false;
+  button.textContent = isSignup ? 'Create Account' : 'Sign In';
+});
