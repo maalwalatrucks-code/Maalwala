@@ -2167,7 +2167,7 @@ function applyI18n(){
     if(val) el.textContent = val;
   });
   const btn = document.getElementById('langToggle');
-  if(btn) btn.textContent = currentLang === 'en' ? 'हिं' : 'EN';
+  if(btn) btn.textContent = 'Language';
   localStorage.setItem('mw_lang', currentLang);
 }
 function toggleLang(){
