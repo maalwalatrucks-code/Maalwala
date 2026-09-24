@@ -130,11 +130,11 @@
       <button class="nav-tab" data-screen="bookings" data-i18n="navBookings">Bookings</button>
       <button class="nav-tab" data-screen="broadcast" data-tour="nav-broadcast" data-i18n="navBroadcast">Broadcast</button>
       <div class="nav-dropdown" id="businessDropdown">
-        <button class="nav-tab nav-dropdown-trigger" id="businessDropdownBtn" data-tour="nav-business" data-i18n="navMore">More</button>
+        <button class="nav-tab nav-dropdown-trigger" id="businessDropdownBtn" data-tour="nav-business">My Business</button>
         <div class="nav-dropdown-menu" id="businessDropdownMenu">
-          <button class="nav-dropdown-item" data-screen="profile" data-tour="nav-profile">👤 Profile</button>
-          <button class="nav-dropdown-item" data-screen="records" data-tour="nav-records">📒 Records</button>
-          <button class="nav-dropdown-item" data-screen="fastag">Services</button>
+          
+          <button class="nav-dropdown-item" data-screen="records" data-tour="nav-records">📒 Records &amp; Reports</button>
+          <button class="nav-dropdown-item" data-screen="fastag">FASTag &amp; Services</button>
         </div>
       </div>
     </nav>
@@ -144,6 +144,7 @@
     <div class="nav-dropdown" id="accountDropdown">
       <button class="btn btn-ghost btn-account" id="accountDropdownBtn">👤 <span id="accountLabel">Account</span> <span class="caret">▾</span></button>
       <div class="nav-dropdown-menu nav-dropdown-menu-right" id="accountDropdownMenu">
+        <button class="nav-dropdown-item" data-screen="profile" data-tour="nav-profile">👤 My Profile</button>
         <button class="nav-dropdown-item" id="accountSignOutBtn">Sign Out</button>
       </div>
     </div>
@@ -165,10 +166,10 @@
   <button class="nav-tab" data-screen="fleet" data-i18n="navFleet">Fleet</button>
   <button class="nav-tab" data-screen="bookings" data-i18n="navBookings">Bookings</button>
   <button class="nav-tab" data-screen="broadcast" data-i18n="navBroadcast">Broadcast</button>
-  <div class="drawer-section-label">More</div>
-  <button class="nav-tab drawer-indent" data-screen="profile">👤 Profile</button>
-  <button class="nav-tab drawer-indent" data-screen="records">📒 Records</button>
-  <button class="nav-tab drawer-indent" data-screen="fastag">Services</button>
+  <div class="drawer-section-label">Business tools</div>
+  <button class="nav-tab drawer-indent" data-screen="profile">👤 My Profile</button>
+  <button class="nav-tab drawer-indent" data-screen="records">📒 Records &amp; Reports</button>
+  <button class="nav-tab drawer-indent" data-screen="fastag">FASTag &amp; Services</button>
   <div class="drawer-section-label">Account</div>
   <button class="nav-tab drawer-indent" id="drawerSignOutBtn">Sign Out</button>
   <button class="btn btn-primary full" id="postLoadBtnDrawer" style="margin-top:14px;" data-i18n="ctaPostLoad">+ Post a Load</button>
