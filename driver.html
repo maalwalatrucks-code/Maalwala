@@ -66,7 +66,7 @@
 
     <div class="status-ring" id="statusRing">📍</div>
     <div class="status-text" id="statusText">Not sharing</div>
-    <div class="status-detail" id="statusDetail">Tap the button below to start</div>
+    <div class="status-detail" id="statusDetail">Tap the button below to start.</div>
 
     <button class="btn-start" id="toggleBtn">Start Sharing Location</button>
     <p class="note">Your location is only sent while this page is open and sharing is on. Closing the tab or tapping "Stop" ends it immediately. Uses your phone's GPS and a small amount of mobile data every 30 seconds.</p>
@@ -135,7 +135,7 @@ function stopSharing(){
   clearInterval(intervalId);
   ring.classList.remove('live'); ring.textContent = '📍';
   statusText.textContent = 'Not sharing';
-  statusDetail.textContent = 'Tap the button below to start';
+  statusDetail.textContent = 'Tap the button below to start.';
   toggleBtn.textContent = 'Start Sharing Location';
   toggleBtn.className = 'btn-start';
   truckIdInput.disabled = false;
